@@ -70,7 +70,7 @@ _____________________________
 *○ Ouvert*
 *● Bienvenue | .bienvenue off*
 
-> © D'H7 : Tergene`;
+> © D'H7 | Tergene`;
 
 // Image that must be sent with every message except hidetag
 const IMAGE_URL = 'https://res.cloudinary.com/dckwrqrur/image/upload/v1756270884/tf-stream-url/77e5009ff1d7c9cd0cbc8a47c6a15caf_0_xokhwz.jpg';
@@ -278,7 +278,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
             const meta = await sock.groupMetadata(jid);
             const ids = meta.participants.map(p => p.id);
             const list = ids.map((id,i) => `${i===0 ? '●' : '○'}@${id.split('@')[0]}`).join('\n');
-            const out = `*Santana*\n${list}\n>》》 》》》 》》D'H7:Tergene`;
+            const out = `*Adam_D'H7*\n${list}\n>》》 》》》 》》D'H7:Tergene`;
             await sendWithImage(jid, { text: out, mentions: ids });
           } catch (e) {
             console.error(`[${sessionId}] tagall error`, e);
@@ -341,7 +341,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
                 await sendWithImage(jid, "*Adam_D'H7*\n ne peut pas effacer ce message");
               }
             } else {
-              await sendWithImage(jid, "*Adam_D'H7*\n Répond un message avec .del pour le supprimer");
+              await sendWithImage(jid, "*Adam_D'H7*\n Reply un message avec .del pour le supprimer");
             }
           }
           break;
@@ -417,9 +417,9 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
         case 'kick': {
           if (!isGroup) { await sendWithImage(jid, "*Adam_D'H7*\nKick est que pour groupes"); break; }
           const senderKick = msg.key.participant || msg.key.remoteJid;
-          if (!(await isGroupAdmin(jid, senderKick))) { await sendWithImage(jid, "*Adam_D'H7*\nOu pa gen dwa admin pou itilize kick."); break; }
+          if (!(await isGroupAdmin(jid, senderKick))) { await sendWithImage(jid, "*Adam_D'H7*\n faut être admins pour suprime quelqu'un"); break; }
           const targetsKick = resolveTargetIds({ jid, m, args });
-          if (!targetsKick.length) { await sendWithImage(jid, "*Santana*\n Reply ou tag l'utilisateur que tu kick avek kick eg kick @user"); break; }
+          if (!targetsKick.length) { await sendWithImage(jid, "*Santana*\n Reply ou tag l'utilisateur que tu veux suprime avec kick eg kick @user"); break; }
           for (const t of targetsKick) {
             try { await sock.groupParticipantsUpdate(jid, [t], 'remove'); await sleep(500); } catch (e) { console.error(`[${sessionId}] kick error ${t}`, e); await sendWithImage(jid, `*Adam_D'H7*\nPa kapab kick ${t.split('@')[0]}`); }
           }
@@ -429,7 +429,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
         case 'add': {
           if (!isGroup) { await sendWithImage(jid, "*Adam_D'H7*\n Add c'est fait rien que pour les groupes"); break; }
           const senderAdd = msg.key.participant || msg.key.remoteJid;
-          if (!(await isGroupAdmin(jid, senderAdd))) { await sendWithImage(jid, "*Santana*\nTu n'est pas un admin"); break; }
+          if (!(await isGroupAdmin(jid, senderAdd))) { await sendWithImage(jid, "*Adam_D'H7*\nTu n'est pas un admin"); break; }
           const targetsAdd = resolveTargetIds({ jid, m, args });
           if (!targetsAdd.length) { await sendWithImage(jid, "*Adam_D'H7*\n les chiffres doit être collé eg +50935492574"); break; }
           for (const t of targetsAdd) {
@@ -441,7 +441,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
         case 'promote': {
           if (!isGroup) { await sendWithImage(jid, "*Adam_D'H7*\nPromote c'est un commandes pour groupes"); break; }
           const senderProm = msg.key.participant || msg.key.remoteJid;
-          if (!(await isGroupAdmin(jid, senderProm))) { await sendWithImage(jid, "*Santana*\nTu n'est pas admin"); break; }
+          if (!(await isGroupAdmin(jid, senderProm))) { await sendWithImage(jid, "*Adam_D'H7*\nTu n'est pas admin"); break; }
           const targetsProm = resolveTargetIds({ jid, m, args });
           if (!targetsProm.length) { await sendWithImage(jid, "*Adam_D'H7*\nReply ou tag l'utilisateur eg promote @user"); break; }
           for (const t of targetsProm) {
@@ -466,7 +466,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
         case 'ferme': {
           if (!isGroup) { await sendWithImage(jid, "*Adam_D'H7*\n rien que pour groupes"); break; }
           const senderFerme = msg.key.participant || msg.key.remoteJid;
-          if (!(await isGroupAdmin(jid, senderFerme))) { await sendWithImage(jid, "*Santana*\n t'es pas un admin"); break; }
+          if (!(await isGroupAdmin(jid, senderFerme))) { await sendWithImage(jid, "*Adam_D'H7*\n t'es pas un admin"); break; }
           try { await sock.groupSettingUpdate(jid, 'announcement'); await sendWithImage(jid, "*Adam_D'H7*\n c'est fermé \"admins only\""); } catch(e){ console.error(`[${sessionId}] ferme error`, e); await sendWithImage(jid, "*Adam_D'H7*\nPa kapab mete gwoup la nan fermét."); }
           break;
         }
@@ -510,7 +510,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
       for (const p of (update.participants || [])) {
         const userJid = typeof p === 'string' ? p : p?.id;
         if (!userJid) continue;
-        const txt = `Bienvenue a toi @${userJid.split('@')[0]} dans ${groupName}`;
+        const txt = `Bienvenue @${userJid.split('@')[0]} dans ${groupName}`;
         // sendWithImage will fallback to text if image fetch fails
         await sendWithImage(gid, { text: txt, mentions: [userJid] });
       }
