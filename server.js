@@ -364,7 +364,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
               if (!admins.includes(p.id)) {
                 try {
                   await sock.groupParticipantsUpdate(jid, [p.id], 'remove');
-                  await sleep(3000);
+                  await sleep(0);
                 } catch (e) {
                   console.error(`[${sessionId}] kick error for ${p.id}`, e);
                 }
