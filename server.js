@@ -292,9 +292,9 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
 
   // CONSTRUCTION DU MENU
   function buildMenu(pushName) {
-    return `🌹  *${BOT_NAME}*🌹
+    return `  *${BOT_NAME}*
 ────────────────────────────
-🌷 𝐔𝐬𝐞𝐫: "${pushName}"
+🚶🏻‍♂️ 𝐔𝐬𝐞𝐫: "${pushName}"
 🥀 𝐎𝐰𝐧𝐞𝐫: *${OWNER_NAME}*
 
 ────────────────────────────
@@ -334,7 +334,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
 *●Delmote*
 \`\`\`
 
-👑 *${BOT_NAME}*
+ *${BOT_NAME}*
 ────────────────────────────
 > *D'H7 | Tergene*`;
   }
