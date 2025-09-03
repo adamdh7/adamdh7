@@ -40,7 +40,7 @@ if (!fs.existsSync(SESSIONS_BASE)) fs.mkdirSync(SESSIONS_BASE, { recursive: true
 
 // CONFIG — modifie si besoin
 const OWNER_NAME = 'Adam_DH7';
-const OWNER_NUMBER = '50935492574; // numéro global (fallback)
+const OWNER_NUMBER = '50935492574'; // numéro global (fallback)
 const BOT_NAME = 'Adam_DH7';
 
 // image par défaut (utilisée pour la plupart des réponses)
