@@ -289,55 +289,54 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
       console.error('connection.update handler error', err);
     }
   });
+  
+function buildMenu(pushName = 'Utilisateur') {
+  return `*○Menu*\n\n` +
+`  *${BOT_NAME}*\n` +
+`────────────────────────────\n` +
+`🚶🏻‍♂️ 𝐔𝐬𝐞𝐫: "${pushName}"\n` +
+`🥀 𝐎𝐰𝐧𝐞𝐫: *${OWNER_NAME}*\n\n` +
+`────────────────────────────\n` +
+`📂 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐞𝐬:\n` +
+`────────────────────────────\n\n` +
 
-  // CONSTRUCTION DU MENU
-  function buildMenu(pushName) {
-    return `  *${BOT_NAME}*
-────────────────────────────
-🚶🏻‍♂️ 𝐔𝐬𝐞𝐫: "${pushName}"
-🥀 𝐎𝐰𝐧𝐞𝐫: *${OWNER_NAME}*
+`🔱 *Général*\n` +
+`\`\`\`\n` +
+`*● Menu*\n` +
+`*○ Owner*\n` +
+`*● Qr [texte]*\n` +
+`\`\`\`\n\n` +
 
-────────────────────────────
-📂 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐞𝐬:
-────────────────────────────
+`🔱 *Groupe*\n` +
+`\`\`\`\n` +
+`*○ Lien*\n` +
+`*● Tagall*\n` +
+`*○ Hidetag*\n` +
+`*● Kick*\n` +
+`*○ Add*\n` +
+`*● Promote*\n` +
+`*○ Demote*\n` +
+`*● Kickall*\n` +
+`*○ Ferme*\n` +
+`*● Ouvert*\n` +
+`*○ Bienvenue [off]*\n` +
+`\`\`\`\n\n` +
 
-🔱 *Général*
-\`\`\`
-*●Menu*
-*○Owner*
-*●Qr [texte]*
-\`\`\`
+`🔱 *Modération*\n` +
+`\`\`\`\n` +
+`*● Nolien*\n` +
+`*○ Nolien2*\n` +
+`*● Kickall*\n` +
+`*○ Kick*\n` +
+`*● Add*\n` +
+`*○ Promote*\n` +
+`*● Delmote*\n` +
+`\`\`\`\n\n` +
 
-🔱 *Groupe*
-\`\`\`
-*○Lien*
-*●Tagall*
-*○Hidetag*
-*●Kick*
-*○Add*
-*●Promote*
-*○Demote*
-*●Kickall*
-*○Ferme*
-*●Ouvert*
-*○Bienvenue [off]*
-\`\`\`
-
-🔱 *Modération*
-\`\`\`
-*●Nolien*
-*○Nolien2*
-*●Kickall*
-*○Kick*
-*●Add*
-*○Promote*
-*●Delmote*
-\`\`\`
-
- *${BOT_NAME}*
-────────────────────────────
-> *D'H7 | Tergene*`;
-  }
+`  *${BOT_NAME}*\n` +
+`────────────────────────────\n` +
+`> *D'H7 | Tergene*`;
+                                      }
 
   function resolveTargetIds({ jid, m, args }) {
     const ids = [];
