@@ -291,7 +291,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
   });
   
 function buildMenu(pushName = 'Utilisateur') {
-  return `*○Menu*\n\n` +
+  return `*○ Menu*\n\n` +
 `  *${BOT_NAME}*\n` +
 `────────────────────────────\n` +
 `🚶🏻‍♂️ 𝐔𝐬𝐞𝐫: "${pushName}"\n` +
@@ -301,14 +301,11 @@ function buildMenu(pushName = 'Utilisateur') {
 `────────────────────────────\n\n` +
 
 `🔱 *Général*\n` +
-`\`\`\`\n` +
 `*● Menu*\n` +
 `*○ Owner*\n` +
-`*● Qr [texte]*\n` +
-`\`\`\`\n\n` +
+`*● Qr [texte]*\n\n` +
 
 `🔱 *Groupe*\n` +
-`\`\`\`\n` +
 `*○ Lien*\n` +
 `*● Tagall*\n` +
 `*○ Hidetag*\n` +
@@ -319,25 +316,21 @@ function buildMenu(pushName = 'Utilisateur') {
 `*● Kickall*\n` +
 `*○ Ferme*\n` +
 `*● Ouvert*\n` +
-`*○ Bienvenue [off]*\n` +
-`\`\`\`\n\n` +
+`*○ Bienvenue [off]*\n\n` +
 
 `🔱 *Modération*\n` +
-`\`\`\`\n` +
 `*● Nolien*\n` +
 `*○ Nolien2*\n` +
 `*● Kickall*\n` +
 `*○ Kick*\n` +
 `*● Add*\n` +
 `*○ Promote*\n` +
-`*● Delmote*\n` +
-`\`\`\`\n\n` +
+`*● Delmote*\n\n` +
 
 `  *${BOT_NAME}*\n` +
 `────────────────────────────\n` +
 `> *D'H7 | Tergene*`;
-                                      }
-
+}
   function resolveTargetIds({ jid, m, args }) {
     const ids = [];
     const ctx = m.extendedTextMessage?.contextInfo || {};
