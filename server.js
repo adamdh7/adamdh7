@@ -302,6 +302,7 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
 
 `🔱 *Général*\n` +
 `*● Menu*\n` +
+`*● Ban*\n` +
 `*○ Owner*\n` +
 `*○ Signale*\n` +
 `*● Qr [texte]*\n\n` +
@@ -505,23 +506,29 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
           }
           break;
 
-        case 'ban':
-          if (!isGroup) return await quickReply(jid, 'Seul pour groupe.');
-          if (!(isAdmin || isOwner)) return await quickReply(jid, 'Seul owner peut bannir le groupe.');
+       case 'interdire':
+        case 'ban': {
+          if (!isOwner) return await reply('Seul le propriétaire peut interdire un utilisateur.');
+          const target = args[0] ? args[0].replace(/[^0-9+]/g, '') : (msg.message.extendedTextMessage && msg.message.extendedTextMessage.contextInfo && msg.message.extendedTextMessage.contextInfo.participant);
+          if (!target) return await reply('Usage: .interdire <numero>');
+          const jid = target.includes('@') ? jidNormalizedUser(target) : (target + '@s.whatsapp.net');
+          if (!config.bannedUsers.includes(jid)) config.bannedUsers.push(jid);
+          saveConfig(config);
+          // try to kick from group if message from group
           try {
-            const meta = await sock.groupMetadata(jid);
-            const participants = meta.participants.map(p => p.id);
-            const botId = sessionObj.botId || (sock.user && (sock.user.id || sock.user.jid)) || null;
-            for (const p of participants) {
-              if (p === botId) continue;
-              try { await sock.groupParticipantsUpdate(jid, [p], 'remove'); await sleep(200); } catch(e){ console.warn('ban remove error', p, e); }
+            if (from && from.endsWith('@g.us')) {
+              await sock.groupParticipantsUpdate(from, [jid], 'remove');
+              await reply(`Utilisateur ${jid} interdit et expulsé du groupe.`);
+            } else {
+              await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction.`);
             }
-            try { await sock.groupLeave(jid); } catch(e){ console.warn('ban leave error', e); }
           } catch (e) {
-            console.error('ban error', e);
-            await quickReply(jid, 'Erreur lors du bannissement du groupe.');
+            console.error('Failed to ban user', e);
+            await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction (impossible d'expulser: vérifie que le bot est admin).`);
           }
           break;
+        }
+
 
         case 'public':
           global.mode = 'public';
