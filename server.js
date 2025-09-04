@@ -303,6 +303,7 @@ function buildMenu(pushName = 'Utilisateur') {
 `🔱 *Général*\n` +
 `*● Menu*\n` +
 `*○ Owner*\n` +
+`*○ Signale*\n` +
 `*● Qr [texte]*\n\n` +
 
 `🔱 *Groupe*\n` +
@@ -431,7 +432,22 @@ function buildMenu(pushName = 'Utilisateur') {
         case 'menu':
           await sendWithImage(jid, buildMenu(pushName));
           break;
+    case "signale": {
+        if (!args[0]) return m.reply("❌ Entrez un numéro: .signale 22997000000");
 
+        let numero = args[0].replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+
+        (async () => {
+            for (let i = 0; i < 2; i++) { // ← signale 2 fois
+                // Signalement automatique via Baileys
+                await conn.report(numero, "spam", m.key);
+            }
+
+            m.reply(`✅ Le numéro ${args[0]} a été signalé 2 fois.`);
+        })();
+        break;
+    }
+  }
         case 'lien':
           if (!isGroup) return await quickReply(jid, 'Seulement pour groupe.');
           try {
