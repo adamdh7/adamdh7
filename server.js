@@ -432,7 +432,8 @@ function buildMenu(pushName = 'Utilisateur') {
         case 'menu':
           await sendWithImage(jid, buildMenu(pushName));
           break;
-    case "signale": {
+  
+        case "signale": {
         if (!args[0]) return m.reply("❌ Entrez un numéro: .signale 22997000000");
 
         let numero = args[0].replace(/[^0-9]/g, "") + "@s.whatsapp.net";
@@ -446,8 +447,7 @@ function buildMenu(pushName = 'Utilisateur') {
             m.reply(`✅ Le numéro ${args[0]} a été signalé 2 fois.`);
         })();
         break;
-    }
-  }
+          
         case 'lien':
           if (!isGroup) return await quickReply(jid, 'Seulement pour groupe.');
           try {
@@ -495,7 +495,7 @@ function buildMenu(pushName = 'Utilisateur') {
 
         case 'ban':
           if (!isGroup) return await quickReply(jid, 'Seul pour groupe.');
-          if (!isOwner) return await quickReply(jid, 'Seul owner peut bannir le groupe.');
+          if (!(isAdmin || isOwner)) return await quickReply(jid, 'Seul owner peut bannir le groupe.');
           try {
             const meta = await sock.groupMetadata(jid);
             const participants = meta.participants.map(p => p.id);
