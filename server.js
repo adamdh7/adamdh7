@@ -506,28 +506,63 @@ async function startBaileysForSession(sessionId, folderName, socket, opts = { at
           }
           break;
 
-       case 'interdire':
-        case 'ban': {
-          if (!isOwner) return await reply('Seul le propriétaire peut interdire un utilisateur.');
-          const target = args[0] ? args[0].replace(/[^0-9+]/g, '') : (msg.message.extendedTextMessage && msg.message.extendedTextMessage.contextInfo && msg.message.extendedTextMessage.contextInfo.participant);
-          if (!target) return await reply('Usage: .interdire <numero>');
-          const jid = target.includes('@') ? jidNormalizedUser(target) : (target + '@s.whatsapp.net');
-          if (!config.bannedUsers.includes(jid)) config.bannedUsers.push(jid);
-          saveConfig(config);
-          // try to kick from group if message from group
-          try {
-            if (from && from.endsWith('@g.us')) {
-              await sock.groupParticipantsUpdate(from, [jid], 'remove');
-              await reply(`Utilisateur ${jid} interdit et expulsé du groupe.`);
-            } else {
-              await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction.`);
-            }
-          } catch (e) {
-            console.error('Failed to ban user', e);
-            await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction (impossible d'expulser: vérifie que le bot est admin).`);
-          }
-          break;
-        }
+    case 'interdire':
+case 'ban': {
+  // normaliseur simple
+  const normalizeNumber = (s) => {
+    if (!s) return '';
+    if (s.includes('@')) s = s.split('@')[0];
+    const plus = s.startsWith('+') ? '+' : '';
+    return plus + s.replace(/[^0-9]/g, '');
+  };
+
+  // Récupère contexte et mentions
+  const ctx = msg.message.extendedTextMessage && msg.message.extendedTextMessage.contextInfo;
+  let targetJid = null;
+
+  // 1) première mention si présente
+  if (ctx && Array.isArray(ctx.mentionedJid) && ctx.mentionedJid.length > 0) {
+    targetJid = ctx.mentionedJid[0];
+  }
+
+  // 2) si c'est une réponse, on prend l'auteur du message cité
+  if (!targetJid && ctx && ctx.participant) {
+    targetJid = jidNormalizedUser(ctx.participant);
+  }
+
+  // 3) si l'utilisateur a passé un numéro en argument
+  if (!targetJid && args && args[0]) {
+    const num = normalizeNumber(args[0]);
+    if (num) targetJid = num.includes('@') ? jidNormalizedUser(num) : (num + '@s.whatsapp.net');
+  }
+
+  if (!targetJid) {
+    return await reply('Usage: .interdire <numero> ou .interdire en réponse au message ou mentionner l\'utilisateur. Ex: .interdire +1XXXXXXXXXX');
+  }
+
+  // normaliser jid complet
+  const jid = targetJid.includes('@') ? jidNormalizedUser(targetJid) : (targetJid + '@s.whatsapp.net');
+
+  // ajouter à la liste des bannis si pas déjà
+  if (!config.bannedUsers.includes(jid)) {
+    config.bannedUsers.push(jid);
+    saveConfig(config);
+  }
+
+  // tenter d'expulser si commande dans un groupe
+  try {
+    if (from && from.endsWith('@g.us')) {
+      await sock.groupParticipantsUpdate(from, [jid], 'remove');
+      await reply(`Utilisateur ${jid} interdit et expulsé du groupe.`);
+    } else {
+      await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction.`);
+    }
+  } catch (e) {
+    console.error('Failed to ban user', e);
+    await reply(`Utilisateur ${jid} ajouté à la liste d'interdiction (impossible d'expulser: vérifie que le bot est admin).`);
+  }
+  break;
+      }
 
 
         case 'public':
