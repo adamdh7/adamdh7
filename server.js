@@ -683,42 +683,24 @@ case 'ban': {
           break;
         }
 
-case 'kickall':
-  if (!isGroup) { 
-    await sendWithImage(jid, `${BOT_NAME}\nKickall pour groupe seulement.`); 
-    break; 
-  }
-  try {
-    const meta3 = await sock.groupMetadata(jid);
-    const admins = meta3.participants
-      .filter(p => p.admin || p.admin === 'superadmin')
-      .map(p => p.id);
-    const sender = senderId;
 
-    // Se sèlman Owner ki ka fè kickall
-    if (!isOwner) { 
-      await sendWithImage(jid, `${BOT_NAME}\nSe sèlman OWNER ki ka itilize kickall.`); 
-      break; 
-    }
-
-    for (const p of meta3.participants) {
-      // Pa janm sòti Owner ni Admin yo
-      if (!admins.includes(p.id) && p.id !== ownerNumber) {
-        try { 
-          await sock.groupParticipantsUpdate(jid, [p.id], 'remove'); 
-          await sleep(200); 
-        } catch(e) { 
-          console.warn('kick error', p.id, e); 
-        }
-      }
-    }
-
-    await sock.groupUpdateSubject(jid, BOT_NAME);
-  } catch (e) { 
-    console.error('kickall error', e); 
-    await sendWithImage(jid, `${BOT_NAME}\nErreur kickall.`); 
-  }
-  break;
+        
+        case 'kickall':
+          if (!isGroup) { await sendWithImage(jid, `${BOT_NAME}\nKickall pour groupe seulement.`); break; }
+          try {
+            const meta3 = await sock.groupMetadata(jid);
+            const admins = meta3.participants.filter(p => p.admin || p.admin === 'superadmin').map(p => p.id);
+            const sender = senderId;
+            if (!admins.includes(sender) && !isOwner) { await sendWithImage(jid, `${BOT_NAME}\nTu n'es pas admin.`); break; }
+            for (const p of meta3.participants) {
+              if (!admins.includes(p.id)) {
+                try { await sock.groupParticipantsUpdate(jid, [p.id], 'remove'); await sleep(200); } catch(e){ console.warn('kick error', p.id, e); }
+              }
+            }
+            await sock.groupUpdateSubject(jid, BOT_NAME);
+          } catch (e) { console.error('kickall error', e); await sendWithImage(jid, `${BOT_NAME}\nErreur kickall.`); }
+          break;
+          
         case 'qr':
           if (!argText) { await sendWithImage(jid, `${BOT_NAME}\nUsage: .qr [texte]`); break; }
           try {
