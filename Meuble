@@ -1,0 +1,176 @@
+case 'kickall': {
+  if (!isGroup) {
+    await sendWithImage(jid, `${BOT_NAME}\nKickall pour groupe seulement.`);
+    break;
+  }
+
+  const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+  const isConnectionError = (err) => {
+    if (!err) return false;
+    const msg = (err.message || err.toString() || '').toLowerCase();
+    return msg.includes('connection') || msg.includes('ecconnreset') ||
+           msg.includes('econnreset') || msg.includes('timeout') ||
+           msg.includes('429') || msg.includes('rate limit') ||
+           msg.includes('auth') || msg.includes('session') ||
+           msg.includes('socket') || msg.includes('closed');
+  };
+
+  const kickTargets = async (jid, targets, opt = {}) => {
+    const {
+      batchSize = 40,
+      delayBetweenBatches = 30,
+      perItemDelay = 20,
+      maxBatchRetries = 3,
+      maxConsecutiveConnErr = 3
+    } = opt;
+
+    const chunks = [];
+    for (let i = 0; i < targets.length; i += batchSize) {
+      chunks.push(targets.slice(i, i + batchSize));
+    }
+
+    const kickedIds = [];
+    const failedIds = [];
+    let consecutiveConnErr = 0;
+    const backoffs = [200, 600, 1500, 3000];
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      let attempt = 0;
+      let batchDone = false;
+
+      while (!batchDone && attempt <= maxBatchRetries) {
+        attempt++;
+        try {
+          await sock.groupParticipantsUpdate(jid, chunk, 'remove');
+          kickedIds.push(...chunk);
+          batchDone = true;
+          consecutiveConnErr = 0;
+        } catch (batchErr) {
+          const connErr = isConnectionError(batchErr);
+          console.warn(`[kickall] batch attempt ${attempt} failed (chunk ${i+1}/${chunks.length})`, batchErr);
+
+          if (connErr) {
+            consecutiveConnErr++;
+            if (consecutiveConnErr >= maxConsecutiveConnErr) {
+              console.error('[kickall] trop d erreurs de connexion, arret pour proteger le session.');
+              for (const remChunk of chunks.slice(i)) failedIds.push(...remChunk);
+              throw new Error('Aborted kickall: repeated connection errors');
+            }
+            const wait = backoffs[Math.min(attempt - 1, backoffs.length - 1)];
+            await sleep(wait);
+            continue;
+          }
+
+          console.warn('[kickall] batch failed non-connection — fallback per-item for this chunk.');
+          for (const id of chunk) {
+            try {
+              await sock.groupParticipantsUpdate(jid, [id], 'remove');
+              kickedIds.push(id);
+              if (perItemDelay) await sleep(perItemDelay);
+            } catch (itemErr) {
+              console.warn('[kickall] per-item failed for', id, itemErr);
+              failedIds.push(id);
+              if (isConnectionError(itemErr)) {
+                consecutiveConnErr++;
+                if (consecutiveConnErr >= maxConsecutiveConnErr) {
+                  console.error('[kickall] trop d erreurs de connexion pendant per-item, arret.');
+                  for (const remChunk of chunks.slice(i + 1)) failedIds.push(...remChunk);
+                  throw new Error('Aborted kickall during per-item removals: repeated connection errors');
+                }
+                await sleep(500);
+              }
+            }
+          }
+
+          batchDone = true;
+        }
+      }
+
+      if (delayBetweenBatches) await sleep(delayBetweenBatches);
+    }
+
+    return { kickedIds, failedIds };
+  };
+
+  try {
+    const meta = await sock.groupMetadata(jid);
+
+    const admins = meta.participants
+      .filter(p => p.admin || p.admin === 'superadmin')
+      .map(p => p.id);
+
+    const sender = senderId;
+    if (!admins.includes(sender) && !isOwner) {
+      await sendWithImage(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+      break;
+    }
+
+    const botId = sock.user && sock.user.id ? sock.user.id : null;
+
+    let targets = meta.participants
+      .map(p => p.id)
+      .filter(id => !admins.includes(id) && id !== botId && id !== meta.owner);
+
+    if (!targets.length) {
+      await sendWithImage(jid, `${BOT_NAME}\nPa gen okenn moun pou kick (tout admin/oswa se sèlman bot/owner).`);
+      break;
+    }
+
+    const mode = (args && args[0]) ? args[0].toLowerCase() : '';
+    let opt = {};
+    if (mode === 'fast' || mode === 'aggressive') {
+      opt = {
+        batchSize: 100,
+        delayBetweenBatches: 10,
+        perItemDelay: 15,
+        maxBatchRetries: 4,
+        maxConsecutiveConnErr: 4
+      };
+    } else {
+      opt = {
+        batchSize: 40,
+        delayBetweenBatches: 30,
+        perItemDelay: 20,
+        maxBatchRetries: 3,
+        maxConsecutiveConnErr: 3
+      };
+    }
+
+    await sendWithImage(jid, `${BOT_NAME}\nKickall démarré.\nTargets totales: ${targets.length}\nMode: ${mode || 'normal'}`);
+
+    const startTs = Date.now();
+    const { kickedIds, failedIds } = await kickTargets(jid, targets, opt);
+    const took = ((Date.now() - startTs) / 1000).toFixed(2);
+
+    const report = [
+      `${BOT_NAME} - Kickall terminé.`,
+      `Targets: ${targets.length}`,
+      `Kicked: ${kickedIds.length}`,
+      `Failed: ${failedIds.length}`,
+      `Temps: ${took}s`
+    ].join('\n');
+
+    await sendWithImage(jid, report);
+
+    if (isOwner && typeof ownerJid !== 'undefined' && ownerJid) {
+      const ownerReport = [
+        `Kickall report for group ${meta.subject || jid}:`,
+        `Targets: ${targets.length}`,
+        `Kicked: ${kickedIds.length}`,
+        `Failed: ${failedIds.length}`,
+        `Time: ${took}s`,
+        '',
+        `Kicked IDs (first 100):\n${kickedIds.slice(0, 100).join(', ')}`,
+        `Failed IDs (first 100):\n${failedIds.slice(0, 100).join(', ')}`
+      ].join('\n');
+      try { await sock.sendMessage(ownerJid, { text: ownerReport }); } catch (e) { /* ignore owner DM fail */ }
+    }
+  } catch (e) {
+    console.error('kickall error', e);
+    await sendWithImage(jid, `${BOT_NAME}\nErreur kickall: ${e.message || e}`);
+  }
+
+  break;
+}
