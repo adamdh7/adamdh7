@@ -1,0 +1,1568 @@
+// index.js
+// Node: compatible without top-level await — run with `node index.js`
+// Replace your existing file with this.
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import fs from 'fs-extra';
+import path from 'path';
+import QRCode from 'qrcode';
+import { v4 as uuidv4 } from 'uuid';
+import pino from 'pino';
+import express from 'express';
+import http from 'http';
+import { Server as IOServer } from 'socket.io';
+import { Telegraf } from 'telegraf';
+import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } from '@whiskeysockets/baileys';
+
+async function main() {
+  // dynamic fallback for fetch (node-fetch) and external downloadContentFromMessage
+  let fetchFn = globalThis.fetch;
+  if (typeof fetchFn !== 'function') {
+    try {
+      const nodeFetch = await import('node-fetch').then(m => m.default);
+      fetchFn = nodeFetch;
+    } catch (e) {
+      console.warn('node-fetch not available, remote fetches may fail');
+      fetchFn = undefined;
+    }
+  }
+
+  // try to import download helper if available
+  let externalDownloadContentFn = null;
+  try {
+    const mod = await import('@whiskeysockets/baileys').catch(() => null);
+    if (mod && mod.downloadContentFromMessage) externalDownloadContentFn = mod.downloadContentFromMessage;
+  } catch (e) {}
+  try {
+    if (!externalDownloadContentFn) {
+      const mod2 = await import('baileys').catch(() => null);
+      if (mod2 && mod2.downloadContentFromMessage) externalDownloadContentFn = mod2.downloadContentFromMessage;
+    }
+  } catch (e) {}
+
+  const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+  if (!TELEGRAM_TOKEN) {
+    console.error('ERROR: TELEGRAM_TOKEN not set in .env');
+    process.exit(1);
+  }
+  const bot = new Telegraf(TELEGRAM_TOKEN);
+
+  const app = express();
+  const server = http.createServer(app);
+  const io = new IOServer(server, { cors: { origin: '*' } });
+  app.get('/health', (req, res) => res.status(200).send('OK'));
+
+  global.mode = global.mode || 'public';
+
+  const SESSIONS_BASE = path.resolve('./sessions');
+  await fs.ensureDir(SESSIONS_BASE);
+
+  const OWNER_NAME = "Adam_D'H7";
+  const OWNER_NUMBER = '50935492574'; // digits only
+  const BOT_NAME = "Adam_D'H7";
+
+  const IMAGE_URLS = [
+    "https://res.cloudinary.com/dckwrqrur/image/upload/v1757896255/tf-stream-url/IMG-20250824-WA0969_mj3ydr.jpg",
+    "https://res.cloudinary.com/dckwrqrur/image/upload/v1757896321/tf-stream-url/13362d64459b2b250982b79433f899d8_0_dk8ach.jpg",
+    "https://res.cloudinary.com/dckwrqrur/image/upload/v1757902902/tf-stream-url/IMG-20250831-WA0167_nrhik0.jpg"
+  ];
+
+  const logger = pino({ level: 'silent' });
+  const sessions = {}; // sessionId -> sessionObj
+  const telegramSessionMap = new Map();
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function nextAuthFolder() {
+    const items = fs.readdirSync(SESSIONS_BASE).filter(n => n.startsWith('auth_info') || n.startsWith('auth_'));
+    const nums = items.map(n => {
+      const m = n.match(/(\d+)$/);
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    const next = (nums.length ? Math.max(...nums) : 0) + 1;
+    return `auth_info${next}`;
+  }
+
+  // helper: stream -> Buffer
+  async function streamToBuffer(stream) {
+    const parts = [];
+    for await (const chunk of stream) parts.push(chunk);
+    return Buffer.concat(parts);
+  }
+
+  // helpers to extract text parts robustly (support many message types)
+  function gatherMessageTextFields(m) {
+    const parts = [];
+    try {
+      if (!m) return parts;
+      if (m.conversation) parts.push(m.conversation);
+      if (m.extendedTextMessage?.text) parts.push(m.extendedTextMessage.text);
+      if (m.imageMessage?.caption) parts.push(m.imageMessage.caption);
+      if (m.videoMessage?.caption) parts.push(m.videoMessage.caption);
+      if (m.documentMessage?.caption) parts.push(m.documentMessage.caption);
+      if (m.buttonsMessage?.contentText) parts.push(m.buttonsMessage.contentText);
+      if (m.templateMessage?.hydratedTemplate?.bodyText) parts.push(m.templateMessage.hydratedTemplate.bodyText);
+      if (m.listResponseMessage?.title) parts.push(m.listResponseMessage.title);
+      if (m.listResponseMessage?.description) parts.push(m.listResponseMessage.description);
+      const ctx = m.extendedTextMessage?.contextInfo || m.imageMessage?.contextInfo || m.videoMessage?.contextInfo || {};
+      if (ctx.externalAdReply?.sourceUrl) parts.push(ctx.externalAdReply.sourceUrl);
+      if (ctx.externalAdReply?.previewUrl) parts.push(ctx.externalAdReply.previewUrl);
+      if (ctx.externalAdReply?.thumbnailUrl) parts.push(ctx.externalAdReply.thumbnailUrl);
+    } catch (e) {}
+    return parts.filter(Boolean);
+  }
+
+  const LINK_REGEX = /(https?:\/\/\S+|www\.\S+|\bchat\.whatsapp\.com\/\S+|\bwa\.me\/\S+|\bt\.me\/\S+|\byoutu\.be\/\S+|\byoutube\.com\/\S+|\btelegram\.me\/\S+|\bdiscord(?:app)?\.com\/invite\/\S+|\bdiscord\.gg\/\S+|\bbit\.ly\/\S+)/i;
+
+  function messageContainsLink(msg) {
+    try {
+      if (!msg || !msg.message) return false;
+      if (msg.key && msg.key.fromMe) return false;
+      const parts = gatherMessageTextFields(msg.message);
+      const aggregated = parts.join(' ');
+      if (LINK_REGEX.test(aggregated)) return true;
+      return LINK_REGEX.test(JSON.stringify(msg.message || {}));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // choose downloadContent function for a sock
+  function getDownloadContentFn(sock) {
+    if (externalDownloadContentFn) return externalDownloadContentFn;
+    if (!sock) return null;
+    if (typeof sock.downloadContentFromMessage === 'function') return sock.downloadContentFromMessage.bind(sock);
+    if (typeof sock.downloadMedia === 'function') return sock.downloadMedia.bind(sock);
+    return null;
+  }
+
+  // referral stub (if you have module replace)
+  let referral;
+  try {
+    referral = await import('./referral').then(m => m.default || m).catch(() => null);
+  } catch (e) {
+    referral = null;
+  }
+  if (!referral) {
+    referral = {
+      init: async () => {},
+      getOrCreateUser: async (jid, opts) => ({ jid, name: opts?.name || null }),
+      generateCodeFor: async (jid, preferred) => `${preferred || 'AUTO'}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+      useCode: async () => ({ ok: false, reason: 'NO_REFERRAL_MODULE' }),
+      getStats: async () => null
+    };
+  }
+  await (referral.init?.()).catch(() => {});
+
+  /* Utilitaires manquants corrigés */
+  function mentionsToText(ids = []) {
+    return (ids || []).map(id => `@${getNumberFromJid(id)}`).join(' ');
+  }
+
+  function buildMenuText(pushName, ownerDisplayName = 'Adam') {
+    return `*○ Menu*
+
+${pushName}
+────────────────────────────
+🚶🏻‍♂️ 𝐔𝐬𝐞𝐫: "${pushName}"
+🥀 𝐎𝐰𝐧𝐞ʀ: ${ownerDisplayName}
+
+────────────────────────────
+📂 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐞𝐬:
+────────────────────────────
+
+🔱 Général
+● Menu
+● Ban
+○ Owner
+○ Signale
+● Qr [texte]
+
+🔱 Groupe
+○ Lien
+● Tagall
+○ Hidetag
+● Kick
+○ Add
+● Promote
+○ Demote
+● Kickall
+○ Ferme
+● Ouvert
+○ Bienvenue [off]
+
+🔱 Modération
+● Nolien
+○ Nolien2
+● Kickall
+○ Kick
+● Add
+○ Promote
+● Delmote
+
+${ownerDisplayName}
+────────────────────────────
+
+> D'H7 | Tergene`;
+  }
+
+  /* START Baileys session builder */
+  async function startBaileysForSession({ sessionId = null, folderName = null, telegramChatId = null, botName = BOT_NAME, sid = null } = {}) {
+    if (!sessionId) sessionId = uuidv4();
+    if (!folderName) folderName = nextAuthFolder();
+    const dir = path.join(SESSIONS_BASE, folderName);
+    await fs.ensureDir(dir);
+
+    // load auth
+    let state, saveCreds;
+    try {
+      const auth = await useMultiFileAuthState(dir);
+      state = auth.state;
+      saveCreds = auth.saveCreds;
+    } catch (err) {
+      console.error(`[${sessionId}] useMultiFileAuthState failed`, err);
+      throw err;
+    }
+
+    // load meta.json if exists
+    let meta = {};
+    try {
+      const metaPath = path.join(dir, 'meta.json');
+      if (fs.existsSync(metaPath)) meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    } catch (e) { meta = {}; }
+
+    let version;
+    try {
+      const v = await fetchLatestBaileysVersion();
+      if (v && v.version) version = v.version;
+    } catch (e) { version = undefined; }
+
+    const sock = makeWASocket({ version, auth: state, logger, printQRInTerminal: false });
+
+    // downloadContent helper for this sock
+    const downloadContent = getDownloadContentFn(sock);
+    if (!downloadContent) {
+      console.warn(`[${sessionId}] downloadContent not available; some media commands (voir/hidetag) may not work with view-once or large files.`);
+    }
+
+    const sessionObj = {
+      sessionId,
+      folderName,
+      dir,
+      sock,
+      saveCreds,
+      restarting: false,
+      bienvenueEnabled: {},
+      noLienMode: {},                 // jid -> 'off'|'non_admins'|'all_except_session_owner'|'all'|'all_kick'
+      invisibleMode: {},
+      sessionOwnerNumber: meta?.phone || null,
+      botName: botName || meta?.botName || BOT_NAME,
+      sid,
+      telegramChatId,
+      lastLinkMap: {},                // jid -> { link, image: { buffer|url } }
+      bannedNumbers: new Set(),
+      menuImageUrl: meta?.menuImageUrl || null,
+      downloadContent
+    };
+    sessions[sessionId] = sessionObj;
+
+    // safe wrappers for functions that might not exist in all baileys versions
+    const safe = {
+      send: async (jid, msg) => {
+        try { return await sock.sendMessage(jid, msg); } catch (e) { console.warn(`[${sessionId}] send fail`, e); }
+      },
+      delete: async (jid, key) => {
+        try { return await sock.sendMessage(jid, { delete: key }); } catch (e) { console.warn(`[${sessionId}] delete fail`, e); }
+      },
+      groupMetadata: async (jid) => {
+        try { if (typeof sock.groupMetadata === 'function') return await sock.groupMetadata(jid); } catch (e) { console.warn(`[${sessionId}] groupMetadata fail`, e); }
+        return null;
+      },
+      profilePictureUrl: async (jid) => {
+        try { if (typeof sock.profilePictureUrl === 'function') return await sock.profilePictureUrl(jid, 'image'); } catch (e) { /* ignore */ }
+        return null;
+      },
+      groupParticipantsUpdate: async (jid, participants, action) => {
+        try { if (typeof sock.groupParticipantsUpdate === 'function') return await sock.groupParticipantsUpdate(jid, participants, action); } catch (e) { console.warn(`[${sessionId}] groupParticipantsUpdate fail`, e); }
+      },
+      forwardMessages: async (jid, keys, force) => {
+        try { if (typeof sock.forwardMessages === 'function') return await sock.forwardMessages(jid, keys, force || false); } catch (e) { console.warn(`[${sessionId}] forwardMessages fail`, e); }
+      },
+      groupSettingUpdate: async (jid, mode) => {
+        try { if (typeof sock.groupSettingUpdate === 'function') return await sock.groupSettingUpdate(jid, mode); } catch (e) { console.warn(`[${sessionId}] groupSettingUpdate fail`, e); }
+      },
+      groupInviteCode: async (jid) => {
+        try {
+          if (typeof sock.groupInviteCode === 'function') return await sock.groupInviteCode(jid);
+          if (typeof sock.groupInvite === 'function') {
+            const r = await sock.groupInvite(jid);
+            if (r && typeof r === 'string') return r;
+          }
+        } catch (e) { /* ignore */ }
+        return null;
+      }
+    };
+
+    sock.ev.on('creds.update', saveCreds);
+
+    /* fetch random image from pool */
+    async function fetchAnyImageBufferPreferMenu(jid) {
+      // prefer menuImageUrl, then lastLinkMap, then group pp, then IMAGE_URLS
+      const tryUrls = [];
+      if (sessionObj.menuImageUrl) tryUrls.push(sessionObj.menuImageUrl);
+      if (sessionObj.lastLinkMap[jid] && sessionObj.lastLinkMap[jid].image && sessionObj.lastLinkMap[jid].image.url) tryUrls.push(sessionObj.lastLinkMap[jid].image.url);
+      try {
+        const pp = await safe.profilePictureUrl(jid);
+        if (pp) tryUrls.push(pp);
+      } catch (e) {}
+      tryUrls.push(...IMAGE_URLS);
+
+      for (const url of tryUrls) {
+        if (!url) continue;
+        try {
+          if (!fetchFn) continue;
+          const res = await fetchFn(url);
+          if (!res.ok) continue;
+          const ab = await res.arrayBuffer();
+          return Buffer.from(ab);
+        } catch (e) { continue; }
+      }
+      return null;
+    }
+
+    async function quickSendWithImage(jid, content, opts = {}) {
+      try {
+        const text = (typeof content === 'string') ? content : (content.text || '');
+        const mentions = (content && content.mentions) ? content.mentions : (opts && opts.mentions ? opts.mentions : undefined);
+        const quoted = (content && content.quoted) ? content.quoted : opts.quoted;
+        let imageUrl = opts.url || sessionObj.menuImageUrl || IMAGE_URLS[Math.floor(Math.random() * IMAGE_URLS.length)];
+
+        // prefer stored lastLinkMap image for group
+        try {
+          if (sessionObj.lastLinkMap[jid] && sessionObj.lastLinkMap[jid].image) {
+            const stored = sessionObj.lastLinkMap[jid];
+            const img = stored.image;
+            if (img && img.buffer) {
+              const msg = { image: img.buffer };
+              if (text) msg.caption = text;
+              if (mentions) msg.mentions = mentions;
+              if (quoted) msg.quoted = quoted;
+              return await safe.send(jid, msg);
+            } else if (img && img.url) {
+              const msg = { image: { url: img.url } };
+              if (text) msg.caption = text;
+              if (mentions) msg.mentions = mentions;
+              if (quoted) msg.quoted = quoted;
+              return await safe.send(jid, msg);
+            }
+          }
+        } catch (e) {}
+
+        try {
+          const buf = await fetchAnyImageBufferPreferMenu(jid);
+          if (buf) {
+            const msg = { image: buf };
+            if (text) msg.caption = text;
+            if (mentions) msg.mentions = mentions;
+            if (quoted) msg.quoted = quoted;
+            return await safe.send(jid, msg);
+          }
+        } catch (e) {}
+
+        try {
+          const msg = { image: { url: imageUrl } };
+          if (text) msg.caption = text;
+          if (mentions) msg.mentions = mentions;
+          if (quoted) msg.quoted = quoted;
+          return await safe.send(jid, msg);
+        } catch (e) {}
+
+        const msg = { text: text || imageUrl };
+        if (mentions) msg.mentions = mentions;
+        if (quoted) msg.quoted = quoted;
+        return await safe.send(jid, msg);
+
+      } catch (e) {
+        console.warn('quickSendWithImage failed', e);
+      }
+
+    }
+
+    async function quickReply(jid, t, opts = {}) {
+      try {
+        if (opts.forceText) {
+          const msg = { text: t };
+          if (opts.mentions) msg.mentions = opts.mentions;
+          if (opts.quoted) msg.quoted = opts.quoted;
+          return sock.sendMessage(jid, msg);
+        }
+        return quickSendWithImage(jid, t, { url: sessionObj.menuImageUrl || undefined, mentions: opts.mentions, quoted: opts.quoted });
+      } catch (e) {
+        console.warn('quickReply failed', e);
+      }
+    }
+
+    function getSenderId(msg) { return (msg.key && msg.key.participant) ? msg.key.participant : msg.key.remoteJid; }
+    function getNumberFromJid(jid) { if (!jid) return ''; return jid.split('@')[0]; }
+    function getDisplayName(msg) { return msg.pushName || 'Utilisateur'; }
+
+    async function isGroupAdminFn(jidCheck, participantId) {
+      try {
+        const meta = await safe.groupMetadata(jidCheck);
+        const p = meta?.participants?.find(x => x.id === participantId);
+        return !!(p && (p.admin || p.admin === 'superadmin' || p.isAdmin === true));
+      } catch (e) { return false; }
+    }
+
+    // Try to promote bot to admin if the session owner (account that scanned QR) is admin
+    async function tryEnsureBotIsAdmin(jid) {
+      try {
+        const meta = await safe.groupMetadata(jid);
+        if (!meta) return false;
+        const participants = meta.participants || [];
+        const normalize = (p) => {
+          if (!p) return null;
+          if (typeof p === 'string') return p;
+          if (p.id) return (typeof p.id === 'string') ? p.id : (p.id._serialized || null);
+          return p.jid || p.participant || null;
+        };
+        const participantIds = participants.map(normalize).filter(Boolean);
+        const groupAdmins = participants
+          .filter(p => p && (p.admin === 'admin' || p.admin === 'superadmin' || p.isAdmin === true || p.admin === true))
+          .map(normalize).filter(Boolean);
+
+        // detect bot jid reliably
+        let botJid = null;
+        try {
+          if (sock && sock.user) botJid = sock.user.id || sock.user.jid || sock.user.me || (typeof sock.user === 'string' ? sock.user : null);
+        } catch (e) {}
+        if (!botJid) {
+          const maybeBot = participants.find(p => p && (p.isMe || p.isOwner));
+          if (maybeBot) botJid = normalize(maybeBot);
+        }
+        if (!botJid) return false;
+        if (!botJid.includes('@')) botJid = `${botJid}@s.whatsapp.net`;
+
+        if (groupAdmins.includes(botJid)) return true;
+
+        // get session owner jid
+        const sessionOwnerNum = String(sessionObj.sessionOwnerNumber || OWNER_NUMBER || '').replace(/\D/g, '');
+        const sessionOwnerJid = sessionOwnerNum ? `${sessionOwnerNum}@s.whatsapp.net` : null;
+        const sessionOwnerIsAdmin = sessionOwnerJid ? groupAdmins.includes(sessionOwnerJid) : false;
+
+        if (!sessionOwnerIsAdmin) return false;
+
+        // session owner is admin -> attempt to promote bot
+        try {
+          await safe.groupParticipantsUpdate(jid, [botJid], 'promote');
+          // small wait then re-check
+          await sleep(900);
+          const meta2 = await safe.groupMetadata(jid);
+          const admins2 = (meta2?.participants || []).filter(p => p && (p.admin === 'admin' || p.admin === 'superadmin' || p.isAdmin === true || p.admin === true)).map(normalize);
+          return admins2.includes(botJid);
+        } catch (e) {
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+    }
+
+    /* CONNECTION UPDATE */
+    sock.ev.on('connection.update', async (update) => {
+      try {
+        const { connection, qr, lastDisconnect } = update;
+        if (qr && sessionObj.telegramChatId) {
+          try {
+            const dataUrl = await QRCode.toDataURL(qr);
+            const base64 = dataUrl.split(',')[1];
+            const buffer = Buffer.from(base64, 'base64');
+            const caption = `Scan QR pou sesyon ${sid || sessionId}\nBot: ${sessionObj.botName}`;
+            try {
+              await bot.telegram.sendPhoto(sessionObj.telegramChatId, { source: buffer }, { caption });
+            } catch (e) { console.warn('cannot send qr to telegram', e); }
+          } catch (e) { console.warn('cannot create qr dataurl', e); }
+        }
+
+        if (connection === 'open') {
+          console.log(`[${sid || sessionId}] connected`);
+          sessionObj.restarting = false;
+
+          // detect and store the WhatsApp account that authenticated this session (sanitize)
+          try {
+            const u = sock.user || (sock.authState && sock.authState.creds && sock.authState.creds.me) || null;
+            let ownerJid = null;
+            if (u && typeof u === 'object') {
+              ownerJid = u.id || u?.jid || u?.me || (u?.user && u.user.id) || null;
+            } else if (typeof u === 'string') {
+              ownerJid = u;
+            }
+            if (ownerJid && ownerJid.includes('@')) {
+              let ownerNum = ownerJid.split('@')[0];
+              ownerNum = ownerNum.split(':')[0]; // remove suffix after colon if present
+              ownerNum = ownerNum.replace(/[^0-9+]/g, '');
+              sessionObj.sessionOwnerNumber = ownerNum;
+              console.log(`[${sid || sessionId}] session owner set to ${ownerNum}`);
+            }
+          } catch (e) { console.warn('cannot detect session owner jid', e); }
+
+          try { fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(Object.assign({}, meta, { connectedAt: Date.now(), phone: sessionObj.sessionOwnerNumber || null, menuImageUrl: sessionObj.menuImageUrl || null, botName: sessionObj.botName }), null, 2)); } catch (e) {}
+        }
+
+        if (connection === 'close') {
+          const code = (lastDisconnect?.error || {}).output?.statusCode || null;
+          console.log(`[${sid || sessionId}] connection closed, code=${code}`);
+          if (code === DisconnectReason.loggedOut) {
+            try { sock.end(); } catch (e) {}
+            delete sessions[sessionId];
+            return;
+          }
+          if (code === DisconnectReason.restartRequired || code === 515) {
+            sessionObj.restarting = true;
+            try { sock.end(); } catch (e) {}
+            delete sessions[sessionId];
+            setTimeout(() => {
+              startBaileysForSession({ sessionId: uuidv4(), folderName: folderName, telegramChatId: sessionObj.telegramChatId, botName: sessionObj.botName, sid: sessionObj.sid }).catch(()=>{});
+            }, 2000);
+            return;
+          }
+          try { sock.end(); } catch (e) {}
+          delete sessions[sessionId];
+          setTimeout(() => {
+            startBaileysForSession({ sessionId: uuidv4(), folderName: folderName, telegramChatId: sessionObj.telegramChatId, botName: sessionObj.botName, sid: sessionObj.sid }).catch(()=>{});
+          }, 5000);
+        }
+      } catch (e) { console.error('connection.update handler error', e); }
+
+    });
+
+    /* MESSAGES.UPsert */
+    sock.ev.on('messages.upsert', async (up) => {
+      try {
+        const messages = up.messages || [];
+        if (!messages.length) return;
+        const msg = messages[0];
+        if (!msg || !msg.message) return;
+        if (msg.key && msg.key.remoteJid === 'status@broadcast') return;
+
+        const jid = msg.key.remoteJid;
+        const isGroup = jid && jid.endsWith && jid.endsWith('@g.us');
+        const m = msg.message;
+
+        // gather text parts to recognize commands that might be in many message types
+        const parts = gatherMessageTextFields(m);
+        const aggregated = parts.join(' ');
+        const textRaw = (aggregated || '').toString().trim();
+
+        const withoutPrefix = textRaw.replace(/^([./!])+/, '');
+        const tokens = withoutPrefix.split(/\s+/).filter(Boolean);
+        const token0 = (tokens[0] || '').toLowerCase();
+        const args = tokens.slice(1);
+        const argText = args.join(' ').trim();
+
+        const senderId = getSenderId(msg);
+        const senderNumber = getNumberFromJid(senderId);
+        const pushName = msg.pushName || 'Utilisateur';
+        const sessionOwnerNumber = sessionObj.sessionOwnerNumber || OWNER_NUMBER;
+
+        // compute owner/session booleans
+        const sessionOwnerNumClean = String(sessionObj.sessionOwnerNumber || '').replace(/\D/g,'');
+        const globalOwnerNumClean = String(OWNER_NUMBER || '').replace(/\D/g,'');
+        const isSessionOwner = String(senderNumber) === sessionOwnerNumClean;
+        const isGlobalOwner = String(senderNumber) === globalOwnerNumClean;
+        const isOwner = isGlobalOwner || isSessionOwner;
+
+        const isAdmin = isGroup ? await isGroupAdminFn(jid, senderId) : false;
+
+        // ignore banned numbers for this session (ban behavior requested)
+        if (sessionObj.bannedNumbers && sessionObj.bannedNumbers.has(senderNumber) && !isOwner) return;
+
+        // store last link per group if contains
+        try {
+          const linkMatch = aggregated.match(LINK_REGEX);
+          if (isGroup && linkMatch) {
+            const foundLink = linkMatch[0];
+            let imageInfo = null;
+            if (m.imageMessage) {
+              if (downloadContent) {
+                try {
+                  const stream = await downloadContent(m.imageMessage, 'image');
+                  const buf = await streamToBuffer(stream);
+                  imageInfo = { buffer: buf };
+                } catch (e) { imageInfo = { url: sessionObj.menuImageUrl || IMAGE_URLS[0] }; }
+              } else imageInfo = { url: sessionObj.menuImageUrl || IMAGE_URLS[0] };
+            } else imageInfo = { url: sessionObj.menuImageUrl || IMAGE_URLS[0] };
+            sessionObj.lastLinkMap[jid] = { link: foundLink, image: imageInfo };
+          }
+        } catch (e) {}
+
+        // nolien deletion behavior
+        try {
+          const containsLink = messageContainsLink(msg);
+          if (isGroup && containsLink) {
+            const mode = sessionObj.noLienMode[jid] || 'off';
+            if (!(msg.key && msg.key.fromMe)) {
+              const isImageWithCaptionLink = !!(m.imageMessage && m.imageMessage.caption && LINK_REGEX.test(m.imageMessage.caption));
+              if (!isImageWithCaptionLink) {
+                if (mode === 'non_admins') {
+                  try {
+                    const senderIsAdmin = await isGroupAdminFn(jid, senderId);
+                    if (!senderIsAdmin) {
+                      await safe.delete(jid, msg.key).catch(()=>{});
+                    }
+                  } catch(e) {}
+                  return;
+                } else if (mode === 'all_except_session_owner') {
+                  try {
+                    const sessionOwnerNum = sessionObj.sessionOwnerNumber || OWNER_NUMBER;
+                    if (String(senderNumber) !== String(sessionOwnerNum)) {
+                      await safe.delete(jid, msg.key).catch(()=>{});
+                    }
+                  } catch (e) {}
+                  return;
+                } else if (mode === 'all' || mode === 'all_kick') {
+                  try { await safe.delete(jid, msg.key); } catch (e) {}
+                  if (mode === 'all_kick') {
+                    try {
+                      const admin = await isGroupAdminFn(jid, senderId);
+                      const sessionOwnerNum = sessionObj.sessionOwnerNumber || OWNER_NUMBER;
+                      const senderIsSessionOwner = senderNumber === String(sessionOwnerNum);
+                      const senderIsGlobalOwner = senderNumber === String(OWNER_NUMBER);
+                      if (!admin && !senderIsGlobalOwner && !senderIsSessionOwner) {
+                        await safe.groupParticipantsUpdate(jid, [senderId], 'remove');
+                      }
+                    } catch(e){}
+                  }
+                  return;
+                }
+              }
+            }
+          }
+        } catch (e) {}
+
+        // invisible mode
+        if (isGroup && sessionObj.invisibleMode[jid]) {
+          try { await quickSendWithImage(jid, 'ㅤ   '); } catch (e) {}
+          return;
+        }
+
+        // command map
+        const CMD_MAP = {
+          'menu':'menu','d':'menu',
+          'signale':'signale','report':'signale','signal':'signale','denoncer':'signale',
+          'owner':'owner','proprietaire':'owner','proprio':'owner',
+          'qr':'qr','qrcode':'qr',
+          'img':'img','image':'img','photo':'img',
+          'voir':'voir','vv':'voir','we':'voir','wè':'voir','view':'voir','see':'voir',
+          'lien':'lien','link':'lien','invite':'lien',
+          'nolien':'nolien','nolink':'nolien','no-link':'nolien',
+          'nolien2':'nolien2','nolien_2':'nolien2','nolienall':'nolien2',
+          'play':'play','jwe':'play',
+          'tg':'tagall','tagall':'tagall','tag':'tagall',
+          'tm':'tm','hidetag':'tm','hidetags':'tm','replyall':'tm',
+          "dh7":"dh7","d'h7":"dh7",'invisible':'dh7','ghost':'dh7',
+          'kick':'kick','remove':'kick','expulser':'kick',
+          'add':'add','ajoute':'add','invite':'add',
+          'promote':'promote','promouvoir':'promote',
+          'demote':'demote','delmote':'demote','retrograder':'demote',
+          'kickall':'kickall','kick_all':'kickall','cleanall':'kickall',
+          'ban':'ban','interdire':'ban','block':'ban',
+          'unban':'unban','un-block':'unban',
+          'public':'public','piblik':'public',
+          'prive':'prive','private':'prive',
+          'bienvenue':'bienvenue','welcome':'bienvenue',
+          'mycode':'mycode','code':'mycode',
+          'parrain':'parrain','ref':'parrain','referral':'parrain',
+          'stats':'stats','mystats':'stats',
+          'ferme':'ferme','close':'ferme','lock':'ferme',
+          'ouvert':'ouvert','open':'ouvert','unlock':'ouvert',
+          'del':'del',
+          'whoami':'whoami','checkadmin':'checkadmin','promotebot':'promotebot'
+        };
+        const mapped = CMD_MAP[token0] || token0;
+
+        if (!mapped) return; // not a command
+
+        console.log(`[${sessionId}] MESSAGE reçu from=${jid} sender=${senderId} cmd=${mapped} args=${args.join(' ')}`);
+
+        // resolve targets
+        function resolveTargetIdsFromContext() {
+          const ids = [];
+          const ctx = m.extendedTextMessage?.contextInfo || {};
+          if (ctx.mentionedJid && ctx.mentionedJid.length) return ctx.mentionedJid;
+          if (ctx.participant) ids.push(ctx.participant);
+          if (args && args.length) ids.push(...args.map(a => `${a.replace(/[^0-9]/g,'')}@s.whatsapp.net`));
+          return Array.from(new Set(ids));
+        }
+
+        // command handlers
+        switch (mapped) {
+          case 'menu':
+            {
+              let menuImageUrl = sessionObj.menuImageUrl || null;
+              let nameOverride = pushName;
+              if (args && args.length) {
+                for (const a of args) {
+                  if (/^https?:\/\/\S+\.(jpe?g|png|gif|webp)(\?.*)?$/i.test(a)) {
+                    menuImageUrl = a;
+                  } else if (/^https?:\/\//i.test(a)) {
+                    menuImageUrl = a;
+                  } else {
+                    nameOverride = args.join(' ');
+                    break;
+                  }
+                }
+              }
+              const menuText = buildMenuText(nameOverride, sessionObj.botName || 'Adam');
+              await quickSendWithImage(jid, { text: menuText }, { url: menuImageUrl || undefined });
+            }
+            break;
+
+          case 'qr':
+            {
+              if (!args.length) return quickReply(jid, `${BOT_NAME}\nUsage: .qr [texte]`);
+              try {
+                const q = args.join(' ');
+                const buf = await QRCode.toBuffer(q);
+                await sock.sendMessage(jid, { image: buf, caption: `${BOT_NAME}\n${q}` });
+              } catch (e) { await quickReply(jid, `${BOT_NAME}\nImpossible de générer le QR.`); }
+            }
+            break;
+
+          case 'img':
+            {
+              try {
+                const buf = await fetchAnyImageBufferPreferMenu(jid);
+                if (buf) await sock.sendMessage(jid, { image: buf, caption: `${BOT_NAME}\nVoici l'image.` });
+                else await quickReply(jid, `${BOT_NAME}\nImage non disponible.`);
+              } catch (e) { await quickReply(jid, `${BOT_NAME}\nErreur image.`); }
+            }
+            break;
+
+          case 'lien':
+            {
+              if (!isGroup) return quickReply(jid, 'Commande réservée aux groupes.');
+              if (!isAdmin && !isOwner) return quickReply(jid, "T'es pas un administrateur");
+              try {
+                const meta = await safe.groupMetadata(jid).catch(()=>null) || {};
+                let inviteLink = null;
+                try { if (meta && meta.inviteCode) inviteLink = `https://chat.whatsapp.com/${meta.inviteCode}`; } catch(e){}
+                if (!inviteLink) {
+                  try {
+                    const code = await safe.groupInviteCode(jid);
+                    if (code) inviteLink = `https://chat.whatsapp.com/${code}`;
+                  } catch (e) {}
+                }
+                if (!inviteLink) {
+                  try {
+                    if (meta && meta.id) {
+                      const candidate = String(meta.id).replace(/@g\.us$/,'').split('-')[0];
+                      if (candidate && candidate.length > 3) inviteLink = `https://chat.whatsapp.com/${candidate}`;
+                    }
+                  } catch(e){}
+                }
+                if (!inviteLink) inviteLink = 'https://chat.whatsapp.com/';
+
+                let previewUrl = sessionObj.menuImageUrl || IMAGE_URLS[0];
+                try {
+                  if (sessionObj.lastLinkMap[jid] && sessionObj.lastLinkMap[jid].image) {
+                    const li = sessionObj.lastLinkMap[jid].image;
+                    if (li && li.url) previewUrl = li.url;
+                    else if (li && li.buffer) {
+                      const caption = `${meta?.subject || ''}\n${inviteLink}`.trim();
+                      await sock.sendMessage(jid, { image: li.buffer, caption, mentions: [senderId] });
+                      return;
+                    }
+                  } else {
+                    const u = await safe.profilePictureUrl(jid);
+                    if (u) previewUrl = u;
+                    else if (meta?.icon) previewUrl = meta.icon;
+                  }
+                } catch (e) {}
+
+                const captionParts = [];
+                if (meta?.subject) captionParts.push(meta.subject);
+                captionParts.push(inviteLink);
+                if (meta?.desc) captionParts.push(meta.desc || '');
+                const caption = captionParts.filter(Boolean).join('\n');
+
+                try {
+                  await sock.sendMessage(jid, { image: { url: previewUrl }, caption, mentions: [senderId] });
+                } catch (e) {
+                  await sock.sendMessage(jid, { text: caption || inviteLink });
+                }
+
+              } catch (e) { await quickReply(jid, 'Impossible de récupérer le lien du groupe.'); }
+            }
+            break;
+
+          case 'tagall': {
+            if (!isGroup) return quickReply(jid, `${BOT_NAME}\nTagall réservé aux groupes.`);
+            try {
+              const meta = await safe.groupMetadata(jid);
+              const ids = (meta?.participants || []).map(p => p.id);
+              if (!ids.length) return quickReply(jid, `${BOT_NAME}\nAucun participant trouvé.`);
+              const ownerDisplay = sessionObj.botName || 'Adam';
+              const lines = [ownerDisplay];
+              ids.forEach((id, idx) => {
+                const bullet = (idx % 2 === 0) ? '●' : '○';
+                lines.push(`${bullet} @${getNumberFromJid(id)}`);
+              });
+              lines.push("> D'H7 | Tergene");
+              const visibleText = lines.join('\n');
+              const previewUrl = sessionObj.menuImageUrl || IMAGE_URLS[0];
+              await quickSendWithImage(jid, visibleText, { url: previewUrl, mentions: ids });
+            } catch (e) { console.error('tagall err', e); await quickReply(jid, `${BOT_NAME}\nImpossible de tagall.`); }
+          } break;
+
+          case 'tm': {
+            if (!isGroup) return quickReply(jid, `${BOT_NAME}\nTM réservé aux groupes.`);
+            try {
+              const meta = await safe.groupMetadata(jid);
+              const ids = (meta?.participants || []).map(p => p.id);
+              if (argText) {
+                await quickReply(jid, argText, { forceText: true, mentions: ids });
+                break;
+              }
+              const ctx = m.extendedTextMessage?.contextInfo || {};
+              const quoted = ctx?.quotedMessage;
+              if (!quoted) {
+                await quickReply(jid, `${BOT_NAME}\nUtilisation: tm [texte] ou tm (en reply)`);
+                break;
+              }
+              let q = quoted;
+              if (q.viewOnceMessageV2) q = q.viewOnceMessageV2.message;
+              else if (q.viewOnceMessage) q = q.viewOnceMessage.message;
+              if (q.extendedTextMessage?.contextInfo?.quotedMessage) q = q.extendedTextMessage.contextInfo.quotedMessage;
+              const type = Object.keys(q || {})[0];
+              if (!type) { await quickReply(jid, `${BOT_NAME}\nType non supporté pour hidetag (reply).`); break; }
+              if (!downloadContent) {
+                if (typeof sock.forwardMessages === 'function') {
+                  try { await sock.forwardMessages(jid, [msg.key], true); await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids }); break; } catch(e){}
+                }
+                await quickReply(jid, `${BOT_NAME}\nImpossible de récupérer le média pour hidetag (download non disponible).`);
+                break;
+              }
+              if (type === 'imageMessage') {
+                const stream = await downloadContent(q.imageMessage, 'image');
+                const buffer = await streamToBuffer(stream);
+                const caption = q.imageMessage.caption || q.caption || '';
+                await sock.sendMessage(jid, { image: buffer, caption });
+                await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids });
+              } else if (type === 'videoMessage') {
+                const stream = await downloadContent(q.videoMessage, 'video');
+                const buffer = await streamToBuffer(stream);
+                const caption = q.videoMessage.caption || q.caption || '';
+                await sock.sendMessage(jid, { video: buffer, caption, gifPlayback: q.videoMessage?.gifPlayback || false });
+                await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids });
+              } else if (type === 'audioMessage' || type === 'pttMessage' || type === 'voiceMessage') {
+                const att = q.audioMessage || q.pttMessage || q.voiceMessage || q[type];
+                const stream = await downloadContent(att, 'audio');
+                const buffer = await streamToBuffer(stream);
+                await sock.sendMessage(jid, { audio: buffer, ptt: !!att?.ptt });
+                await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids });
+              } else if (type === 'documentMessage') {
+                const doc = q.documentMessage;
+                const stream = await downloadContent(doc, 'document');
+                const buffer = await streamToBuffer(stream);
+                const filename = doc.fileName || 'file';
+                await sock.sendMessage(jid, { document: buffer, fileName: filename, caption: q.documentMessage.caption || '' });
+                await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids });
+              } else if (type === 'stickerMessage') {
+                if (typeof sock.forwardMessages === 'function') {
+                  await sock.forwardMessages(jid, [msg.key], true);
+                  await sock.sendMessage(jid, { text: mentionsToText(ids), mentions: ids });
+                } else {
+                  await quickReply(jid, `${BOT_NAME}\nSticker reply: forward non supporté par cette version.`);
+                }
+              } else {
+                const qtext = q.conversation || q.extendedTextMessage?.text || '';
+                if (qtext) {
+                  await sock.sendMessage(jid, { text: qtext, mentions: ids });
+                } else {
+                  await quickReply(jid, `${BOT_NAME}\nType de message non pris en charge pour hidetag.`);
+                }
+              }
+            } catch (e) {
+              console.error('tm/hidetag error', e);
+              await quickReply(jid, `${BOT_NAME}\nErreur hidetag.`);
+            }
+          } break;
+
+          case 'voir':
+            {
+              try {
+                const ctx = m.extendedTextMessage?.contextInfo || m.imageMessage?.contextInfo || m.videoMessage?.contextInfo || {};
+                const quotedMessage = ctx?.quotedMessage || null;
+                if (!quotedMessage) {
+                  await quickReply(jid, 'Réponds à une image/vidéo/voice pour utiliser la commande (voir).', { quoted: msg });
+                  break;
+                }
+                let q = quotedMessage;
+                if (q.viewOnceMessageV2) q = q.viewOnceMessageV2.message;
+                else if (q.viewOnceMessage) q = q.viewOnceMessage.message;
+                if (q.extendedTextMessage?.contextInfo?.quotedMessage) q = q.extendedTextMessage.contextInfo.quotedMessage;
+                const type = Object.keys(q || {})[0];
+                if (!type) { await quickReply(jid, 'Contenu non reconnu.', { quoted: msg }); break; }
+                if (!sessionObj.downloadContent) {
+                  console.warn(`Session ${sid || sessionId}: downloadContent missing`);
+                  await quickReply(jid, 'Erreur: téléchargement média indisponible sur ce bot (mise à jour requise).', { quoted: msg });
+                  break;
+                }
+                if (type === 'imageMessage') {
+                  const stream = await sessionObj.downloadContent(q.imageMessage, 'image');
+                  const buffer = await streamToBuffer(stream);
+                  await sock.sendMessage(jid, { image: buffer, caption: `> ${BOT_NAME}` }, { quoted: msg });
+                } else if (type === 'videoMessage') {
+                  const stream = await sessionObj.downloadContent(q.videoMessage, 'video');
+                  const buffer = await streamToBuffer(stream);
+                  await sock.sendMessage(jid, { video: buffer, caption: `> ${BOT_NAME}`, gifPlayback: q.videoMessage?.gifPlayback || false }, { quoted: msg });
+                } else if (type === 'audioMessage' || type === 'pttMessage' || type === 'voiceMessage') {
+                  const att = q.audioMessage || q.pttMessage || q.voiceMessage || q[type];
+                  const stream = await sessionObj.downloadContent(att, 'audio');
+                  const buffer = await streamToBuffer(stream);
+                  const isPtt = !!att?.ptt;
+                  await sock.sendMessage(jid, { audio: buffer, ptt: isPtt }, { quoted: msg });
+                } else if (type === 'documentMessage') {
+                  const doc = q.documentMessage;
+                  const stream = await sessionObj.downloadContent(doc, 'document');
+                  const buffer = await streamToBuffer(stream);
+                  const filename = doc.fileName || 'file';
+                  await sock.sendMessage(jid, { document: buffer, fileName: filename, caption: '🔁 Voir — document' }, { quoted: msg });
+                } else {
+                  await quickReply(jid, 'Type non pris en charge. Seuls: image, vidéo, voice, document.', { quoted: msg });
+                }
+              } catch (err) {
+                console.error('Erreur commande voir', err);
+                await quickReply(jid, 'Erreur commande voir.');
+              }
+            }
+            break;
+
+          case 'owner':
+            {
+              try {
+                const ownerName = (typeof OWNER_DISPLAY_NAME !== 'undefined' && OWNER_DISPLAY_NAME) || OWNER_NAME;
+                const ownerNumberRaw = (typeof OWNER_NUMBER_E164 !== 'undefined' && OWNER_NUMBER_E164) ||
+                                       (typeof OWNER_NUMBER_CANON !== 'undefined' && OWNER_NUMBER_CANON) ||
+                                       OWNER_NUMBER;
+                const waid = String(ownerNumberRaw).replace(/\D/g, '');
+                const displayNumber = String(ownerNumberRaw).replace(/\s+/g, '');
+
+                let vcard =
+                  'BEGIN:VCARD\n' +
+                  'VERSION:3.0\n' +
+                  'FN:' + ownerName + '\n' +
+                  'N:' + ownerName + ';;;;\n' +
+                  'item1.TEL;waid=' + waid + ':' + displayNumber + '\n' +
+                  'item1.X-ABLabel:Mobile\n' +
+                  'END:VCARD';
+
+                if (typeof vcard !== 'string') vcard = String(vcard);
+
+                const payloads = [
+                  { contacts: [{ displayName: ownerName, vcard }] },
+                  { contacts: [{ vcard }] },
+                  { contacts: { displayName: ownerName, contacts: [{ vcard }] } },
+                  { contacts: [{ displayName: ownerName, vcard, phones: [{ phone: displayNumber }] }] }
+                ];
+
+                let sent = false;
+                for (const p of payloads) {
+                  try {
+                    if (!p || !p.contacts) continue;
+                    await sock.sendMessage(jid, p);
+                    sent = true;
+                    break;
+                  } catch (sendErr) {}
+                }
+
+                if (!sent) {
+                  try {
+                    await sock.sendMessage(jid, { text: ownerName + ' ' + displayNumber });
+                    sent = true;
+                  } catch (fbErr) {}
+                }
+              } catch (e) {
+                console.error('owner err', e);
+                try { await quickReply(jid, 'Erreur owner.'); } catch(_){}
+              }
+            }
+            break;
+
+          case 'signale':
+            {
+              if (!args[0]) return quickReply(jid, 'Usage: .signale 22997000000');
+              try {
+                const numeroRaw = args[0].replace(/[^0-9]/g, '');
+                const numero = `${numeroRaw}@s.whatsapp.net`;
+                if (typeof sock.report === 'function') {
+                  for (let i=0;i<50;i++) {
+                    await sock.report(numero, 'spam', msg.key).catch(()=>{});
+                    await sleep(150);
+                  }
+                  await quickReply(jid, `Le numéro ${args[0]} a été signalé.`);
+                } else {
+                  await quickReply(jid, 'Fonction report non disponible sur cette version.');
+                }
+              } catch (e) { await quickReply(jid, 'Erreur signale.'); }
+            }
+            break;
+
+          case 'kick':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nKick réservé aux groupes.`);
+              if (!isAdmin && !isOwner) return quickReply(jid, `${BOT_NAME}\nTu dois être admin.`);
+              const targets = resolveTargetIdsFromContext();
+              if (!targets.length) return quickReply(jid, `${BOT_NAME}\nRépondez ou tag l'utilisateur : kick @user`);
+              for (const t of targets) {
+                try { await safe.groupParticipantsUpdate(jid, [t], 'remove'); await sleep(200); } catch (e) { console.warn('kick fail', e); }
+              }
+            }
+            break;
+
+          case 'add':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nAdd réservé aux groupes.`);
+              if (!isAdmin && !(isSessionOwner || isGlobalOwner)) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              const targets = resolveTargetIdsFromContext();
+              if (!targets.length) return quickReply(jid, `${BOT_NAME}\nFormat: add 509XXXXXXXX`);
+              for (const t of targets) {
+                try { await safe.groupParticipantsUpdate(jid, [t], 'add'); await sleep(800); } catch (e) { console.warn('add fail', e); }
+              }
+            }
+            break;
+
+          case 'promote':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nPromote réservé aux groupes.`);
+              if (!isAdmin && !(isSessionOwner || isGlobalOwner)) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              const targets = resolveTargetIdsFromContext();
+              if (!targets.length) return quickReply(jid, `${BOT_NAME}\nRépondre ou tag : promote @user`);
+              for (const t of targets) {
+                try { await safe.groupParticipantsUpdate(jid, [t], 'promote'); await sleep(100); } catch (e) { console.warn('promote fail', e); }
+              }
+            }
+            break;
+
+          case 'demote':
+          case 'delmote':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nDemote réservé aux groupes.`);
+              if (!isAdmin && !(isSessionOwner || isGlobalOwner)) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              const targets = resolveTargetIdsFromContext();
+              if (!targets.length) return quickReply(jid, `${BOT_NAME}\nRépondre ou tag : demote @user`);
+              for (const t of targets) {
+                try { await safe.groupParticipantsUpdate(jid, [t], 'demote'); await sleep(100); } catch (e) { console.warn('demote fail', e); }
+              }
+            }
+            break;
+
+          case 'nolien':
+            {
+              if (!isGroup) return quickReply(jid, 'Commande réservée aux groupes.');
+              if (!isAdmin && !isOwner) return quickReply(jid, "Seuls l'admin ou le propriétaire peuvent activer.");
+              if (argText && argText.toLowerCase() === 'off') {
+                sessionObj.noLienMode[jid] = 'off';
+                await quickReply(jid, 'Mode nolien désactivé.');
+              } else {
+                sessionObj.noLienMode[jid] = 'non_admins';
+                await quickReply(jid, 'Mode nolien activé : lyen yo ap efase sèlman pou moun ki pa admin.');
+              }
+            }
+            break;
+
+          case 'nolien2':
+            {
+              if (!isGroup) return quickReply(jid, 'Commande réservée aux groupes.');
+              if (!isAdmin && !isOwner) return quickReply(jid, "Seuls l'admin ou le propriétaire peuvent activer.");
+              if (argText && argText.toLowerCase() === 'off') {
+                sessionObj.noLienMode[jid] = 'off';
+                await quickReply(jid, 'Mode nolien2 désactivé.');
+              } else {
+                sessionObj.noLienMode[jid] = 'all_except_session_owner';
+                await quickReply(jid, 'Mode nolien2 activé : tout lyen yo pral supprimés eksepte mesaj ki soti nan session owner (moun ki scanné QR).');
+              }
+            }
+            break;
+
+          case 'kickall':
+            {
+              try {
+                if (!isGroup) return quickReply(jid, `${BOT_NAME}\nKickall réservé aux groupes.`);
+
+                // Determine owner/admin rights for the caller
+                const sessionOwnerNum = String(sessionObj.sessionOwnerNumber || OWNER_NUMBER || '').replace(/\D/g, '');
+                const globalOwnerNum = String(OWNER_NUMBER || '').replace(/\D/g, '');
+                const senderNum = String(senderNumber || '').replace(/\D/g, '');
+                const isSenderOwner = (senderNum === sessionOwnerNum) || (senderNum === globalOwnerNum);
+                if (!isAdmin && !isSenderOwner) return quickReply(jid, `${BOT_NAME}\nSeuls les admins/owner peuvent utiliser Kickall.`);
+
+                const meta = await safe.groupMetadata(jid).catch(() => null);
+                if (!meta) return quickReply(jid, `${BOT_NAME}\nImpossible de récupérer les infos du groupe.`);
+
+                const participants = meta.participants || [];
+
+                const normalize = (p) => {
+                  if (!p) return null;
+                  if (typeof p === 'string') return p;
+                  if (p.id) return (typeof p.id === 'string') ? p.id : (p.id._serialized || null);
+                  return p.jid || p.participant || null;
+                };
+
+                const participantIds = participants.map(normalize).filter(Boolean);
+
+                const groupAdmins = participants
+                  .filter(p => p && (p.admin === 'admin' || p.admin === 'superadmin' || p.isAdmin === true || p.admin === true))
+                  .map(normalize).filter(Boolean);
+
+                // detect bot jid reliably
+                let botJid = null;
+                try {
+                  if (sock && sock.user) {
+                    botJid = sock.user.id || sock.user.jid || sock.user.me || (typeof sock.user === 'string' ? sock.user : null);
+                  }
+                } catch (e) { botJid = null; }
+                if (!botJid) {
+                  const maybeBot = participants.find(p => p && (p.isMe || p.isOwner));
+                  if (maybeBot) botJid = normalize(maybeBot);
+                }
+                if (!botJid) return quickReply(jid, `${BOT_NAME}\nImpossible d'identifier le bot (doit être admin).`);
+                if (!botJid.includes('@')) botJid = `${botJid}@s.whatsapp.net`;
+
+                // ensure bot is admin; try to promote if session owner is admin
+                let botIsAdmin = groupAdmins.includes(botJid);
+                if (!botIsAdmin) {
+                  const ensured = await tryEnsureBotIsAdmin(jid);
+                  botIsAdmin = ensured;
+                }
+                if (!botIsAdmin) return quickReply(jid, `${BOT_NAME}\nLe bot doit être admin pour exclure des membres.`);
+
+                // parse optional numeric limit arg (e.g. "kickall 10")
+                let requested = null;
+                if (args && args.length) {
+                  const n = parseInt(args[0].replace(/[^0-9]/g, ''), 10);
+                  if (!isNaN(n) && n > 0) requested = n;
+                }
+
+                // build list of kickable members: not admin, not global owner, not session owner, not bot
+                const kickable = participantIds.filter(id => {
+                  if (!id) return false;
+                  if (id === botJid) return false;
+                  const num = getNumberFromJid(id);
+                  if (!num) return false;
+                  if (String(num) === String(sessionOwnerNum)) return false;
+                  if (String(num) === String(globalOwnerNum)) return false;
+                  if (groupAdmins.includes(id)) return false;
+                  return true;
+                });
+
+                if (kickable.length === 0) return quickReply(jid, `${BOT_NAME}\nAucun membre non-admin à exclure.`);
+
+                const CAP_PER_CMD = 50;
+                const CAP_ALL = 200;
+
+                if (requested === null) {
+                  if (kickable.length > CAP_ALL) {
+                    return quickReply(jid, `${BOT_NAME}\nTrop de membres à exclure (${kickable.length}). Utilise "kickall N" pour limiter (max ${CAP_ALL}).`);
+                  }
+                } else {
+                  if (requested > CAP_PER_CMD) requested = CAP_PER_CMD;
+                }
+
+                const limit = (requested !== null) ? Math.min(requested, kickable.length) : kickable.length;
+                const toKick = kickable.slice(0, limit);
+
+                await quickReply(jid, `${BOT_NAME}\nDébut de l'exclusion de ${toKick.length} membre(s)...`);
+
+                const delay = ms => new Promise(res => setTimeout(res, ms));
+                const failed = [];
+                for (const target of toKick) {
+                  try {
+                    await safe.groupParticipantsUpdate(jid, [target], 'remove');
+                    await delay(1200);
+                  } catch (err) {
+                    console.error('kickall error for', target, err);
+                    failed.push(target);
+                    await delay(800);
+                  }
+                }
+
+                const successCount = toKick.length - failed.length;
+                let finalMsg = `Terminé. Membre(s) exclus : ${successCount}.`;
+                if (failed.length > 0) finalMsg += ` Échec pour ${failed.length} membre(s) (admins/protégés ou erreur).`;
+                await quickReply(jid, finalMsg);
+
+              } catch (e) {
+                console.error('kickall catch', e);
+                await quickReply(jid, `${BOT_NAME}\nErreur lors de l'exécution de kickall.`);
+              }
+            }
+            break;
+
+          case 'ferme':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nFermer le groupe réservé aux groupes.`);
+              if (!isAdmin && !isOwner) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              try {
+                await safe.groupSettingUpdate(jid, 'announcement');
+                await quickReply(jid, `${BOT_NAME}\nGroupe fermé (seuls admins peuvent envoyer).`);
+              } catch (e) { console.error('ferme err', e); await quickReply(jid, `${BOT_NAME}\nImpossible de fermer.`); }
+            }
+            break;
+
+          case 'ouvert':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nOuvrir le groupe réservé aux groupes.`);
+              if (!isAdmin && !isOwner) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              try {
+                await safe.groupSettingUpdate(jid, 'not_announcement');
+                await quickReply(jid, `${BOT_NAME}\nGroupe ouvert.`);
+              } catch (e) { console.error('ouvert err', e); await quickReply(jid, `${BOT_NAME}\nImpossible d'ouvrir.`); }
+            }
+            break;
+
+          case 'bienvenue':
+            {
+              if (!isGroup) return quickReply(jid, `${BOT_NAME}\nCommande bienvenue réservée aux groupes.`);
+              if (!isAdmin && !isOwner) return quickReply(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+              sessionObj.bienvenueEnabled[jid] = !(argText && argText.toLowerCase() === 'off');
+              await quickReply(jid, `${BOT_NAME}\nBienvenue : ${sessionObj.bienvenueEnabled[jid] ? 'ON' : 'OFF'}`);
+            }
+            break;
+
+          case 'mycode':
+            {
+              try {
+                const code = await referral.generateCodeFor(senderId, pushName || senderNumber || 'USER');
+                await quickReply(jid, `Ton code parrainage: *${code}*`);
+              } catch (e) { await quickReply(jid, 'Erreur génération code parrainage.'); }
+            }
+            break;
+
+          case 'public':
+            global.mode = 'public';
+            await quickReply(jid, 'Mode : public (tout le monde peut utiliser les commandes non-admin).');
+            break;
+
+          case 'prive':
+            if (global.mode === 'private') return await quickReply(jid, 'Le mode est déjà activé en privé.');
+            global.mode = 'private';
+            await quickReply(jid, ' Mode : *Privé* activé.');
+            break;
+
+          case 'parrain':
+            {
+              if (!args[0]) return quickReply(jid, 'Usage: .parrain TONCODE');
+              const codeArg = args[0].toUpperCase();
+              try {
+                const res = await referral.useCode(senderId, codeArg);
+                if (!res.ok) {
+                  const map = { CODE_NOT_FOUND: 'Kòd pa valide.', ALREADY_USED_BY_THIS: 'Ou te deja itilize kòd sa a.', OWN_CODE: 'Ou pa ka itilize pwòp kòd ou.', NO_CODE: 'Pa kòd bay' };
+                  await quickReply(jid, map[res.reason] || 'Impossible d\'appliquer le code.');
+                } else {
+                  await quickReply(jid, `Bravo! Vous avez utilisé le code: ${codeArg}`);
+                  try { const inviter = res.inviter; await safe.send(inviter, { text: `Vous avez reçu un nouveau parrainage: @${senderNumber}`, mentions: [senderId] }); } catch(e){}
+                }
+              } catch (e) { await quickReply(jid, 'Erreur lors de l’application du code.'); }
+            }
+            break;
+
+          case 'stats':
+            {
+              try {
+                const stats = await referral.getStats(senderId);
+                if (!stats) return await quickReply(jid, 'Aucune statistique disponible.');
+                await quickReply(jid, `Code: ${stats.code || '—'}\nParrainages: ${stats.count}\nRécompense: ${stats.reward}`);
+              } catch (e) { await quickReply(jid, 'Erreur récupération stats.'); }
+            }
+            break;
+
+          case 'del':
+            {
+              const ctx = m.extendedTextMessage?.contextInfo;
+              if (ctx?.stanzaId) {
+                const quoted = { remoteJid: jid, fromMe: false, id: ctx.stanzaId, participant: ctx.participant };
+                try { await safe.delete(jid, quoted); } catch(e){ await quickReply(jid, `${BOT_NAME}\nImpossible d'effacer.`); }
+              } else {
+                await quickReply(jid, `${BOT_NAME}\nRépondez à un message avec .del pour l'effacer.`);
+              }
+            }
+            break;
+
+          case 'ban':
+          case 'interdire':
+            {
+              const ctx = m.extendedTextMessage?.contextInfo || {};
+              let targetJid = null;
+              if (ctx?.mentionedJid && ctx.mentionedJid.length) targetJid = ctx.mentionedJid[0];
+              else if (ctx.participant) targetJid = ctx.participant;
+              else if (args && args[0]) {
+                const cleaned = args[0].replace(/[^0-9+]/g,'');
+                const noPlus = cleaned.startsWith('+')?cleaned.slice(1):cleaned;
+                targetJid = `${noPlus}@s.whatsapp.net`;
+              }
+              if (!targetJid) return quickReply(jid, "Usage: .ban <numero> ou .ban en reply/mention");
+              const tnum = getNumberFromJid(targetJid);
+              sessionObj.bannedNumbers.add(tnum);
+              try { if (isGroup) { await safe.groupParticipantsUpdate(jid, [targetJid], 'remove'); } } catch(e){}
+              await quickReply(jid, `+${tnum} banni (messages ignorés par le bot).`);
+            }
+            break;
+
+          case 'unban':
+            {
+              if (!args[0]) return quickReply(jid, 'Usage: .unban 509XXXXXXXX');
+              const cleaned = args[0].replace(/[^0-9+]/g,'');
+              const noPlus = cleaned.startsWith('+')?cleaned.slice(1):cleaned;
+              sessionObj.bannedNumbers.delete(noPlus);
+              await quickReply(jid, `+${noPlus} unban.`);
+            }
+            break;
+
+          // debugging helpers: whoami / checkadmin / promotebot
+          case 'whoami':
+            {
+              try {
+                const u = sock.user || (sock.authState && sock.authState.creds && sock.authState.creds.me) || null;
+                let ownerJid = null;
+                if (u && typeof u === 'object') ownerJid = u.id || u?.jid || u?.me || (u?.user && u.user.id) || null;
+                else if (typeof u === 'string') ownerJid = u;
+                const ownerNum = ownerJid ? ownerJid.split('@')[0] : (sessionObj.sessionOwnerNumber || 'unknown');
+                await quickReply(jid, `WHOAMI:\nsession owner jid: ${ownerJid || 'n/a'}\nsession owner number: ${ownerNum}\nYour sender: ${senderId}\nYour number: ${senderNumber}`);
+              } catch (e) {
+                console.error('whoami err', e);
+                await quickReply(jid, 'Erreur whoami.');
+              }
+            }
+            break;
+
+          case 'checkadmin':
+            {
+              try {
+                if (!isGroup) return quickReply(jid, 'Commande réservée aux groupes.');
+                const meta = await safe.groupMetadata(jid);
+                if (!meta) return quickReply(jid, 'Impossible de récupérer metadata du groupe.');
+                const participants = meta.participants || [];
+                const normalize = (p) => {
+                  if (!p) return null;
+                  if (typeof p === 'string') return p;
+                  if (p.id) return (typeof p.id === 'string') ? p.id : (p.id._serialized || null);
+                  return p.jid || p.participant || null;
+                };
+                const groupAdmins = participants
+                  .filter(p => p && (p.admin === 'admin' || p.admin === 'superadmin' || p.isAdmin === true || p.admin === true))
+                  .map(normalize).filter(Boolean);
+                let botJid = null;
+                if (sock && sock.user) botJid = sock.user.id || sock.user.jid || sock.user.me || (typeof sock.user === 'string' ? sock.user : null);
+                if (!botJid) {
+                  const maybeBot = participants.find(p => p && (p.isMe || p.isOwner));
+                  if (maybeBot) botJid = normalize(maybeBot);
+                }
+                if (botJid && !botJid.includes('@')) botJid = `${botJid}@s.whatsapp.net`;
+                const adminNumbers = groupAdmins.map(a => a ? a.split('@')[0] : 'n/a');
+                const botStatus = botJid ? (groupAdmins.includes(botJid) ? '✅ Bot IS admin' : '❌ Bot NOT admin') : '❓ Bot JID unknown';
+                const reply = `GROUP: ${meta.subject || 'unknown'}\nTotal participants: ${participants.length}\nAdmins (${adminNumbers.length}): ${adminNumbers.join(', ')}\nBot JID: ${botJid || 'n/a'}\n${botStatus}\n\nSession owner: ${sessionObj.sessionOwnerNumber || 'n/a'}\nUse .promotebot to try promote bot if session owner is admin.`;
+                await quickReply(jid, reply);
+              } catch (e) {
+                console.error('checkadmin err', e);
+                await quickReply(jid, 'Erreur checkadmin.');
+              }
+            }
+            break;
+
+          case 'promotebot':
+            {
+              try {
+                if (!isGroup) return quickReply(jid, 'Commande réservée aux groupes.');
+                await quickReply(jid, 'Tentative pour promouvoir bot (si session owner est admin)...');
+                const ok = await tryEnsureBotIsAdmin(jid);
+                if (ok) await quickReply(jid, '✅ Promotion réussie — bot est admin maintenant.');
+                else await quickReply(jid, '❌ Promotion échouée — soit session owner pa admin, soit WhatsApp pa pèmèt (promote manuellement via UI).');
+              } catch (e) {
+                console.error('promotebot err', e);
+                await quickReply(jid, 'Erreur promotebot.');
+              }
+            }
+            break;
+
+          default:
+            break;
+        }
+
+      } catch (err) {
+        console.error('erreur dans messages.upsert', err);
+      }
+
+    });
+
+    /* group participants welcome */
+    sock.ev.on('group-participants.update', async (update) => {
+      try {
+        const action = update.action || update.type || null;
+        if (action !== 'add') return;
+        const gid = update.id || update.jid || update.groupId;
+        if (!gid) return;
+        if (!sessionObj.bienvenueEnabled[gid]) return;
+        const meta = await safe.groupMetadata(gid);
+        const groupName = meta.subject || '';
+        for (const p of (update.participants || [])) {
+          const userJid = typeof p === 'string' ? p : p?.id;
+          if (!userJid) continue;
+          const txt = `Bienvenue @${userJid.split('@')[0]} dans ${groupName}`;
+          await quickSendWithImage(gid, { text: txt, mentions: [userJid] });
+        }
+      } catch (e) { console.error('erreur bienvenue', e); }
+    });
+
+    return sessionObj;
+  } // end startBaileysForSession
+
+  /* TELEGRAM BOT: connect/stop/list */
+  bot.command('connect', async (ctx) => {
+    try {
+      const chatId = ctx.chat.id;
+      const text = (ctx.message.text || '').trim();
+      const tokens = text.match(/"[^"]+"|'[^']+'|\S+/g) || [];
+      tokens.shift();
+      let botName = null;
+      let menuImageUrl = null;
+      let numericIndex = null;
+      for (let t of tokens) {
+        t = t.trim();
+        if (/^['"].+['"]$/.test(t)) {
+          const unq = t.replace(/^['"]|['"]$/g, '').trim();
+          if (!botName) botName = unq;
+        } else if (/^https?:\/\//i.test(t)) {
+          menuImageUrl = t;
+        } else if (/^\d+$/.test(t)) {
+          numericIndex = parseInt(t, 10);
+        } else if (!botName) {
+          botName = t;
+        }
+      }
+
+      if (!menuImageUrl && numericIndex && Number.isInteger(numericIndex)) {
+        if (numericIndex > 0 && numericIndex <= IMAGE_URLS.length) {
+          menuImageUrl = IMAGE_URLS[numericIndex - 1];
+        }
+      }
+
+      const sid = `S${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      await ctx.reply(`K ap kreye sesyon ${sid} pou ${botName || BOT_NAME}...`);
+      const folderName = nextAuthFolder();
+      const sessionId = uuidv4();
+      const dir = path.join(SESSIONS_BASE, folderName);
+      await fs.ensureDir(dir);
+
+      const meta = { sessionId, folderName, botName: botName || BOT_NAME, createdAt: Date.now(), telegramChatId: chatId, sid, menuImageUrl: menuImageUrl || null };
+      fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2));
+
+      await startBaileysForSession({ sessionId, folderName, telegramChatId: chatId, botName: botName || BOT_NAME, sid });
+
+      telegramSessionMap.set(`${chatId}_${sid}`, { sessionId, folderName, sid, telegramChatId: chatId });
+
+      return ctx.reply(`Sesyon kreyé (${sid}). W ap resevwa QR sou Telegram pou eskane si sesyon pa otantifye.\nMenu image: ${menuImageUrl ? 'custom' : 'default'}`);
+
+    } catch (e) {
+      console.error('connect cmd err', e);
+      return ctx.reply(`Erè: ${String(e)}`);
+    }
+  });
+
+  bot.command('stop', async (ctx) => {
+    try {
+      const chatId = ctx.chat.id;
+      const parts = (ctx.message.text || '').split(/\s+/).slice(1);
+      if (!parts[0]) return ctx.reply('Usage: /stop <sid>  (ex: /stop SABC12)');
+      const sid = parts[0];
+      const key = `${chatId}_${sid}`;
+      const map = telegramSessionMap.get(key);
+      if (!map) return ctx.reply('Pa gen sesyon konsa k ap kouri.');
+      const sessionId = map.sessionId;
+      const sess = sessions[sessionId];
+      if (sess && sess.sock) {
+        try { await sess.sock.logout(); } catch (e) {}
+        try { await sess.sock.end(); } catch (e) {}
+      }
+      telegramSessionMap.delete(key);
+      try { fs.rmSync(path.join(SESSIONS_BASE, map.folderName), { recursive: true, force: true }); } catch (e) {}
+      return ctx.reply(`Sesyon ${sid} sispann.`);
+    } catch (e) {
+      console.error('stop cmd err', e);
+      return ctx.reply(`Erè pandan stop: ${String(e)}`);
+    }
+  });
+
+  bot.command('list', async (ctx) => {
+    try {
+      const chatId = ctx.chat.id;
+      const keys = [];
+      for (const k of telegramSessionMap.keys()) if (k.startsWith(`${chatId}_`)) keys.push(k.split('_')[1]);
+      if (!keys.length) return ctx.reply('Ou pa gen okenn sesyon kouri.');
+      return ctx.reply(`Sesyon kouri pou ou: ${keys.join(', ')}`);
+    } catch (e) {
+      console.error('list err', e);
+      return ctx.reply('Erè list.');
+    }
+  });
+
+  bot.launch().then(()=>console.log('Telegram bot started')).catch(e=>console.error('telegram start err', e));
+
+  io.on('connection', (socket) => {
+    console.log('web client connected', socket.id);
+    socket.on('list_sessions', () => {
+      const arr = Object.keys(sessions).map(k => ({ sessionId: k, folder: sessions[k].folderName, botName: sessions[k].botName, owner: sessions[k].sessionOwnerNumber || null }));
+      socket.emit('sessions_list', arr);
+    });
+  });
+
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, ()=>console.log(`Server started on http://localhost:${PORT}`));
+
+  // graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('SIGINT received, shutting down...');
+    try { await bot.stop('SIGINT'); } catch(e){}
+    for (const s of Object.values(sessions)) {
+      try { s.sock.logout(); } catch(e){}
+      try { s.sock.end(); } catch(e){}
+    }
+    process.exit(0);
+  });
+  process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, shutting down');
+    try { await bot.stop('SIGTERM'); } catch(e){}
+    for (const s of Object.values(sessions)) {
+      try { s.sock.logout(); } catch(e){}
+      try { s.sock.end(); } catch(e){}
+    }
+    process.exit(0);
+  });
+
+  process.on('unhandledRejection', async (reason) => {
+    console.error('UnhandledRejection', reason);
+    try {
+      for (const [, map] of telegramSessionMap.entries()) {
+        try { await bot.telegram.sendMessage(map.telegramChatId, `UnhandledRejection: ${String(reason).slice(0,1000)}`); } catch(e){}
+      }
+    } catch(e){}
+  });
+  process.on('uncaughtException', async (err) => {
+    console.error('UncaughtException', err);
+    try {
+      for (const [, map] of telegramSessionMap.entries()) {
+        try { await bot.telegram.sendMessage(map.telegramChatId, `UncaughtException: ${String(err).slice(0,1000)}`); } catch(e){}
+      }
+    } catch(e){}
+  });
+
+  console.log('index.js loaded. Use /connect on Telegram to create sessions.');
+} // end main
+
+main().catch(err => {
+  console.error('Fatal error in main:', err);
+  process.exit(1);
+});
