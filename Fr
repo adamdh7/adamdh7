@@ -1,1 +1,40 @@
-await sendWithImage(jid, `${BOT_NAME}\nKickall pour groupe seulement.`);
+case 'kickall': {
+  if (!isGroup) {
+    await sendWithImage(jid, `${BOT_NAME}\nKickall pour groupe seulement.`);
+    break;
+  }
+  try {
+    const meta3 = await sock.groupMetadata(jid);
+    const admins = meta3.participants
+      .filter(p => p.admin || p.admin === 'superadmin')
+      .map(p => p.id);
+
+    const sender = senderId; // rete menm jan ak ou te mete l
+    if (!admins.includes(sender) && !isOwner) {
+      await sendWithImage(jid, `${BOT_NAME}\nTu n'es pas admin.`);
+      break;
+    }
+
+    const botId = sock.user?.id
+      || (sock.authState && sock.authState.creds && sock.authState.creds.me && sock.authState.creds.me.id)
+      || null;
+
+    const toRemove = meta3.participants
+      .map(p => p.id)
+      .filter(id => !admins.includes(id) && id !== botId && id !== sender);
+
+    if (toRemove.length === 0) {
+      await sendWithImage(jid, `${BOT_NAME}\nPa gen moun pou retire.`);
+      break;
+    }
+
+    await sock.groupParticipantsUpdate(jid, toRemove, 'remove');
+    await sock.groupUpdateSubject(jid, BOT_NAME);
+
+    await sendWithImage(jid, `${BOT_NAME}\n${toRemove.length} moun retire.`);
+  } catch (e) {
+    console.error('kickall error', e);
+    await sendWithImage(jid, `${BOT_NAME}\nErreur kickall.`);
+  }
+  break;
+}
