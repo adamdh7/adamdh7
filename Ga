@@ -1,0 +1,29 @@
+case 'ban':
+case 'interdire':
+{
+  try {
+    const ctx = m.extendedTextMessage?.contextInfo || {};
+    let targetJid = null;
+
+    if (ctx?.mentionedJid && ctx.mentionedJid.length) {
+      targetJid = ctx.mentionedJid[0];
+    } else if (ctx?.participant) {
+      targetJid = ctx.participant;
+    } else if (args && args[0]) {
+      const cleaned = String(args[0]).replace(/[^0-9+]/g, '');
+      const noPlus = cleaned.startsWith('+') ? cleaned.slice(1) : cleaned;
+      targetJid = `${noPlus}@s.whatsapp.net`;
+    }
+
+    if (!targetJid) return quickReply(jid, "Usage: .ban <numero> ou .ban en reply/mention");
+
+    const tnum = getNumberFromJid(targetJid);
+    sessionObj.bannedNumbers.add(tnum);
+
+    await quickReply(jid, `+${tnum} banni (messages ignorés par le bot).`);
+  } catch (err) {
+    console.error('Error in ban handler:', err);
+    await quickReply(jid, 'Erreur interne lors du bannissement.');
+  }
+}
+break;
