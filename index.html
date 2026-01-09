@@ -40,7 +40,10 @@
       --mini-w:100px;
       --mini-h:70px;
     }
-    html,body{height:100%; margin:0; padding:0; background:#000; color:#fff; font-family:'Roboto',sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow:hidden; -webkit-touch-callout:none; -webkit-user-select:none; -ms-user-select:none; user-select:none;}
+    *, *::before, *::after {
+      -webkit-tap-highlight-color: transparent;
+    }
+    html,body{height:100%; margin:0; padding:0; background:#000; color:#fff; font-family:'Roboto',sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow:hidden; -webkit-touch-callout:none; -webkit-user-select:none; -ms-user-select:none; user-select:none; touch-action: pan-y;}
     body{padding-bottom:60px;}
 
     .header{ padding:18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; backdrop-filter: blur(10px); background: rgba(0,0,0,0.7); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; -webkit-user-select:text; user-select:text; touch-action:manipulation; }
@@ -53,7 +56,7 @@
     .loader .spinner{ width:16px; height:16px; border:2px solid rgba(255,255,255,0.12); border-top-color: #fff; border-radius:50%; animation:spin 1s linear infinite; display:inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #explorerView{ position:absolute; top:76px; left:0; right:0; bottom:0; padding:18px; overflow-y:auto; background:#000; -webkit-overflow-scrolling:touch; box-sizing:border-box; }
+    #explorerView{ position:absolute; top:76px; left:0; right:0; bottom:0; padding:18px; overflow-y:auto; background:#000; -webkit-overflow-scrolling:touch; box-sizing:border-box; touch-action: pan-y; }
 
     .post-card{ background:#111; border-radius:14px; padding:14px; margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.7); -webkit-user-select:none; user-select:none; }
     .post-name{ font-weight:700; font-size:16px; margin:8px 0; color:#fff; text-align:left; -webkit-user-select:none; user-select:none; cursor:default; }
@@ -86,9 +89,148 @@
     *::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
     html, body, #explorerView { -ms-overflow-style: none; scrollbar-width: none; }
     :focus { outline: none; }
+    button { outline: none; -webkit-appearance: none; }
 
     input, textarea { -webkit-user-select: text !important; user-select: text !important; }
 
+    /* Lecteur vidéo personnalisé – contrôles flottants sans fond ni bordure */
+    .video-player {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      cursor: pointer;
+      touch-action: pan-x pan-y;
+    }
+    .video-player video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .video-controls {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: clamp(10px, 3vw, 20px) clamp(10px, 3vw, 20px) clamp(4px, 1vw, 10px);
+      box-sizing: border-box;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    .video-controls.hidden {
+      opacity: 0;
+    }
+    .center-controls {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: clamp(30px, 10vw, 80px);
+      pointer-events: auto;
+      transition: opacity 0.3s ease;
+    }
+    .center-controls button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      width: clamp(60px, 14vw, 100px);
+      height: clamp(60px, 14vw, 100px);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(26px, 7vw, 46px);
+    }
+    .center-controls button span {
+      font-size: clamp(11px, 3vw, 15px);
+      margin-top: 4px;
+    }
+    .center-controls .play-btn {
+      width: clamp(80px, 18vw, 120px);
+      height: clamp(80px, 18vw, 120px);
+      font-size: clamp(40px, 10vw, 70px);
+    }
+    .center-controls button i,
+    .center-controls button span,
+    .time,
+    .fullscreen-btn i {
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.9));
+    }
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      pointer-events: auto;
+      background: transparent;
+      padding: clamp(4px, 1vw, 8px) 0;
+    }
+    .time {
+      font-size: clamp(13px, 3.5vw, 16px);
+      min-width: 80px;
+      text-align: center;
+      color: #fff;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.9));
+    }
+    .progress-container {
+      flex: 1;
+      height: clamp(4px, 1vw, 8px);
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      border-radius: 4px;
+    }
+    .progress-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      left: -8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
+    }
+    .progress-container:hover .progress-thumb,
+    .progress-container.scrubbing .progress-thumb {
+      opacity: 1;
+    }
+    .fullscreen-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: clamp(24px, 6vw, 32px);
+      cursor: pointer;
+      padding: 8px;
+    }
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(80px, 20vw, 120px);
+      height: clamp(80px, 20vw, 120px);
+      border: 8px solid rgba(255,255,255,0.3);
+      border-top: 8px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -116,7 +258,6 @@
 
   <script>
     const AD_REDIRECT_URL = "https://www.effectivegatecpm.com/ct1q8reby?key=f9b6180053c4ea24fdb81c5bcd19db88";
-    const SKIP_DELAY_MS = 7000;
 
     function logAdEvent(action, extra = {}) {
       try {
@@ -144,80 +285,38 @@
       }
     }
 
-    function tryOpenAdInBrowser(url) {
-      try {
-        const features = 'noopener,noreferrer,toolbar=yes,location=yes,menubar=no,status=yes,scrollbars=yes,resizable=yes,width=960,height=720';
-        const newWin = window.open(url, '_blank', features);
-        if (newWin) {
-          try { newWin.focus(); } catch(e){}
-          logAdEvent('popup_opened', { url });
-          return { opened: true, win: newWin };
-        }
-        return { opened: false };
-      } catch (e) {
-        return { opened: false };
-      }
-    }
-
-    function sendImpressionPing(url) {
-      try {
-        const img = new Image();
-        img.src = url + (url.includes('?') ? '&' : '?') + '_impression=' + Date.now();
-        img.style.display = 'none';
-        document.body.appendChild(img);
-        setTimeout(()=>{ try{ img.remove(); }catch(e){} }, 5000);
-        logAdEvent('impression_ping_sent', { url });
-      } catch(e){ logAdEvent('impression_ping_failed', { err: e && e.message }); }
-    }
-
-    function showStickyAdSlot(url) {
-      try {
-        let sticky = document.getElementById('__sticky_ad_slot');
-        if (!sticky) {
-          sticky = document.createElement('div');
-          sticky.id = '__sticky_ad_slot';
-          sticky.style.position = 'fixed';
-          sticky.style.bottom = '8px';
-          sticky.style.right = '8px';
-          sticky.style.width = '120px';
-          sticky.style.height = '70px';
-          sticky.style.zIndex = '99999';
-          sticky.style.borderRadius = '8px';
-          sticky.style.boxShadow = '0 6px 18px rgba(0,0,0,0.5)';
-          sticky.style.overflow = 'hidden';
-          sticky.style.display = 'none';
-          document.body.appendChild(sticky);
-        }
-        sticky.innerHTML = '';
-        const ifr = document.createElement('iframe');
-        ifr.src = url;
-        ifr.style.border = '0';
-        ifr.width = '100%';
-        ifr.height = '100%';
-        ifr.loading = 'lazy';
-        sticky.appendChild(ifr);
-        sticky.style.display = 'block';
-        setTimeout(()=>{ try{ sticky.style.display='none'; }catch(e){} }, 12000);
-      } catch(e){}
-    }
-
-    function showAdPreferBrowserThenOverlay(adUrl) {
-      const res = tryOpenAdInBrowser(adUrl);
-      sendImpressionPing(adUrl);
-      if (res.opened) {
-        logAdEvent('popup_opened_and_overlay_shown', { url: adUrl });
-        showStickyAdSlot(adUrl);
-        setTimeout(()=>{ if (typeof adCallback === 'function') { try{ adCallback(); }catch(e){} adCallback = null; } }, 400);
-      } else {
-        logAdEvent('overlay_shown_popup_failed', { url: adUrl });
-      }
-    }
-
     let allData = [];
     const searchInput = document.getElementById('searchBox');
     const loaderEl = document.getElementById('loader');
     const explorerEl = document.getElementById('explorerView');
     const headerEl = document.getElementById('siteHeader');
+
+    let currentContainer = null;
+
+    function revertToThumb(container) {
+      if (!container) return;
+
+      const video = container.querySelector('video');
+      if (video && video.currentTime > 1) {
+        container.dataset.savedSrc = video.src;
+        container.dataset.savedTime = video.currentTime.toFixed(2);
+        setTimeout(() => {
+          delete container.dataset.savedSrc;
+          delete container.dataset.savedTime;
+        }, 27000);
+        video.pause();
+      }
+
+      const iframe = container.querySelector('iframe');
+      if (iframe && iframe.src.includes('youtube.com')) {
+        try {
+          iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        } catch(e) {}
+      }
+
+      const thumbSrc = container.dataset.thumbSrc || "https://via.placeholder.com/800x450?text=Preview";
+      container.innerHTML = `<img class="post-thumb" src="${thumbSrc}" alt="" loading="lazy" draggable="false">`;
+    }
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -281,6 +380,8 @@
         img.draggable = false;
 
         thumbCon.appendChild(img);
+        thumbCon.dataset.thumbSrc = img.src;
+
         mediaWrap.appendChild(thumbCon);
         card.appendChild(mediaWrap);
 
@@ -292,7 +393,7 @@
         thumbCon.addEventListener("click", (ev) => {
           ev.stopPropagation();
           const src = post.Previously || post.video || post["Url Video"] || post["Url"] || post.image || post.media || "";
-          if (thumbCon.querySelector('video, iframe')) {
+          if (thumbCon.querySelector('video, iframe, .video-player')) {
             return;
           }
           openInNewTab(AD_REDIRECT_URL);
@@ -345,55 +446,302 @@
       return src;
     }
 
-    function adjustIFrameSize(iframe, container){
-      try {
-        const cw = container.clientWidth || iframe.clientWidth || Math.min(window.innerWidth, parseInt(getComputedStyle(container).maxWidth) || window.innerWidth);
-        const h = Math.round(cw * 9 / 16);
-        iframe.style.width = cw + "px";
-        iframe.style.height = h + "px";
-      } catch(e){}
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return "0:00";
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s.toString().padStart(2, "0")}`;
     }
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     function playMedia(src, container){
       if (!src) return;
+
+      if (container.querySelector('video, iframe, .video-player')) {
+        return;
+      }
+
+      if (currentContainer && currentContainer !== container) {
+        revertToThumb(currentContainer);
+      }
+      currentContainer = container;
+
+      if (!container.dataset.thumbSrc) {
+        const img = container.querySelector('img');
+        if (img) container.dataset.thumbSrc = img.src;
+      }
+
       container.innerHTML = "";
 
       const isVideo = looksLikeVideo(src);
-      if (isVideo){
+
+      if (isVideo) {
         if (src.includes("youtube.com") || src.includes("youtu.be")) {
           const iframe = document.createElement("iframe");
           iframe.src = normalizeYouTubeEmbed(src);
           iframe.allow = "autoplay; fullscreen; picture-in-picture";
           iframe.allowFullscreen = true;
           iframe.style.border = "none";
-          iframe.style.display = "block";
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
           container.appendChild(iframe);
-          setTimeout(() => adjustIFrameSize(iframe, container), 60);
+          return;
         } else if (src.includes("vimeo.com")) {
           const iframe = document.createElement("iframe");
           iframe.src = normalizeVimeoEmbed(src);
           iframe.allow = "autoplay; fullscreen; picture-in-picture";
           iframe.allowFullscreen = true;
           iframe.style.border = "none";
-          iframe.style.display = "block";
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
           container.appendChild(iframe);
-          setTimeout(() => adjustIFrameSize(iframe, container), 60);
+          return;
         } else {
-          const videoEl = document.createElement("video");
-          videoEl.src = src;
-          videoEl.controls = true;
-          videoEl.autoplay = true;
-          videoEl.playsInline = true;
-          videoEl.setAttribute("controlsList", "nodownload");
-          videoEl.style.display = "block";
-          videoEl.style.maxWidth = "100%";
-          videoEl.style.height = "auto";
-          videoEl.style.objectFit = "contain";
-          videoEl.draggable = false;
-          container.appendChild(videoEl);
-          videoEl.addEventListener('click', () => {
-            if (videoEl.paused) videoEl.play(); else videoEl.pause();
+          const player = document.createElement("div");
+          player.className = "video-player";
+
+          const video = document.createElement("video");
+          video.src = src;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.preload = "auto";
+          video.draggable = false;
+
+          const spinner = document.createElement("div");
+          spinner.className = "loading-spinner";
+
+          const controls = document.createElement("div");
+          controls.className = "video-controls";
+
+          const centerDiv = document.createElement("div");
+          centerDiv.className = "center-controls";
+
+          const rewindBtn = document.createElement("button");
+          rewindBtn.innerHTML = '<i class="fas fa-backward-step"></i><span>10</span>';
+
+          const playBtn = document.createElement("button");
+          playBtn.className = "play-btn";
+          playBtn.innerHTML = '<i class="fas fa-play"></i>';
+
+          const forwardBtn = document.createElement("button");
+          forwardBtn.innerHTML = '<i class="fas fa-forward-step"></i><span>10</span>';
+
+          centerDiv.append(rewindBtn, playBtn, forwardBtn);
+
+          const bottomBar = document.createElement("div");
+          bottomBar.className = "bottom-bar";
+
+          const currentTime = document.createElement("div");
+          currentTime.className = "time";
+          currentTime.textContent = "0:00";
+
+          const progressCont = document.createElement("div");
+          progressCont.className = "progress-container";
+
+          const progressFill = document.createElement("div");
+          progressFill.className = "progress-fill";
+
+          const progressThumb = document.createElement("div");
+          progressThumb.className = "progress-thumb";
+
+          progressCont.append(progressFill, progressThumb);
+
+          const durationTime = document.createElement("div");
+          durationTime.className = "time";
+          durationTime.textContent = "0:00";
+
+          const fsBtn = document.createElement("button");
+          fsBtn.className = "fullscreen-btn";
+          fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+
+          bottomBar.append(currentTime, progressCont, durationTime, fsBtn);
+          controls.append(centerDiv, bottomBar);
+          player.append(video, spinner, controls);
+          container.appendChild(player);
+
+          let hideTimer;
+          let isScrubbing = false;
+
+          const showControls = () => {
+            controls.classList.remove("hidden");
+            clearTimeout(hideTimer);
+            if (!video.paused && spinner.style.display === "none") {
+              hideTimer = setTimeout(() => controls.classList.add("hidden"), 3000);
+            }
+          };
+
+          const toggleControls = () => {
+            if (controls.classList.contains("hidden")) {
+              showControls();
+            } else {
+              controls.classList.add("hidden");
+              clearTimeout(hideTimer);
+            }
+          };
+
+          player.addEventListener("click", (e) => {
+            if (e.target.closest('button') || e.target.closest('.progress-container')) return;
+            toggleControls();
           });
+
+          video.addEventListener("play", () => {
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            showControls();
+          });
+
+          video.addEventListener("pause", () => {
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            showControls();
+          });
+
+          const showSpinner = () => {
+            spinner.style.display = "block";
+            centerDiv.style.opacity = "0";
+            centerDiv.style.pointerEvents = "none";
+          };
+
+          const hideSpinner = () => {
+            spinner.style.display = "none";
+            centerDiv.style.opacity = "1";
+            centerDiv.style.pointerEvents = "auto";
+            showControls();
+          };
+
+          video.addEventListener("loadstart", showSpinner);
+          video.addEventListener("waiting", showSpinner);
+          video.addEventListener("canplay", hideSpinner);
+          video.addEventListener("playing", hideSpinner);
+          video.addEventListener("seeking", showSpinner);
+          video.addEventListener("seeked", hideSpinner);
+
+          video.addEventListener("timeupdate", () => {
+            currentTime.textContent = formatTime(video.currentTime);
+            durationTime.textContent = formatTime(video.duration || 0);
+            const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
+            progressFill.style.width = percent + "%";
+            progressThumb.style.left = `calc(${percent}% - 8px)`;
+          });
+
+          video.addEventListener("loadedmetadata", () => {
+            const savedTime = parseFloat(container.dataset.savedTime || "0");
+            const savedSrc = container.dataset.savedSrc || "";
+            if (savedTime > 0 && video.src === savedSrc) {
+              video.currentTime = savedTime;
+              delete container.dataset.savedTime;
+              delete container.dataset.savedSrc;
+            }
+          });
+
+          const scrub = (e) => {
+            const rect = progressCont.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let pos = (clientX - rect.left) / rect.width;
+            pos = Math.max(0, Math.min(1, pos));
+            video.currentTime = pos * (video.duration || 0);
+            const percent = pos * 100;
+            progressFill.style.width = percent + "%";
+            progressThumb.style.left = `calc(${percent}% - 8px)`;
+          };
+
+          progressCont.addEventListener("pointerdown", (e) => {
+            e.stopPropagation();
+            isScrubbing = true;
+            progressCont.classList.add("scrubbing");
+            scrub(e);
+            showControls();
+          });
+
+          document.addEventListener("pointermove", (e) => {
+            if (isScrubbing) scrub(e);
+          });
+
+          document.addEventListener("pointerup", () => {
+            if (isScrubbing) {
+              isScrubbing = false;
+              progressCont.classList.remove("scrubbing");
+            }
+          });
+
+          progressCont.addEventListener("click", (e) => {
+            e.stopPropagation();
+            scrub(e);
+          });
+
+          rewindBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            video.currentTime = Math.max(0, video.currentTime - 10);
+          });
+
+          forwardBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+          });
+
+          playBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            video.paused ? video.play() : video.pause();
+          });
+
+          /* Fullscreen optimisé pour iOS + tous appareils */
+          fsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+            if (isFullscreen) {
+              if (document.exitFullscreen) {
+                document.exitFullscreen();
+              } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              }
+            } else {
+              if (isIOS && video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+              } else {
+                player.requestFullscreen().catch(() => {});
+              }
+              if (!isIOS && screen.orientation && typeof screen.orientation.lock === "function") {
+                screen.orientation.lock("landscape-primary").catch(() => {});
+              }
+            }
+          });
+
+          /* Gestion changement fullscreen (standard + webkit pour iOS) */
+          document.addEventListener("fullscreenchange", updateFsIcon);
+          document.addEventListener("webkitfullscreenchange", updateFsIcon);
+
+          function updateFsIcon() {
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            fsBtn.innerHTML = isFullscreen
+              ? '<i class="fas fa-compress"></i>'
+              : '<i class="fas fa-expand"></i>';
+
+            if (!isFullscreen && !isIOS && screen.orientation && typeof screen.orientation.unlock === "function") {
+              screen.orientation.unlock();
+            }
+          }
+
+          let lastTap = 0;
+          player.addEventListener("touchend", (e) => {
+            const now = Date.now();
+            if (now - lastTap < 300) {
+              e.preventDefault();
+            }
+            lastTap = now;
+          });
+
+          player.addEventListener("dblclick", (e) => {
+            e.preventDefault();
+          });
+
+          [rewindBtn, playBtn, forwardBtn, fsBtn, progressCont].forEach(el => {
+            el.addEventListener("click", (e) => e.stopPropagation());
+            el.addEventListener("touchstart", (e) => e.stopPropagation(), {passive: true});
+          });
+
+          showControls();
+          hideSpinner();
+          return;
         }
       } else {
         const imgEl = document.createElement("img");
@@ -437,10 +785,6 @@
       const exists = Array.from(document.getElementsByClassName('social-section')).length;
       if (!exists) c.appendChild(s);
     }
-
-    window.getAdLogs = function() {
-      try { return JSON.parse(localStorage.getItem('adLogs') || '[]'); } catch(e) { return []; }
-    };
 
     const SEARCH_DEBOUNCE_MS = 160;
     let searchTimer = null;
@@ -512,7 +856,6 @@
           hideLoader();
         });
     });
-
   </script>
 
   <script>
@@ -543,15 +886,6 @@
       });
     }
 
-    navigator.serviceWorker && navigator.serviceWorker.addEventListener('controllerchange', () => {
-      try {
-        if (!window.__sw_reload_attempted) {
-          window.__sw_reload_attempted = true;
-          location.reload();
-        }
-      } catch(e){}
-    });
-
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js?v=2')
@@ -581,20 +915,6 @@
     document.addEventListener('touchmove', function (e) {
       if (e.scale && e.scale !== 1) { e.preventDefault(); }
     }, { passive: false });
-
-    (function() {
-      let lastTouch = 0;
-      document.addEventListener('touchend', function(e) {
-        const now = Date.now();
-        if (now - lastTouch <= 300) {
-          const tag = (e.target && e.target.tagName) || '';
-          if (['INPUT','TEXTAREA','SELECT'].indexOf(tag) === -1) {
-            e.preventDefault();
-          }
-        }
-        lastTouch = now;
-      }, { passive: false });
-    })();
   </script>
 
   <script>
@@ -614,21 +934,24 @@
   </script>
 
   <script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
   </script>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2373752876384997"
      crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-format="fluid"
-     data-ad-layout-key="-gw-3+1f-3d+2z"
-     data-ad-client="ca-pub-2373752876384997"
-     data-ad-slot="6246419460"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-<script src="https://pl28411312.effectivegatecpm.com/43/85/cc/4385ccb8591c2726fae96ede327e635b.js"></script>
-<script src="https://pl28411310.effectivegatecpm.com/ea/14/4b/ea144be968c6dd7e5e7d97fb017c6181.js"></script>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-format="fluid"
+       data-ad-layout-key="-gw-3+1f-3d+2z"
+       data-ad-client="ca-pub-2373752876384997"
+       data-ad-slot="6246419460"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+  <script src="https://pl28411312.effectivegatecpm.com/43/85/cc/4385ccb8591c2726fae96ede327e635b.js"></script>
+  <script src="https://pl28411310.effectivegatecpm.com/ea/14/4b/ea144be968c6dd7e5e7d97fb017c6181.js"></script>
 </body>
 </html>
