@@ -1,10 +1,8 @@
-// service-worker.js (meté nan /service-worker.js sou repo a)
-// Version corrigée : n'intercepte PAS les requêtes publicitaires courantes (Adsterra, trackers, popups, etc.)
 
-const CACHE_NAME = 'adamdh7-shell-v2';
-const IMAGE_CACHE = 'adamdh7-thumbs-v2';
-const JSON_CACHE = 'adamdh7-json-v2';
-const VIDEO_CACHE = 'adamdh7-videos-v2';
+const CACHE_NAME = 'adamdh7v2';
+const IMAGE_CACHE = 'adamdh7v2';
+const JSON_CACHE = 'adamdh7v2';
+const VIDEO_CACHE = 'adamdh7v2';
 const OFFLINE_URL = '/offline.html';
 const PLACEHOLDER = '/images/placeholder-thumb.png';
 
