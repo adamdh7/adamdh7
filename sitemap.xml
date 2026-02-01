@@ -36,4 +36,18 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://adamdh7.org/Tout.apk</loc>
+    <lastmod>2026-01-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://adamdh7.org/Adam_D'H7.apk</loc>
+    <lastmod>2026-01-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>
