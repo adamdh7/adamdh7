@@ -41,21 +41,23 @@ const AVOID_CACHE_DOMAINS = [
 ];
 
 function normalizeUrl(u){
-  try {
-    const url = new URL(u, self.location.origin);
-    return url.href;
-  } catch(e) {
-    return u;
-  }
+  return new URL(u, self.location.origin).toString();
 }
 
 function shouldBypass(url){
   if(!url) return false;
   const s = url.toString().toLowerCase();
-  for(const d of AVOID_CACHE_DOMAINS){
-    if(d && s.includes(d)) return true;
+  return AVOID_CACHE_DOMAINS.some(d => d && s.includes(d));
+}
+
+async function pool(limit, tasks) {
+  const executing = [];
+  for (const task of tasks) {
+    const p = task().finally(() => executing.splice(executing.indexOf(p), 1));
+    executing.push(p);
+    if (executing.length >= limit) await Promise.race(executing);
   }
-  return false;
+  await Promise.allSettled(executing);
 }
 
 self.addEventListener('install', event => {
@@ -65,70 +67,66 @@ self.addEventListener('install', event => {
     await Promise.allSettled(
       PRECACHE_URLS
         .filter(u => !shouldBypass(u))
-        .map(u =>
-          fetch(u, {cache: 'no-cache'}).then(res => {
-            if (!res.ok && res.type !== 'opaque') throw new Error(`${u} -> ${res.status}`);
-            return cache.put(u, res.clone());
-          }).catch(err => {
-          })
-        )
+        .map(async u => {
+          const r = await fetch(u, { cache: 'no-cache' });
+          if (r && (r.ok || r.type === 'opaque')) {
+            await cache.put(new Request(u), r.clone());
+          }
+        })
     );
 
     try {
-      const resp = await fetch('/index.json', {cache: 'no-cache'});
-      if (resp && (resp.ok || resp.type === 'opaque')) {
-        const index = await resp.json();
-        const imageCache = await caches.open(IMAGE_CACHE);
-        const jsonCache = await caches.open(JSON_CACHE);
+      const resp = await fetch('/index.json', { cache: 'no-cache' });
+      if (!resp || (!resp.ok && resp.type !== 'opaque')) return;
 
-        const urls = new Set();
+      const index = await resp.json();
+      const imageCache = await caches.open(IMAGE_CACHE);
+      const jsonCache = await caches.open(JSON_CACHE);
+      const urls = new Set();
 
-        if (Array.isArray(index)) {
-          index.forEach(it => {
-            if (it['Url Thumb']) urls.add(normalizeUrl(it['Url Thumb']));
-            if (it['Url']) urls.add(normalizeUrl(it['Url']));
-            if (it.image) urls.add(normalizeUrl(it.image));
-          });
-        } else {
-          Object.values(index).forEach(v => {
-            if (typeof v === 'string' && (v.endsWith('.json') || /\.(jpg|jpeg|png|webp)$/.test(v))) urls.add(normalizeUrl(v));
-          });
-        }
-
-        await Promise.allSettled(Array.from(urls).map(u => {
-          if (shouldBypass(u)) return Promise.resolve();
-          if (u.endsWith('.json')) {
-            return fetch(u).then(r => { if(r && (r.ok||r.type==='opaque')) return jsonCache.put(u, r.clone()); }).catch(()=>{});
-          }
-          if (/\.(jpg|jpeg|png|webp)$/.test(u)) {
-            return fetch(u).then(r => { if(r && (r.ok||r.type==='opaque')) return imageCache.put(u, r.clone()); }).catch(()=>{});
-          }
-          return Promise.resolve();
-        }));
+      if (Array.isArray(index)) {
+        index.forEach(it => {
+          if (it['Url Thumb']) urls.add(normalizeUrl(it['Url Thumb']));
+          if (it['Url']) urls.add(normalizeUrl(it['Url']));
+          if (it.image) urls.add(normalizeUrl(it.image));
+        });
+      } else {
+        Object.values(index).forEach(v => {
+          if (typeof v === 'string') urls.add(normalizeUrl(v));
+        });
       }
-    } catch (e) {
-    }
+
+      await pool(4, Array.from(urls).map(u => async () => {
+        if (shouldBypass(u)) return;
+        const r = await fetch(u).catch(() => null);
+        if (!r || (!r.ok && r.type !== 'opaque')) return;
+        const req = new Request(u);
+        if (u.endsWith('.json')) await jsonCache.put(req, r.clone());
+        else if (/\.(jpg|jpeg|png|webp)$/i.test(u)) await imageCache.put(req, r.clone());
+      }));
+
+    } catch(e) {}
 
     await self.skipWaiting();
   })());
 });
 
-self.addEventListener('activate', evt => {
-  evt.waitUntil((async () => {
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.map(k => {
-      if (![CACHE_NAME, IMAGE_CACHE, JSON_CACHE, VIDEO_CACHE].includes(k)) {
-        return caches.delete(k);
-      }
-      return Promise.resolve();
-    }));
+    await Promise.all(
+      keys.map(k => {
+        if (![CACHE_NAME, IMAGE_CACHE, JSON_CACHE, VIDEO_CACHE].includes(k)) {
+          return caches.delete(k);
+        }
+      })
+    );
     await self.clients.claim();
   })());
 });
 
 self.addEventListener('fetch', event => {
   const req = event.request;
-
   if (req.method !== 'GET') return;
 
   if (req.destination === 'video' || /\.(mp4|webm|ogg|mov)$/i.test(req.url)) {
@@ -136,27 +134,23 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  try {
-    if (shouldBypass(req.url)) {
-      event.respondWith(
-        fetch(req).catch(err => {
-          if (req.mode === 'navigate' || (req.headers.get('accept')||'').includes('text/html')) {
-            return caches.match(OFFLINE_URL);
-          }
-          return new Response(null, { status: 504, statusText: 'Gateway Timeout' });
-        })
-      );
-      return;
-    }
-  } catch (e) {
+  if (shouldBypass(req.url)) {
+    event.respondWith(
+      fetch(req).catch(() =>
+        req.mode === 'navigate'
+          ? caches.match(OFFLINE_URL)
+          : new Response(null, { status: 504 })
+      )
+    );
+    return;
   }
 
-  if (req.mode === 'navigate' || (req.headers.get('accept')||'').includes('text/html')) {
+  if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(networkFirst(req));
     return;
   }
 
-  if (req.destination === 'image' || /\.(png|jpg|jpeg|webp|gif)$/.test(req.url)) {
+  if (req.destination === 'image' || /\.(png|jpg|jpeg|webp|gif)$/i.test(req.url)) {
     event.respondWith(cacheFirstWithFallback(req, IMAGE_CACHE, PLACEHOLDER));
     return;
   }
@@ -173,29 +167,23 @@ async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
   if (cached) return cached;
-  try {
-    const resp = await fetch(request);
-    const url = (request.url || '').toLowerCase();
-    if (resp && (resp.ok || resp.type === 'opaque') && !shouldBypass(url)) {
-      try { cache.put(request, resp.clone()).catch(()=>{}); } catch(e){}
-    }
-    return resp;
-  } catch (e) {
-    return caches.match(OFFLINE_URL);
+  const resp = await fetch(request).catch(() => null);
+  if (resp && (resp.ok || resp.type === 'opaque') && !shouldBypass(request.url)) {
+    await cache.put(request, resp.clone());
   }
+  return resp || caches.match(OFFLINE_URL);
 }
 
 async function networkFirst(request, cacheName = CACHE_NAME) {
   const cache = await caches.open(cacheName);
   try {
-    const response = await fetch(request);
-    if (response && (response.ok || response.type === 'opaque') && !shouldBypass(request.url)) {
-      try { cache.put(request, response.clone()).catch(()=>{}); } catch(e){}
+    const resp = await fetch(request);
+    if (resp && (resp.ok || resp.type === 'opaque') && !shouldBypass(request.url)) {
+      await cache.put(request, resp.clone());
     }
-    return response;
-  } catch (err) {
-    const cached = await cache.match(request) || await caches.match(OFFLINE_URL);
-    return cached;
+    return resp;
+  } catch {
+    return (await cache.match(request)) || caches.match(OFFLINE_URL);
   }
 }
 
@@ -203,14 +191,10 @@ async function cacheFirstWithFallback(request, cacheName, fallbackUrl) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if (cached) return cached;
-  try {
-    const resp = await fetch(request);
-    if (resp && (resp.ok || resp.type === 'opaque') && !shouldBypass(request.url)) {
-      await cache.put(request, resp.clone());
-      return resp;
-    }
-    if (resp) return resp;
-  } catch (e) {
+  const resp = await fetch(request).catch(() => null);
+  if (resp && (resp.ok || resp.type === 'opaque') && !shouldBypass(request.url)) {
+    await cache.put(request, resp.clone());
+    return resp;
   }
-  return caches.match(fallbackUrl);
+  return resp || caches.match(fallbackUrl);
 }
