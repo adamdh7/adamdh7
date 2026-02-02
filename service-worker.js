@@ -1,7 +1,7 @@
-const CACHE_NAME = 'adamdh7v7';
-const IMAGE_CACHE = 'adamdh7v7';
-const JSON_CACHE = 'adamdh7v7';
-const VIDEO_CACHE = 'adamdh7v7';
+const CACHE_NAME = 'adamdh7v4';
+const IMAGE_CACHE = 'adamdh7v3';
+const JSON_CACHE = 'adamdh7v2';
+const VIDEO_CACHE = 'adamdh7v1';
 const OFFLINE_URL = '/offline.html';
 const PLACEHOLDER = '/placeholder.jpg';
 
