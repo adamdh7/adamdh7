@@ -1326,5 +1326,78 @@
   <script>
        (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
+  
+  <script>
+(function(){
+const ID='__dh7_overlay_v7';
+const STYLE_ID='__dh7_overlay_style_v7';
+function makeStyle(){
+if(document.getElementById(STYLE_ID))return;
+const s=document.createElement('style');
+s.id=STYLE_ID;
+s.textContent=
+`#${ID}{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.45)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;z-index:2147483647!important;pointer-events:auto!important;opacity:1!important;transition:opacity .45s ease,transform .45s ease}
+#${ID} .dh7-wrap{max-width:880px;width:calc(100% - 40px);border-radius:14px;padding:28px 32px;text-align:center;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.6);background:linear-gradient(180deg,rgba(0,0,0,0.28),rgba(0,0,0,0.22));-webkit-backdrop-filter:blur(6px)}
+#${ID} h1{margin:0 0 14px;font-size:28px;letter-spacing:.6px;font-weight:700}
+#${ID} p{margin:0 0 22px;font-size:16px;opacity:.95;line-height:1.35}
+#${ID} .dh7-btn{display:inline-block;padding:12px 34px;border-radius:12px;background:#e50914;color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;outline:none}
+#${ID} .dh7-btn:active{transform:scale(.985)}
+@media (max-width:600px){#${ID} h1{font-size:20px}#${ID} p{font-size:14px}#${ID} .dh7-wrap{padding:18px}}`;
+(document.head||document.documentElement).appendChild(s);
+}
+function createOverlay(){
+if(document.getElementById(ID))return;
+makeStyle();
+const overlay=document.createElement('div');
+overlay.id=ID;
+overlay.setAttribute('aria-hidden','false');
+overlay.innerHTML=`<div class="dh7-wrap"><h1>Cette version n'est plus active</h1><p>Pour continuer à profiter de l'application avec les dernières fonctionnalités et corrections, veuillez télécharger la nouvelle version.</p><button class="dh7-btn" id="${ID}_btn">Télécharger</button></div>`;
+(document.body||document.documentElement).appendChild(overlay);
+var btn=document.getElementById(ID+'_btn');
+if(btn)btn.addEventListener('click',function(){location.href="https://adamdh7.org/Adam_D'H7.apk";});
+setInterval(function(){var e=document.getElementById(ID); if(e && e.parentNode!==document.body) document.body.appendChild(e);},1500);
+}
+function normalize(v){
+if(!v) return null;
+v=String(v).trim();
+if(v[0]==='v'||v[0]==='V') v=v.substring(1);
+return v;
+}
+function getEnteredVersion(){
+var entered=null;
+var p=location.pathname||'';
+var seg=p.split('/').filter(Boolean)[0]||'';
+if(seg.startsWith('V=')||seg.startsWith('v=')) entered=seg.substring(2);
+if(!entered){
+var params=new URLSearchParams(location.search);
+if(params.has('V')) entered=params.get('V');
+if(!entered && params.has('v')) entered=params.get('v');
+}
+if(!entered) return null;
+entered=entered.split('/')[0].split('?')[0];
+return normalize(entered);
+}
+function parseCacheVersion(text){
+if(!text) return null;
+var m=text.match(/const\s+CACHE_NAME\s*=\s*['"`]([^'"`]+)['"`]/i);
+if(!m) return null;
+var name=m[1];
+var parts=name.split(/[-_\/]/);
+var v=parts.pop();
+return normalize(v);
+}
+function checkAndShow(){
+var entered=getEnteredVersion();
+if(!entered) return;
+fetch('/sw.js?t='+Date.now(),{cache:'no-cache'}).then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(t){
+var cur=parseCacheVersion(t);
+if(!cur) return;
+if(cur!==entered) createOverlay();
+}).catch(function(){});
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',checkAndShow); else checkAndShow();
+})();
+</script>
+
 </body>
 </html>
