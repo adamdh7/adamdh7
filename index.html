@@ -1354,7 +1354,7 @@ overlay.setAttribute('aria-hidden','false');
 overlay.innerHTML=`<div class="dh7-wrap"><h1>Cette version n'est plus active</h1><p>Pour continuer à profiter de l'application avec les dernières fonctionnalités et corrections, veuillez télécharger la nouvelle version.</p><button class="dh7-btn" id="${ID}_btn">Télécharger</button></div>`;
 (document.body||document.documentElement).appendChild(overlay);
 var btn=document.getElementById(ID+'_btn');
-if(btn)btn.addEventListener('click',function(){location.href="https://adamdh7.org/Adam_D'H7.apk";});
+if(btn)btn.addEventListener('click',function(){location.href="https://adamdh7.org/app/Adam_D'H7.apk";});
 setInterval(function(){var e=document.getElementById(ID); if(e && e.parentNode!==document.body) document.body.appendChild(e);},1500);
 }
 function normalize(v){
