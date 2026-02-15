@@ -1389,7 +1389,7 @@ return normalize(v);
 function checkAndShow(){
 var entered=getEnteredVersion();
 if(!entered) return;
-fetch('/sw.js?t='+Date.now(),{cache:'no-cache'}).then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(t){
+fetch('/service-worker.js?t='+Date.now(),{cache:'no-cache'}).then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(t){
 var cur=parseCacheVersion(t);
 if(!cur) return;
 if(cur!==entered) createOverlay();
