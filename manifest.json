@@ -16,14 +16,14 @@
     {
       "src": "https://adamdh7.org/adamdh7.png",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],
   "screenshots": [
     {
       "src": "https://adamdh7.org/poste.png",
-      "sizes": "1280×720",
+      "sizes": "720x480",
       "type": "image/png"
     }
   ]
