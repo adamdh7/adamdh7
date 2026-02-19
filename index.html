@@ -1403,6 +1403,306 @@ if(cur!==entered) createOverlay();
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',checkAndShow); else checkAndShow();
 })();
 </script>
-  
+  <script>
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        :root {
+            --bg-ui: #000000;
+            --txt-ui: #ffffff;
+            --acc-ui: #333333;
+        }
+        #int-tab-container-ui {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 85%;
+            background-color: var(--bg-ui);
+            border-top: 1px solid var(--acc-ui);
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+            z-index: 2147483647;
+            display: flex;
+            flex-direction: column;
+            font-family: sans-serif;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+        #int-tab-container-ui.active {
+            bottom: 0;
+        }
+        .nav-bar-ui {
+            height: 60px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 20px;
+            background: var(--bg-ui);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: none;
+        }
+        .nav-left-ui {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-right-ui {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .nav-icon-ui {
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke: var(--txt-ui);
+            stroke-width: 2.5;
+            cursor: pointer;
+            display: none;
+        }
+        .nav-icon-ui.show-ui {
+            display: block;
+        }
+        .drag-zone-ui {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            height: 100%;
+            width: 120px;
+        }
+        .drag-bar-ui {
+            width: 45px;
+            height: 5px;
+            background: var(--acc-ui);
+            border-radius: 10px;
+        }
+        #int-iframe-ui {
+            flex: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const container = document.createElement('div');
+    container.id = 'int-tab-container-ui';
+    container.innerHTML = `
+        <div class="nav-bar-ui">
+            <div class="nav-left-ui">
+                <svg id="ui-b-back" class="nav-icon-ui" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                <svg id="ui-b-fwd" class="nav-icon-ui" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <div class="drag-zone-ui" id="ui-drag-handle">
+                <div class="drag-bar-ui"></div>
+            </div>
+            <div class="nav-right-ui">
+                <svg id="ui-b-close" class="nav-icon-ui show-ui" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+        </div>
+        <iframe id="int-iframe-ui" name="int-iframe-ui" src="about:blank" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    `;
+    document.body.appendChild(container);
+
+    const iframe = document.getElementById('int-iframe-ui');
+    const btnBack = document.getElementById('ui-b-back');
+    const btnFwd = document.getElementById('ui-b-fwd');
+    const btnClose = document.getElementById('ui-b-close');
+    const dragHandle = document.getElementById('ui-drag-handle');
+
+    let hStack = 0;
+    let fStack = 0;
+    let currentActiveUrl = '';
+    let isInitialLoad = false;
+    let isNavigatingHistory = false;
+
+    function syncNav() {
+        btnBack.classList.toggle('show-ui', hStack > 1);
+        btnFwd.classList.toggle('show-ui', fStack > 0);
+    }
+
+    function isSocialOrEmail(url) {
+        const patterns = [
+            'youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 
+            'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com',
+            'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com',
+            'mailto:'
+        ];
+        return patterns.some(p => url.toLowerCase().includes(p));
+    }
+
+    function openInNewTab() {
+        let urlToOpen = currentActiveUrl;
+        try {
+            if (iframe.contentWindow.location.href && iframe.contentWindow.location.href !== 'about:blank') {
+                urlToOpen = iframe.contentWindow.location.href;
+            }
+        } catch(e) {}
+        
+        if (!urlToOpen || urlToOpen === 'about:blank') {
+            urlToOpen = iframe.src;
+        }
+
+        if (urlToOpen && urlToOpen !== 'about:blank') {
+            const a = document.createElement('a');
+            a.href = urlToOpen;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            exitUI();
+        }
+    }
+
+    function launchUrl(url) {
+        if (!url || url === 'undefined' || url === '#' || url === 'about:blank') return;
+        
+        if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            return;
+        }
+
+        isInitialLoad = true;
+        currentActiveUrl = url;
+        iframe.src = url;
+        container.classList.add('active');
+        hStack = 1;
+        fStack = 0;
+        syncNav();
+    }
+
+    function exitUI() {
+        container.classList.remove('active');
+        container.style.transform = 'translateY(0)';
+        hStack = 0;
+        fStack = 0;
+        currentActiveUrl = '';
+        syncNav();
+        setTimeout(() => { 
+            iframe.removeAttribute('src'); 
+            iframe.src = 'about:blank'; 
+        }, 400);
+    }
+
+    btnBack.onclick = () => {
+        try {
+            isNavigatingHistory = true;
+            iframe.contentWindow.history.back();
+            hStack = Math.max(1, hStack - 1);
+            fStack++;
+            syncNav();
+            setTimeout(() => isNavigatingHistory = false, 500);
+        } catch(e) {}
+    };
+
+    btnFwd.onclick = () => {
+        try {
+            isNavigatingHistory = true;
+            iframe.contentWindow.history.forward();
+            fStack = Math.max(0, fStack - 1);
+            hStack++;
+            syncNav();
+            setTimeout(() => isNavigatingHistory = false, 500);
+        } catch(e) {}
+    };
+
+    btnClose.onclick = exitUI;
+
+    iframe.onload = () => {
+        if (iframe.src && !iframe.src.includes('about:blank')) {
+            if (isInitialLoad) {
+                isInitialLoad = false;
+            } else if (!isNavigatingHistory) {
+                hStack++;
+                fStack = 0;
+                syncNav();
+            }
+            try {
+                currentActiveUrl = iframe.contentWindow.location.href;
+            } catch(e) {}
+        }
+    };
+
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href) {
+            const targetAttr = link.getAttribute('target');
+            if (targetAttr === '_blank' || targetAttr === '_new' || e.ctrlKey || e.metaKey) {
+                if (link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                launchUrl(link.href);
+            }
+        }
+    }, true);
+
+    const originalWindowOpen = window.open;
+    window.open = function(url, target, features) {
+        if (url) {
+            if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
+                return originalWindowOpen.call(window, url, '_blank', features);
+            }
+            launchUrl(url);
+            return null;
+        }
+    };
+
+    let sY = 0;
+    let isMoving = false;
+
+    function dragInit(e) {
+        sY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        isMoving = false;
+        
+        const dragMove = (ev) => {
+            let mY = ev.type === 'touchmove' ? ev.touches[0].clientY : ev.clientY;
+            let delta = mY - sY;
+            if (delta > 5) {
+                isMoving = true;
+                container.style.transition = 'none';
+                container.style.transform = `translateY(${delta}px)`;
+            }
+            if (delta > 250) dragEnd(true);
+        };
+
+        const dragEnd = (close) => {
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('touchmove', dragMove);
+            container.style.transition = 'bottom 0.4s ease, transform 0.2s ease';
+            
+            if (close === true) {
+                exitUI();
+            } else {
+                if (!isMoving) {
+                    openInNewTab();
+                }
+                container.style.transform = 'translateY(0)';
+            }
+        };
+
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('touchmove', dragMove);
+        document.addEventListener('mouseup', () => dragEnd(false), { once: true });
+        document.addEventListener('touchend', () => dragEnd(false), { once: true });
+    }
+
+    dragHandle.addEventListener('mousedown', dragInit);
+    dragHandle.addEventListener('touchstart', dragInit);
+})();
+</script>
 </body>
 </html>
