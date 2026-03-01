@@ -73,8 +73,9 @@
     body{padding-bottom:60px;}
 
     .header{ padding:18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; backdrop-filter: blur(10px); background: rgba(0,0,0,0.7); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; -webkit-user-select:text; user-select:text; touch-action:manipulation; }
+    .header-top { display:flex; justify-content:center; align-items:center; position:relative; width:100%; box-sizing:border-box; padding:0 10px; }
     .logo{ font-size:26px; font-weight:700; background:linear-gradient(90deg,#fff,#000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .search-container{ display:flex; justify-content:center; padding:8px 20px; width:100%; }
+    .search-container{ display:flex; justify-content:center; padding:8px 20px; width:100%; box-sizing:border-box; }
     .search-box{ width:100%; max-width:500px; background:#1c1c1e; border:none; padding:10px 14px; border-radius:12px; color:#fff; font-size:15px; outline:none; -webkit-user-select:text; user-select:text; }
 
     #centralLoader {
@@ -202,11 +203,25 @@
     #ad-cta-btn:active { transform: translateX(-50%) scale(0.95); }
     #ad-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: #2c2c2c; pointer-events: none; }
     #ad-progress-bar { height: 100%; width: 0%; background: #bdc3c7; transition: width 0.1s linear; }
+
+    #langOverlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,15,15,0.85); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:2147483647; display:none; flex-direction:column; align-items:center; justify-content:center; }
+    .lang-opt { padding:16px 50px; margin:12px; background:linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)); border-radius:20px; font-size:18px; cursor:pointer; font-weight:600; border:1px solid rgba(255,255,255,0.1); color:#fff; box-shadow:0 8px 32px rgba(0,0,0,0.3); transition:transform 0.2s; letter-spacing:0.5px; }
+    .lang-opt:active { transform:scale(0.95); }
+    #removeLang { margin-top:40px; color:#ff5555; cursor:pointer; font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:1px; background:rgba(255,85,85,0.1); padding:12px 24px; border-radius:20px; border:1px solid rgba(255,85,85,0.2); transition:transform 0.2s; }
+    #removeLang:active { transform:scale(0.95); }
+    
+    #uploadToast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#222; border:1px solid #444; padding:15px 25px; border-radius:12px; display:none; align-items:center; gap:15px; z-index:2147483647; box-shadow:0 5px 20px rgba(0,0,0,0.6); color:#fff; font-size:15px; white-space:nowrap; }
+    #uploadOuvri { cursor:pointer; color:#4CAF50; font-size:16px; }
   </style>
 </head>
 <body>
   <div class="header" id="siteHeader">
-    <div class="logo">Adam_D'H7</div>
+    <div class="header-top">
+      <div class="logo">Adam_D'H7</div>
+      <div id="langToggleBtn" style="position:absolute; right:10px; cursor:pointer; display:flex; align-items:center;">
+        <svg fill="#fff" width="24" height="24" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.08 13.28 4 12.61 4 12s.08-1.28.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.18.72.26 1.39.26 2s-.08 1.28-.26 2h-3.38z"/></svg>
+      </div>
+    </div>
     <div class="search-container">
       <input id="searchBox" class="search-box" placeholder="Rechèch..." autocomplete="off" />
     </div>
@@ -243,6 +258,21 @@
     </div>
   </div>
 
+  <div id="langOverlay">
+    <svg id="closeLang" style="position:absolute;top:20px;right:20px;cursor:pointer;" width="32" height="32" fill="#fff" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    <div class="lang-opt" data-l="ht">Kreyòl (HT)</div>
+    <div class="lang-opt" data-l="fr">Français (FR)</div>
+    <div class="lang-opt" data-l="es">Español (ES)</div>
+    <div class="lang-opt" data-l="en">English (EN)</div>
+    <div id="removeLang">Réinitialiser (Enlever la sauvegarde)</div>
+  </div>
+
+  <div id="uploadToast">
+    <span>Téléchargement réussite</span>
+    <b id="uploadOuvri">Ouvri</b>
+    <svg id="closeToast" style="cursor:pointer;" width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <script>
@@ -274,7 +304,7 @@
     const bottomProgress = document.getElementById('bottomProgress');
     let progressInterval = null;
 
-    const adTranslations = { fr: "Cliquez ici", es: "Haz clic aquí", en: "Click here" };
+    const adTranslations = { ht: "Klike isit la", fr: "Cliquez ici", es: "Haz clic aquí", en: "Click here" };
     const adMutedSVG = '<svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
     const adUnmutedSVG = '<svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.73 2.5-2.25 2.5-4.03zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
 
@@ -405,7 +435,7 @@
     function getAdLanguage() {
       const userLang = navigator.language || navigator.userLanguage; 
       const shortLang = userLang.split('-')[0]; 
-      return ['fr', 'es', 'en'].includes(shortLang) ? shortLang : 'en';
+      return ['ht', 'fr', 'es', 'en'].includes(shortLang) ? shortLang : 'en';
     }
 
     async function startAdSequence() {
@@ -415,6 +445,8 @@
       adProgressContainer.style.display = 'none';
       adCtaBtn.style.display = 'none';
       adMediaWrapper.innerHTML = '';
+      adCloseBtn.onclick = null;
+      adCloseBtn.classList.remove('clickable');
 
       const lang = getAdLanguage();
       let data = [];
@@ -426,8 +458,9 @@
         data = await response.json();
       } catch (e) {
         try {
-          const response = await fetch(`${baseUrl}fr.json`);
-          data = await response.json();
+          const fallbackResponse = await fetch(`${baseUrl}en.json`);
+          if (!fallbackResponse.ok) throw new Error();
+          data = await fallbackResponse.json();
         } catch (err) {
           closeAdOverlay();
           return;
@@ -436,6 +469,10 @@
 
       if (data && data.length > 0) {
         const item = data[Math.floor(Math.random() * data.length)];
+        if (!item.url || item.url.trim() === "") {
+            closeAdOverlay();
+            return;
+        }
         renderAdContent(item, lang);
       } else {
         closeAdOverlay();
@@ -445,7 +482,7 @@
     function renderAdContent(item, lang) {
       if (item.link) {
         adCtaBtn.href = item.link;
-        adCtaBtn.textContent = adTranslations[lang];
+        adCtaBtn.textContent = adTranslations[lang] || adTranslations['en'];
       } else {
         adCtaBtn.removeAttribute('href');
       }
@@ -477,6 +514,10 @@
       video.muted = true;
       video.controls = false;
       video.preload = 'auto';
+
+      video.onerror = () => {
+          closeAdOverlay();
+      };
 
       adMediaWrapper.appendChild(video);
 
@@ -544,6 +585,11 @@
     function setupAdImage(item) {
       const img = document.createElement('img');
       img.src = item.url;
+      
+      img.onerror = () => {
+          closeAdOverlay();
+      };
+
       adMediaWrapper.appendChild(img);
       img.onload = () => {
         showAdOverlays(false);
@@ -674,6 +720,8 @@
 
     window.addEventListener('popstate', () => {
       if (overlayEl.style.display === "flex") {
+        pendingVideoSrc = null;
+        pendingVideoContainer = null;
         closeAdOverlay();
       }
     });
@@ -1130,32 +1178,40 @@
       html2canvas(card, {
         scale: 3,
         useCORS: true,
-        allowTaint: true,
         backgroundColor: '#111',
         logging: false
       }).then(canvas => {
-        hideLoader(tracker);
-        
-        if (isIOS) {
-          canvas.toBlob(function(blob) {
-            const newImgUrl = URL.createObjectURL(blob);
-            const win = window.open(newImgUrl, '_blank');
-            if(!win) {
-              window.location.href = newImgUrl;
-            }
-          }, 'image/png');
-        } else {
-          const dataUrl = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = dataUrl;
-          link.download = safeName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('file', blob, safeName);
+            fetch('https://v1bref.onrender.com/upload', {
+                method: 'POST',
+                body: formData
+            }).then(res => res.text()).then(txt => {
+                hideLoader(tracker);
+                let finalUrl = txt;
+                try {
+                    const json = JSON.parse(txt);
+                    if(json.url) finalUrl = json.url;
+                } catch(e){}
+                const toast = document.getElementById('uploadToast');
+                const ouvriBtn = document.getElementById('uploadOuvri');
+                toast.style.display = 'flex';
+                ouvriBtn.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = finalUrl;
+                    a.target = '_blank';
+                    a.setAttribute('data-bypass', 'true');
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+            }).catch(err => {
+                hideLoader(tracker);
+            });
+        }, 'image/png');
       }).catch(err => {
         hideLoader(tracker);
-        console.error(err);
         if (thumbCon) {
           const thumbImg = thumbCon.querySelector('img');
           if (thumbImg) window.open(thumbImg.src, '_blank');
@@ -1196,12 +1252,9 @@
       const diff = y - pullStartY;
       
       if (diff > 150 && window.scrollY === 0) {
-        const tracker = showLoader();
-        setTimeout(() => {
-            shuffle(allData);
-            displayExplorer(allData);
-            hideLoader(tracker);
-        }, 800);
+        document.getElementById('searchBox').value = '';
+        performFilter('');
+        loadLanguageData(determineLanguage());
       } else {
         if(centralLoader && centralLoader.style.display === 'block') {
              centralLoader.style.opacity = '0';
@@ -1211,50 +1264,67 @@
       isPulling = false;
     });
 
+    function determineLanguage() {
+        let saved = localStorage.getItem('userLang');
+        if (saved && ['ht','fr','es','en'].includes(saved)) return saved;
+        let nav = (navigator.language || navigator.userLanguage || 'ht').split('-')[0];
+        if (['ht','fr','es','en'].includes(nav)) return nav;
+        return 'ht';
+    }
+
+    function loadLanguageData(lang) {
+        const tracker = showLoader();
+        fetch("https://adamdh7.org/" + lang + ".json")
+        .then(res => {
+            if(!res.ok) throw new Error("Erreur");
+            return res.json();
+        })
+        .then(data => {
+            let combined = Array.isArray(data) ? data : [data];
+            shuffle(combined);
+            allData = combined.filter(p => {
+                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
+                return cat === "poste";
+            });
+            displayExplorer(allData);
+            hideLoader(tracker);
+        })
+        .catch(err => {
+            explorerEl.innerHTML = '<div style="color:#999;padding:20px;text-align:center">Erreur de chargement du contenu.</div>';
+            hideLoader(tracker);
+        });
+    }
+
+    document.getElementById('langToggleBtn').addEventListener('click', () => {
+        document.getElementById('langOverlay').style.display = 'flex';
+    });
+
+    document.getElementById('closeLang').addEventListener('click', () => {
+        document.getElementById('langOverlay').style.display = 'none';
+    });
+
+    document.querySelectorAll('.lang-opt').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const l = e.target.getAttribute('data-l');
+            localStorage.setItem('userLang', l);
+            document.getElementById('langOverlay').style.display = 'none';
+            loadLanguageData(l);
+        });
+    });
+
+    document.getElementById('removeLang').addEventListener('click', () => {
+        localStorage.removeItem('userLang');
+        document.getElementById('langOverlay').style.display = 'none';
+        loadLanguageData(determineLanguage());
+    });
+
+    document.getElementById('closeToast').addEventListener('click', () => {
+        document.getElementById('uploadToast').style.display = 'none';
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       adjustExplorerTop();
-      const tracker = showLoader();
-
-      const jsonUrls = [
-        "https://adamdh7.org/ht.json",
-        "https://adamdh7.org/fr.json",
-        "https://adamdh7.org/es.json",
-        "https://adamdh7.org/en.json"
-      ];
-
-      Promise.all(jsonUrls.map(url =>
-        fetch(url)
-          .then(res => {
-            if (!res.ok) throw new Error(`Erreur chargement ${url}`);
-            return res.json();
-          })
-          .catch(err => {
-            console.warn(err);
-            return [];
-          })
-      ))
-      .then(results => {
-        let combined = [];
-        results.forEach(d => {
-          if (Array.isArray(d)) combined.push(...d);
-          else combined.push(d);
-        });
-
-        shuffle(combined);
-
-        allData = combined.filter(p => {
-          const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
-          return cat === "poste";
-        });
-
-        displayExplorer(allData);
-        hideLoader(tracker);
-      })
-      .catch(err => {
-        console.error("Erreur critique:", err);
-        explorerEl.innerHTML = '<div style="color:#999;padding:20px;text-align:center">Erreur de chargement du contenu.</div>';
-        hideLoader(tracker);
-      });
+      loadLanguageData(determineLanguage());
     });
   </script>
 
@@ -1302,7 +1372,15 @@
   if (!logo.hasAttribute('tabindex')) logo.setAttribute('tabindex', '0');
   logo.setAttribute('role', 'link');
   let handled = false;
-  function openPaypal(){ window.open(PAYPAL_URL, '_blank', 'noopener,noreferrer'); }
+  function openPaypal(){ 
+    const a = document.createElement('a');
+    a.href = PAYPAL_URL;
+    a.target = '_blank';
+    a.setAttribute('data-bypass', 'true');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
   logo.addEventListener('pointerdown', ()=>{ handled=false; });
   logo.addEventListener('pointerup', ()=>{ handled=true; openPaypal(); });
   logo.addEventListener('click', ()=>{ if(!handled) openPaypal(); });
@@ -1535,13 +1613,8 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
             'youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 
             'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com',
             'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com',
-'wa.me',
-'api.whatsapp.com',
-'chat.whatsapp.com',
-'web.whatsapp.com',
-'v.whatsapp.com',
-'business.whatsapp.com',
-            'mailto:'
+            'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com',
+            'business.whatsapp.com', 'mailto:', 'paypal.com'
         ];
         return patterns.some(p => url.toLowerCase().includes(p));
     }
@@ -1648,7 +1721,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
         if (link && link.href) {
             const targetAttr = link.getAttribute('target');
             if (targetAttr === '_blank' || targetAttr === '_new' || e.ctrlKey || e.metaKey) {
-                if (link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) {
+                if (link.hasAttribute('data-bypass') || link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) {
                     return;
                 }
                 e.preventDefault();
