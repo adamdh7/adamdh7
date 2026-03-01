@@ -660,7 +660,7 @@
         img.className = "post-thumb";
         img.alt = post.Description || post.Name || "";
         img.loading = "lazy";
-        img.src = thumbSrc || "https://via.placeholder.com/800x450?text=Preview";
+img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.placeholder.com/800x450?text=Preview");
         img.draggable = false;
 
         thumbCon.appendChild(img);
