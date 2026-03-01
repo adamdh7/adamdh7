@@ -656,6 +656,7 @@
 
         const thumbSrc = post["Url Thumb"] || post.Previously || post.image || post.thumb || "";
         const img = document.createElement("img");
+        img.crossOrigin = "anonymous";
         img.className = "post-thumb";
         img.alt = post.Description || post.Name || "";
         img.loading = "lazy";
