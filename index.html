@@ -329,7 +329,7 @@
         } catch(e) {}
       }
 
-      const thumbSrc = container.dataset.thumbSrc || "https://via.placeholder.com/800x450?text=Preview";
+      const thumbSrc = container.dataset.thumbSrc  "https://via.placeholder.com/800x450?text=Preview";
       container.innerHTML = `<img class="post-thumb" src="${thumbSrc}" alt="" loading="lazy" draggable="false">`;
     }
 
@@ -433,7 +433,7 @@
     }
 
     function getAdLanguage() {
-      const userLang = navigator.language || navigator.userLanguage; 
+      const userLang = navigator.language  navigator.userLanguage; 
       const shortLang = userLang.split('-')[0]; 
       return ['ht', 'fr', 'es', 'en'].includes(shortLang) ? shortLang : 'en';
     }
@@ -469,7 +469,7 @@
 
       if (data && data.length > 0) {
         const item = data[Math.floor(Math.random() * data.length)];
-        if (!item.url || item.url.trim() === "") {
+        if (!item.url  item.url.trim() === "") {
             closeAdOverlay();
             return;
         }
@@ -482,13 +482,13 @@
     function renderAdContent(item, lang) {
       if (item.link) {
         adCtaBtn.href = item.link;
-        adCtaBtn.textContent = adTranslations[lang] || adTranslations['en'];
+        adCtaBtn.textContent = adTranslations[lang]  adTranslations['en'];
       } else {
         adCtaBtn.removeAttribute('href');
       }
 
       const videoExtensions = ['.mp4','.mov','.mkv','.webm','.avi','.ogg','.flv','.wmv','.3gp','.m4v','.mpg','.mpeg'];
-      const isVideo = item.type === 'video' || videoExtensions.some(ext => item.url.toLowerCase().endsWith(ext));
+      const isVideo = item.type === 'video'  videoExtensions.some(ext => item.url.toLowerCase().endsWith(ext));
 
       if (isVideo) {
         setupAdVideo(item);
@@ -628,19 +628,19 @@
       const frag = document.createDocumentFragment();
       for (let i = 0; i < data.length; i++){
         const post = data[i];
-        if (((post.Catégorie||post.Categorie||post.category||"")).toString().toLowerCase() !== "poste") continue;
+        if (((post.Catégoriepost.Categoriepost.category"")).toString().toLowerCase() !== "poste") continue;
 
         const card = document.createElement("div");
         card.className = "post-card";
 
         const ptext = document.createElement("div");
         ptext.className = "post-text";
-        ptext.textContent = post.Texte || post.Bio || post.Info || "";
+        ptext.textContent = post.Texte  post.Bio  post.Info  "";
         card.appendChild(ptext);
 
         const title = document.createElement("div");
         title.className = "post-name";
-        title.textContent = post.Name || "";
+        title.textContent = post.Name  "";
         title.addEventListener("click", (e) => {
           e.stopPropagation();
           targetCardForDownload = card;
@@ -654,11 +654,11 @@
         const thumbCon = document.createElement("div");
         thumbCon.className = "post-thumb-container";
 
-        const thumbSrc = post["Url Thumb"] || post.Previously || post.image || post.thumb || "";
+        const thumbSrc = post["Url Thumb"]  post.Previously  post.image  post.thumb  "";
         const img = document.createElement("img");
         img.crossOrigin = "anonymous";
         img.className = "post-thumb";
-        img.alt = post.Description || post.Name || "";
+        img.alt = post.Description  post.Name  "";
         img.loading = "lazy";
 img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.placeholder.com/800x450?text=Preview");
         img.draggable = false;
@@ -671,12 +671,12 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
         const desc = document.createElement("div");
         desc.className = "post-desc";
-        desc.textContent = post.Description || post.Desc || post.Texte || "";
+        desc.textContent = post.Description  post.Desc  post.Texte  "";
         card.appendChild(desc);
 
         thumbCon.addEventListener("click", (ev) => {
           ev.stopPropagation();
-          const src = post.Previously || post.video || post["Url Video"] || post["Url"] || post.image || post.media || "";
+          const src = post.Previously  post.video  post["Url Video"]  post["Url"]  post.image  post.media  "";
           
           if (thumbCon.querySelector('video, iframe, .video-player')) {
             return;
@@ -740,8 +740,8 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       if (!src) return false;
       try {
         const url = src.toString().split('?')[0].toLowerCase();
-        if (/\.(mp4|webm|ogg|mov|mkv)$/.test(url)) return true;
-        if (src.includes("youtube.com") || src.includes("youtu.be") || src.includes("vimeo.com")) return true;
+        if (/\.(mp4webmoggmovmkv)$/.test(url)) return true;
+        if (src.includes("youtube.com")  src.includes("youtu.be")  src.includes("vimeo.com")) return true;
       } catch(e){}
       return false;
     }
@@ -762,7 +762,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     function normalizeVimeoEmbed(src){
       try {
         const parts = src.split('/');
-        const id = parts.pop() || parts.pop();
+        const id = parts.pop()  parts.pop();
         return "https://player.vimeo.com/video/" + id + "?autoplay=1";
       } catch(e){}
       return src;
@@ -775,7 +775,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       return `${m}:${s.toString().padStart(2, "0")}`;
     }
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOS = /iPadiPhoneiPod/.test(navigator.userAgent);
 
     function playMedia(src, container){
       if (!src) return;
@@ -799,7 +799,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       const isVideo = looksLikeVideo(src);
 
       if (isVideo) {
-        if (src.includes("youtube.com") || src.includes("youtu.be")) {
+        if (src.includes("youtube.com")  src.includes("youtu.be")) {
           const iframe = document.createElement("iframe");
           iframe.src = normalizeYouTubeEmbed(src);
           iframe.allow = "autoplay; fullscreen; picture-in-picture";
@@ -906,7 +906,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
           };
 
           player.addEventListener("click", (e) => {
-            if (e.target.closest('button') || e.target.closest('.progress-container')) return;
+            if (e.target.closest('button')  e.target.closest('.progress-container')) return;
             toggleControls();
           });
 
@@ -942,15 +942,15 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
           video.addEventListener("timeupdate", () => {
             currentTime.textContent = formatTime(video.currentTime);
-            durationTime.textContent = formatTime(video.duration || 0);
+            durationTime.textContent = formatTime(video.duration  0);
             const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
             progressFill.style.width = percent + "%";
             progressThumb.style.left = `calc(${percent}% - 8px)`;
           });
 
           video.addEventListener("loadedmetadata", () => {
-            const savedTime = parseFloat(container.dataset.savedTime || "0");
-            const savedSrc = container.dataset.savedSrc || "";
+            const savedTime = parseFloat(container.dataset.savedTime  "0");
+            const savedSrc = container.dataset.savedSrc  "";
             if (savedTime > 0 && video.src === savedSrc) {
               video.currentTime = savedTime;
               delete container.dataset.savedTime;
@@ -960,10 +960,10 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
           const scrub = (e) => {
             const rect = progressCont.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientX = e.clientX  (e.touches && e.touches[0].clientX);
             let pos = (clientX - rect.left) / rect.width;
             pos = Math.max(0, Math.min(1, pos));
-            video.currentTime = pos * (video.duration || 0);
+            video.currentTime = pos * (video.duration  0);
             const percent = pos * 100;
             progressFill.style.width = percent + "%";
             progressThumb.style.left = `calc(${percent}% - 8px)`;
@@ -1000,7 +1000,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
           forwardBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+            video.currentTime = Math.min(video.duration  0, video.currentTime + 10);
           });
 
           playBtn.addEventListener("click", (e) => {
@@ -1010,7 +1010,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
           fsBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            const isFullscreen = document.fullscreenElement  document.webkitFullscreenElement;
 
             if (isFullscreen) {
               if (document.exitFullscreen) {
@@ -1034,7 +1034,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
           document.addEventListener("webkitfullscreenchange", updateFsIcon);
 
           function updateFsIcon() {
-            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            const isFullscreen = document.fullscreenElement  document.webkitFullscreenElement;
             fsBtn.innerHTML = isFullscreen
               ? '<i class="fas fa-compress"></i>'
               : '<i class="fas fa-expand"></i>';
@@ -1115,14 +1115,14 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     let loaderTimer = null;
 
     function performFilter(val) {
-      const txt = (val || "").toLowerCase();
+      const txt = (val  "").toLowerCase();
       const filtered = allData.filter(p =>
-          (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(txt) ||
-          (p.Name||"").toString().toLowerCase().includes(txt) ||
-          (p.Description||p.Desc||"").toString().toLowerCase().includes(txt)
+          (p.Textep.Biop.Info"").toString().toLowerCase().includes(txt) 
+          (p.Name"").toString().toLowerCase().includes(txt) 
+          (p.Descriptionp.Desc"").toString().toLowerCase().includes(txt)
       );
       if (txt) {
-        filtered.sort((a, b) => (a.Name || "").localeCompare((b.Name || ""), undefined, { numeric: true, sensitivity: 'base' }));
+        filtered.sort((a, b) => (a.Name  "").localeCompare((b.Name  ""), undefined, { numeric: true, sensitivity: 'base' }));
       }
       displayExplorer(filtered);
     }
@@ -1158,11 +1158,11 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     });
 
     function processDownload(card) {
-      if (!card || typeof html2canvas === 'undefined') return;
+      if (!card  typeof html2canvas === 'undefined') return;
 
       const nameEl = card.querySelector('.post-name');
       let postName = nameEl ? nameEl.textContent.trim() : 'Post';
-      postName = postName.replace(/[\\/:*?"<>|]/g, '_');
+      postName = postName.replace(/[\\/:*?"<>]/g, '_');
       const safeName = postName + '.png';
 
       const thumbCon = card.querySelector('.post-thumb-container');
@@ -1268,7 +1268,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     function determineLanguage() {
         let saved = localStorage.getItem('userLang');
         if (saved && ['ht','fr','es','en'].includes(saved)) return saved;
-        let nav = (navigator.language || navigator.userLanguage || 'ht').split('-')[0];
+        let nav = (navigator.language  navigator.userLanguage  'ht').split('-')[0];
         if (['ht','fr','es','en'].includes(nav)) return nav;
         return 'ht';
     }
@@ -1284,7 +1284,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
             let combined = Array.isArray(data) ? data : [data];
             shuffle(combined);
             allData = combined.filter(p => {
-                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
+                const cat = (p.Catégorie  p.Categorie  p.category  "").toString().toLowerCase();
                 return cat === "poste";
             });
             displayExplorer(allData);
@@ -1385,7 +1385,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
   logo.addEventListener('pointerdown', ()=>{ handled=false; });
   logo.addEventListener('pointerup', ()=>{ handled=true; openPaypal(); });
   logo.addEventListener('click', ()=>{ if(!handled) openPaypal(); });
-  logo.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openPaypal(); } });
+  logo.addEventListener('keydown', (e)=>{ if(e.key==='Enter'  e.key===' '){ e.preventDefault(); openPaypal(); } });
 })();
   </script>
 
@@ -1405,7 +1405,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
        data-ad-client="ca-pub-2373752876384997"
        data-ad-slot="6246419460"></ins>
   <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
+       (adsbygoogle = window.adsbygoogle  []).push({});
   </script>
   
   <script>
@@ -1424,7 +1424,7 @@ s.textContent=
 #${ID} .dh7-btn{display:inline-block;padding:12px 34px;border-radius:12px;background:#e50914;color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;outline:none}
 #${ID} .dh7-btn:active{transform:scale(.985)}
 @media (max-width:600px){#${ID} h1{font-size:20px}#${ID} p{font-size:14px}#${ID} .dh7-wrap{padding:18px}}`;
-(document.head||document.documentElement).appendChild(s);
+(document.headdocument.documentElement).appendChild(s);
 }
 function createOverlay(){
 if(document.getElementById(ID))return;
@@ -1433,7 +1433,7 @@ const overlay=document.createElement('div');
 overlay.id=ID;
 overlay.setAttribute('aria-hidden','false');
 overlay.innerHTML=`<div class="dh7-wrap"><h1>Cette version n'est plus active</h1><p>Pour continuer à profiter de l'application avec les dernières fonctionnalités et corrections, veuillez télécharger la nouvelle version.</p><button class="dh7-btn" id="${ID}_btn">Télécharger</button></div>`;
-(document.body||document.documentElement).appendChild(overlay);
+(document.bodydocument.documentElement).appendChild(overlay);
 var btn=document.getElementById(ID+'_btn');
 if(btn)btn.addEventListener('click',function(){
 window.open("https://tf-app.adamdh7.org/.apk", "_blank");
@@ -1446,14 +1446,14 @@ if(e && e.parentNode!==document.body) document.body.appendChild(e);
 function normalize(v){
 if(!v) return null;
 v=String(v).trim();
-if(v[0]==='v'||v[0]==='V') v=v.substring(1);
+if(v[0]==='v'v[0]==='V') v=v.substring(1);
 return v;
 }
 function getEnteredVersion(){
 var entered=null;
-var p=location.pathname||'';
-var seg=p.split('/').filter(Boolean)[0]||'';
-if(seg.startsWith('V=')||seg.startsWith('v=')) entered=seg.substring(2);
+var p=location.pathname'';
+var seg=p.split('/').filter(Boolean)[0]'';
+if(seg.startsWith('V=')seg.startsWith('v=')) entered=seg.substring(2);
 if(!entered){
 var params=new URLSearchParams(location.search);
 if(params.has('V')) entered=params.get('V');
@@ -1628,7 +1628,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
             }
         } catch(e) {}
         
-        if (!urlToOpen || urlToOpen === 'about:blank') {
+        if (!urlToOpen  urlToOpen === 'about:blank') {
             urlToOpen = iframe.src;
         }
 
@@ -1644,9 +1644,9 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     }
 
     function launchUrl(url) {
-        if (!url || url === 'undefined' || url === '#' || url === 'about:blank') return;
+        if (!url  url === 'undefined'  url === '#'  url === 'about:blank') return;
         
-        if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
+        if (url.toLowerCase().includes('.apk')  isSocialOrEmail(url)) {
             const a = document.createElement('a');
             a.href = url;
             a.target = '_blank';
@@ -1721,8 +1721,8 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
         const link = e.target.closest('a');
         if (link && link.href) {
             const targetAttr = link.getAttribute('target');
-            if (targetAttr === '_blank' || targetAttr === '_new' || e.ctrlKey || e.metaKey) {
-                if (link.hasAttribute('data-bypass') || link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) {
+            if (targetAttr === '_blank'  targetAttr === '_new'  e.ctrlKey  e.metaKey) {
+                if (link.hasAttribute('data-bypass')  link.href.toLowerCase().includes('.apk')  isSocialOrEmail(link.href)) {
                     return;
                 }
                 e.preventDefault();
@@ -1735,7 +1735,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     const originalWindowOpen = window.open;
     window.open = function(url, target, features) {
         if (url) {
-            if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
+            if (url.toLowerCase().includes('.apk')  isSocialOrEmail(url)) {
                 return originalWindowOpen.call(window, url, '_blank', features);
             }
             launchUrl(url);
