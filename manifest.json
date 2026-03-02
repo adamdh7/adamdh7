@@ -2,9 +2,9 @@
   "id": "https://adamdh7.org/",
   "lang": "fr",
   "dir": "ltr",
-  "name": "D'H7",
-  "short_name": "D'H7",
-  "description": "It's me, D'H7. Bienvenue dans mon univers.",
+  "name": "",
+  "short_name": "",
+  "description": "It's me, . Bienvenue dans mon univers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -33,7 +33,7 @@
       "src": "asset/poste.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "label": "It's me, D'H7. Bienvenue dans mon univers."
+      "label": "It's me, . Bienvenue dans mon univers."
     }
   ]
 }
