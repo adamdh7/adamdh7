@@ -187,10 +187,11 @@
     .post-thumb, .post-thumb img, .post-thumb video, .post-thumb iframe { display:block; width:auto; max-width:100%; height:auto; max-height:calc(var(--card-max-height)); object-fit:contain; background:#000; border-radius:0; }
     .post-thumb iframe, .post-thumb video { display:block; width:100%; height:auto; }
 
-    .video-player { position: relative; width: 100%; max-width: 100%; background: #000; cursor: pointer; touch-action: pan-x pan-y; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 12px; }
-    .video-player.fullscreen-mode { border-radius: 0; width: 100%; height: 100%; }
+    .video-player { position: relative; width: 100%; max-width: 100%; background: #000; cursor: pointer; touch-action: pan-x pan-y; display: block; overflow: hidden; border-radius: 12px; }
+    .video-player.fullscreen-mode { border-radius: 0; width: 100%; height: 100%; max-height: 100%; display: block; }
     .video-player video { width: 100%; height: auto; max-width: 100%; max-height: min(72vh, calc(var(--app-height, 100dvh) - 120px)); object-fit: contain; background: #000; display: block; }
-    .video-controls { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: clamp(8px, 2.5vw, 16px) clamp(8px, 2.5vw, 16px) calc(clamp(6px, 1.5vw, 10px) + env(safe-area-inset-bottom)); box-sizing: border-box; pointer-events: none; opacity: 1; transition: opacity 0.35s ease; }
+    .video-player.fullscreen-mode video { width: 100%; height: 100%; max-height: none; object-fit: contain; }
+    .video-controls { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: clamp(8px, 2.5vw, 16px) clamp(8px, 2.5vw, 16px) calc(clamp(6px, 1.5vw, 10px) + env(safe-area-inset-bottom)); box-sizing: border-box; pointer-events: none; opacity: 1; transition: opacity 0.35s ease; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); }
     .video-controls.hidden { opacity: 0; }
     .center-controls { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: clamp(18px, 5vw, 48px); pointer-events: auto; transition: opacity 0.25s ease; }
     .center-controls.hidden { opacity: 0; pointer-events: none; }
@@ -1063,6 +1064,16 @@
         screen.orientation.unlock();
       }
     }
+    function refreshLandscapePlayer(player){
+      if (!player) return;
+      if (player.classList.contains('fullscreen-mode')) {
+        player.style.width = '100%';
+        player.style.height = '100%';
+      } else {
+        player.style.width = '';
+        player.style.height = '';
+      }
+    }
 
     function playMedia(src, container){
       if (!src) return;
@@ -1092,7 +1103,7 @@
           iframe.style.height = "100%";
           iframe.style.background = "#000";
           container.appendChild(iframe);
-          container.scrollIntoView({behavior: "smooth", block: "center"});
+          container.scrollIntoView({behavior: "smooth", block: "nearest"});
           return;
         } else if (src.includes("vimeo.com")) {
           const iframe = document.createElement("iframe");
@@ -1104,7 +1115,7 @@
           iframe.style.height = "100%";
           iframe.style.background = "#000";
           container.appendChild(iframe);
-          container.scrollIntoView({behavior: "smooth", block: "center"});
+          container.scrollIntoView({behavior: "smooth", block: "nearest"});
           return;
         } else {
           const player = document.createElement("div");
@@ -1178,7 +1189,8 @@
           controls.append(centerDiv, bottomBar);
           player.append(video, controls);
           container.appendChild(player);
-          container.scrollIntoView({behavior: "smooth", block: "center"});
+          refreshLandscapePlayer(player);
+          container.scrollIntoView({behavior: "smooth", block: "nearest"});
 
           let hideTimer = null;
           let isScrubbing = false;
@@ -1322,8 +1334,12 @@
           const updateFsIcon = () => {
             const isFullscreen = document.fullscreenElement === player || document.webkitFullscreenElement === player;
             fsBtn.innerHTML = isFullscreen ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+            if (isFullscreen) {
+              refreshLandscapePlayer(player);
+            }
             if (!isFullscreen && wasFullScreen) {
               unlockLandscapePlayer(player);
+              refreshLandscapePlayer(player);
             }
             wasFullScreen = isFullscreen;
           };
@@ -1372,7 +1388,7 @@
           video.play().catch(() => {
             onLoadingEnd();
           });
-          container.scrollIntoView({behavior: "smooth", block: "center"});
+          container.scrollIntoView({behavior: "smooth", block: "nearest"});
           return;
         }
       } else {
@@ -1387,7 +1403,7 @@
         imgEl.style.objectFit = "contain";
         imgEl.draggable = false;
         container.appendChild(imgEl);
-        container.scrollIntoView({behavior: "smooth", block: "center"});
+        container.scrollIntoView({behavior: "smooth", block: "nearest"});
         imgEl.addEventListener('error', () => { container.innerHTML = '<div style="color:#999;padding:12px;text-align:center">Imaj pa disponib</div>'; });
       }
     }
