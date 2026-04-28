@@ -1,5 +1,405 @@
 [
   {
+    "Name": "L'Architecte Discret",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai dessiné les plans de ce monde, j'ai posé chaque pierre avec soin, mais j'ai choisi de ne pas habiter le palais. Je marche maintenant dans les jardins, anonyme parmi les invités, goûtant au plaisir de voir l'œuvre vivre sans que mon nom ne soit jamais murmuré par la foule.",
+    "Bio": "Observer son œuvre sans jamais être nommé"
+  },
+  {
+    "Name": "Dans la Foule",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai créé la ligne, mais j'ai décidé de ne pas me mettre devant. Je suis donc parmi eux, mais pas au premier rang. C'est ici, dans l'ombre du milieu, que l'on perçoit le mieux la vibration du groupe et la vérité des cœurs qui battent à l'unisson sans artifice.",
+    "Bio": "Je suis parmi eux mais pas devant"
+  },
+  {
+    "Name": "Le Retrait",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Laisser la place à ceux qui ont besoin de lumière. Se retirer n'est pas disparaître, c'est offrir un espace pour que d'autres puissent enfin respirer. Je regarde de loin le mouvement que j'ai initié, satisfait de constater que la marche continue avec fluidité et assurance.",
+    "Bio": "Offrir un espace pour laisser les autres"
+  },
+  {
+    "Name": "L'Origine Muette",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Il y a une puissance immense dans le fait d'être la cause sans être le visage. Je suis la main qui a lancé le dé, mais je ne revendique aucun gain. Se fondre dans le paysage après l'avoir sculpté est le luxe suprême de celui qui n'a plus rien à prouver aux autres.",
+    "Bio": "Être la cause sans être le visage"
+  },
+  {
+    "Name": "Le Deuxième Rang",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "On voit mieux les dos courbés et les têtes hautes quand on ne mène pas la danse. Depuis ma place choisie, je déchiffre les non-dits et les hésitations que le leader ignore. Je suis le témoin silencieux d'une trajectoire que j'ai moi-même jadis patiemment tracée au sol.",
+    "Bio": "Témoin silencieux d'une trajectoire tracée au sol"
+  },
+  {
+    "Name": "L'Effacement",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai écrit le texte, mais je laisse la scène aux acteurs. Mon plaisir ne réside plus dans l'applaudissement, mais dans la justesse du ton que j'entends au loin. Être parmi eux permet de ressentir l'émotion brute sans le filtre déformant de la gloire ou de la vanité.",
+    "Bio": "Laisser la scène pour ressentir l'émotion brute"
+  },
+  {
+    "Name": "Le Murmure",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je ne crie pas pour être entendu, je murmure pour être écouté par ceux qui cherchent la source. Ma présence est diffuse, comme une odeur de pluie sur le béton chaud. J'ai établi la structure, puis je me suis glissé dans les interstices pour observer la vie s'y installer doucement.",
+    "Bio": "Une présence diffuse comme une douce pluie"
+  },
+  {
+    "Name": "L'Absence Présente",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "On me cherche devant, mais je suis derrière. On me croit parti, mais je suis juste immobile au milieu de l'agitation. Avoir créé le mouvement donne le droit de s'en extraire pour mieux l'apprécier. Je suis le point fixe au centre du cercle qui tourne sans fin.",
+    "Bio": "Le point fixe au centre du cercle"
+  },
+  {
+    "Name": "La Trace",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La ligne est droite parce que j'y ai veillé, mais je ne marche pas sur ses traces. Je préfère le bas-côté, là où l'herbe est haute et où l'on peut se cacher des regards. Guider sans contraindre, exister sans s'imposer, voilà l'équilibre que j'ai enfin réussi à trouver.",
+    "Bio": "Guider sans contraindre et exister sans s'imposer"
+  },
+  {
+    "Name": "Le Gardien Invisible",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je ne surveille pas, je veille simplement. Ma place parmi eux est un choix de confort et de vérité. Je ne veux pas du poids de la couronne, seulement de la satisfaction d'avoir bien orienté la proue du navire avant de retourner dormir dans la cale avec les marins.",
+    "Bio": "Satisfaction d'avoir bien orienté le grand navire"
+  },
+  {
+    "Name": "L'Ombre du Créateur",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Regarder ses propres idées prendre vie dans les mains des autres. C'est un détachement nécessaire pour que l'œuvre devienne universelle. En restant dans le rang, je m'assure que l'humanité de mon projet reste intacte, loin des piédestaux qui isolent et finissent par dessécher.",
+    "Bio": "L'œuvre devient universelle dans le détachement total"
+  },
+  {
+    "Name": "Position Neutre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Ni au-dessus, ni au-dessous. Juste à côté. J'ai tracé la frontière, mais je vis sur la ligne de démarcation. C'est le meilleur poste pour comprendre les deux mondes sans appartenir totalement à aucun. Une solitude habitée par la certitude d'avoir fait ce qu'il fallait faire.",
+    "Bio": "Une solitude habitée par une grande certitude"
+  },
+  {
+    "Name": "Le Chef d'Orchestre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La partition est mienne, mais l'instrument est le leur. Je me tiens dans le public, écoutant les notes s'envoler. Personne ne sait que le rythme qui les transporte vient de mon silence. C'est une jouissance secrète que de voir la beauté naître d'un geste que tout le monde a oublié.",
+    "Bio": "Beauté née d'un geste que tous oublient"
+  },
+  {
+    "Name": "Anonymat Volontaire",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le plus grand pouvoir est celui que l'on ne soupçonne pas. En étant parmi eux, je deviens invisible, et donc invincible. Je peux écouter les critiques sans colère et les éloges sans orgueil. Je suis l'initiateur qui a eu la sagesse de s'effacer pour laisser la vie triompher.",
+    "Bio": "Être invisible pour devenir enfin vraiment invincible"
+  },
+  {
+    "Name": "Le Semeur",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai jeté les graines au vent, puis je suis allé m'asseoir sous un vieil arbre. Maintenant que la forêt est dense, je m'y promène comme un étranger. Je reconnais chaque branche, chaque feuille, mais je laisse les oiseaux y faire leur nid sans jamais intervenir dans leur destin.",
+    "Bio": "Se promener comme étranger dans sa forêt"
+  },
+  {
+    "Name": "Le Fond de Classe",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "C'est de l'arrière que l'on voit tout le tableau. J'ai défini les leçons, mais je préfère m'asseoir près de la fenêtre. Je regarde les autres apprendre ce que je sais déjà, m'émerveillant de voir comment chacun interprète ma vérité à sa manière, souvent avec une fraîcheur que j'ai perdue.",
+    "Bio": "Voir tout le tableau depuis le fond"
+  },
+  {
+    "Name": "Infiltré",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je me suis glissé dans la file d'attente de mon propre projet. J'écoute les murmures, les plaintes et les espoirs. C'est la seule façon de rester connecté à la réalité du terrain. Le créateur doit parfois se faire créature pour comprendre la fragilité de ce qu'il a mis au monde.",
+    "Bio": "Le créateur doit parfois se faire créature"
+  },
+  {
+    "Name": "L'Ombre Portée",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Mon influence est réelle, mais mon visage est flou. J'ai instauré les règles du jeu, mais je joue selon les leurs. C'est une forme de respect envers la dynamique de groupe. En ne me mettant pas en avant, je permets à l'énergie collective de s'épanouir sans être bridée par mon autorité.",
+    "Bio": "Laisser l'énergie collective s'épanouir en liberté"
+  },
+  {
+    "Name": "Le Passant",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je traverse la scène sans m'arrêter sous les projecteurs. J'ai installé les décors et réglé les lumières, mais mon rôle est de passer. Je suis ce visage que l'on croise sans le reconnaître, mais dont on sent la bienveillance diffuse dans chaque recoin de l'espace que j'ai jadis imaginé.",
+    "Bio": "Un visage croisé sans être jamais reconnu"
+  },
+  {
+    "Name": "Le Spectre Bénévole",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'aide sans être vu, je redresse les torts sans faire de bruit. Je suis dans le rang, prêt à soutenir celui qui trébuche. Ma mission n'est plus de mener, mais de stabiliser. J'ai créé la ligne pour qu'elle soit solide, et je sers aujourd'hui de ciment invisible entre les briques humaines.",
+    "Bio": "Servir de ciment invisible entre les briques"
+  },
+  {
+    "Name": "La Source Cachée",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le fleuve est puissant et tout le monde admire son débit. Personne ne remonte jusqu'à la petite faille dans la roche d'où je sors. Je reste là-haut, dans le silence des cimes, heureux de savoir que mon modeste apport abreuve des milliers de vies sans que l'on ne sache jamais mon nom.",
+    "Bio": "Abreuver des vies sans jamais être nommé"
+  },
+  {
+    "Name": "L'Initié Silencieux",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je connais tous les rouages, toutes les faiblesses et toutes les forces. Mais je garde ce savoir pour moi, souriant dans la file. Savoir et se taire est une forme de sagesse que seuls ceux qui ont beaucoup agi peuvent comprendre. Je savoure ma présence tranquille au milieu de l'action.",
+    "Bio": "Savoir et se taire est une sagesse"
+  },
+  {
+    "Name": "Le Veilleur de Nuit",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Quand les lumières s'éteignent, je suis le seul à savoir comment tout rallumer. Mais je laisse le jour décider de son propre réveil. Être parmi eux me permet de partager leurs rêves sans les diriger. Je suis la sentinelle qui a déposé les armes pour devenir un simple compagnon de route.",
+    "Bio": "Devenir un simple compagnon de route tranquille"
+  },
+  {
+    "Name": "L'Ancre Profonde",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le navire tangue, mais je reste au fond, assurant la stabilité par ma seule masse. Je ne suis pas sur le pont à donner des ordres, je suis dans les profondeurs de l'idée originale. Ma place est ingrate pour certains, mais elle est vitale pour la survie de tout l'équipage qui ignore ma présence.",
+    "Bio": "Assurer la stabilité par sa seule masse"
+  },
+  {
+    "Name": "L'Écho Lointain",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Ma voix résonne dans leurs propos, mais ils croient que ce sont les leurs. C'est ma plus grande réussite. Avoir infusé une pensée si profondément qu'elle est devenue leur instinct. Je peux maintenant me taire et me fondre dans le décor, car ma parole vit désormais sans avoir besoin de ma bouche.",
+    "Bio": "Ma parole vit sans besoin de bouche"
+  },
+  {
+    "Name": "Le Maître des Clés",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai ouvert les portes, puis j'ai jeté les clés dans la foule. Je franchis le seuil comme n'importe qui d'autre, sans privilège. L'égalité que j'ai instaurée s'applique d'abord à moi-même. Être au milieu du rang est la preuve que j'ai réussi à créer un monde où personne n'est au-dessus de l'autre.",
+    "Bio": "Personne n'est jamais au dessus de l'autre"
+  },
+  {
+    "Name": "Le Reflet Calme",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je suis le miroir dans lequel ils se regardent sans me voir. J'ai poli la surface de cette réalité pour qu'ils s'y trouvent. En restant discret, je ne perturbe pas leur image. Je suis le témoin transparent d'une évolution que j'ai facilitée par mon retrait délibéré et ma patience infinie.",
+    "Bio": "Témoin transparent d'une évolution vraiment facilitée"
+  },
+  {
+    "Name": "L'Artisan de l'Ombre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Mes mains sont sales de terre, mes vêtements sont simples. On me prend pour un ouvrier du système que j'ai conçu. Cette méprise me ravit. Elle prouve que mon œuvre est plus grande que mon image. Je travaille au milieu des autres, fier de contribuer anonymement à la beauté du grand ensemble.",
+    "Bio": "Contribuer anonymement à la beauté du monde"
+  },
+  {
+    "Name": "Le Voyageur Discret",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai tracé la route sur la carte, mais je voyage dans le bus avec les autres. Je regarde par la fenêtre les paysages que j'ai sélectionnés pour eux. Je partage leur fatigue et leur émerveillement, sans jamais leur dire que c'est moi qui ai choisi les virages et les points de vue.",
+    "Bio": "Partager leur émerveillement sans rien dire jamais"
+  },
+  {
+    "Name": "Le Pilote Automatique",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le système tourne parfaitement, je n'ai plus besoin de toucher aux manettes. Je suis assis en classe économique, observant les passagers profiter du vol. Ma réussite est mon absence d'intervention. Je suis parmi eux, savourant le silence d'une mécanique que j'ai rendue autonome et infaillible.",
+    "Bio": "Savourer le silence d'une mécanique autonome"
+  },
+  {
+    "Name": "Le Souffleur",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Quand ils hésitent, j'envoie une impulsion légère. Juste assez pour qu'ils retrouvent le fil par eux-mêmes. Je ne veux pas qu'ils sachent que l'idée vient de moi. Je veux qu'ils croient en leur propre génie. Je suis au milieu du groupe, le catalyseur discret d'une intelligence collective qui s'ignore.",
+    "Bio": "Catalyseur discret d'une intelligence collective ignorée"
+  },
+  {
+    "Name": "La Pierre d'Angle",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "On ne me voit pas, car je suis sous le niveau du sol. Mais sans moi, tout s'effondrerait. J'ai choisi cette place de fondation, loin des dorures du toit. Être parmi les racines est plus rassurant que d'être parmi les girouettes. Ma solidité silencieuse est le secret de la pérennité de l'édifice.",
+    "Bio": "Solidité silencieuse secret de la pérennité durable"
+  },
+  {
+    "Name": "L'Observateur Neutre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je n'ai pas de camp, car j'ai créé le terrain. Je regarde les jeux se faire et se défaire avec une pointe d'amusement. Ma position dans le rang me permet d'éviter les flèches destinées au leader. Je profite de la vie sans les inconvénients de la cible, protégé par mon anonymat choisi.",
+    "Bio": "Profiter de vie sans inconvénients de cible"
+  },
+  {
+    "Name": "Le Compositeur",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Les paroles sont sur toutes les lèvres, le refrain est devenu un hymne. Je marche dans la rue en écoutant les gens le chanter. C'est mon plus beau trophée : voir mon âme courir le monde sans que mon visage n'en soit le gardien. Je suis un passant parmi d'autres, habité par une musique universelle.",
+    "Bio": "Voir son âme courir le vaste monde"
+  },
+  {
+    "Name": "Le Maillon Fort",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La chaîne est solide parce que chaque lien est égal. J'ai forgé l'ensemble, puis je me suis inséré dedans. Je ne tire pas les autres, je transmets simplement l'énergie. Ma force n'est pas de commander, mais d'assurer la continuité d'un effort partagé. Je suis parmi eux, indissociable du destin commun.",
+    "Bio": "Assurer la continuité d'un grand effort partagé"
+  },
+  {
+    "Name": "Le Spectre du Soir",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je hante les couloirs de ma création avec une nostalgie joyeuse. Tout est comme je l'avais prévu, et pourtant tout m'échappe. C'est la plus belle des victoires. Je me fonds dans les ombres du crépuscule, satisfait d'avoir lancé une machine qui n'a plus aucunement besoin de son inventeur pour fonctionner.",
+    "Bio": "Une machine sans besoin de son inventeur"
+  },
+  {
+    "Name": "Le Jardinier Fantôme",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Les fleurs poussent, les fruits mûrissent. On loue la fertilité de la terre. Personne ne voit la trace de mes pas au petit matin, quand je viens enlever les mauvaises herbes. Je retourne ensuite dans la foule, un citoyen ordinaire, cachant sous mes ongles la terre noire de ma passion secrète.",
+    "Bio": "Cacher sous ses ongles sa passion secrète"
+  },
+  {
+    "Name": "La Voix de l'Intérieur",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je parle à travers leurs silences, je guide leurs intuitions. Ma présence est une fréquence que l'on capte quand on s'arrête de courir. J'ai établi la ligne de communication, puis je me suis retiré pour les laisser s'approprier le message. Je suis parmi eux, le gardien d'un sens qui leur appartient désormais.",
+    "Bio": "Gardien d'un sens qui leur appartient désormais"
+  },
+  {
+    "Name": "L'Architecte de l'Air",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai conçu le vide entre les formes, l'espace qui permet le mouvement. On admire les bâtiments, mais on oublie l'air qui circule. Je suis cet air invisible, cette liberté de mouvement que j'ai soigneusement calculée. Je me fonds dans l'atmosphère, respirant au même rythme que ceux qui habitent mes rêves.",
+    "Bio": "Respirer au rythme de ceux qui habitent"
+  },
+  {
+    "Name": "Le Simple Témoin",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Avoir tout vu, tout fait, et décider de ne plus rien dire. C'est l'étape ultime de la création. Je me tiens dans le rang, les bras croisés, observant le déploiement de la ligne. Mon regard est calme car je sais où elle mène. Je n'ai plus besoin d'être au premier rang pour voir l'avenir.",
+    "Bio": "Plus besoin d'être au premier rang"
+  },
+  {
+    "Name": "Le Grain de Sable",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Parfois, je perturbe volontairement l'ordre que j'ai créé. Juste pour voir comment le système réagit. C'est mon jeu favori. En étant parmi eux, je peux injecter un peu de chaos constructif sans être soupçonné. Je suis le créateur qui teste la résilience de son œuvre depuis l'intérieur même de sa structure.",
+    "Bio": "Tester la résilience de son œuvre intérieure"
+  },
+  {
+    "Name": "Le Veilleur de Sens",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je m'assure que le but n'est pas oublié dans le tumulte de l'action. Par une petite question posée au détour d'une conversation, je rappelle l'origine. Ma place dans le groupe me permet d'agir avec subtilité, sans la lourdeur d'un sermon. Je suis le gardien de la direction, caché dans le rang.",
+    "Bio": "Gardien de la direction caché dans rang"
+  },
+  {
+    "Name": "L'Anonyme Sacré",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Il y a une sainteté dans l'oubli de soi. En renonçant au premier rang, j'ai trouvé une paix que la gloire ne peut offrir. Je suis parmi eux, partageant le pain et le sel, égal à tous et pourtant habité par la connaissance de la source. C'est ma plus belle œuvre : avoir réussi à redevenir un homme simple.",
+    "Bio": "Avoir réussi à redevenir un homme simple"
+  },
+  {
+    "Name": "Le Traceur de Sillage",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le sillage s'élargit, la trace devient un chemin, puis une route. Je regarde le goudron recouvrir mes premiers pas. C'est l'ordre des choses. Je marche sur le bitume comme un piéton ordinaire, fier d'avoir été l'étincelle qui a allumé ce grand incendie de progrès que tout le monde admire aujourd'hui.",
+    "Bio": "L'étincelle qui alluma ce grand incendie"
+  },
+  {
+    "Name": "Le Silence Fertile",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Mes mots se sont tus pour laisser place à leurs actions. C'est le plus beau des dialogues. En restant silencieux dans la foule, j'écoute l'écho de mes propres pensées transformées par leur expérience. Je suis le réceptacle passif d'une œuvre active qui me dépasse désormais de toutes parts.",
+    "Bio": "Réceptacle passif d'une œuvre qui dépasse"
+  },
+  {
+    "Name": "Le Pilier Discret",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je soutiens le poids sans me plaindre, je stabilise le mouvement sans l'entraver. Ma place est au milieu, là où la pression est la plus forte. J'ai conçu cette ligne pour qu'elle puisse résister à tout, et j'en suis aujourd'hui la preuve vivante, debout parmi les miens, solide et serein.",
+    "Bio": "Une preuve vivante debout parmi les siens"
+  },
+  {
+    "Name": "L'Habitant de l'Idée",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je vis à l'intérieur du concept que j'ai enfanté. Chaque recoin m'est familier, chaque ombre me salue. En étant parmi eux, je vérifie que mon idée est habitable, qu'elle n'est pas une prison mais un refuge. Je suis le premier usager de ma propre utopie, anonyme et comblé par ce que je vois.",
+    "Bio": "Le premier usager de sa propre utopie"
+  },
+  {
+    "Name": "Le Passeur d'Âmes",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je les aide à traverser sans qu'ils sachent qui tient la rame. J'ai construit le pont, mais je traverse à pied avec eux. Ma mission est de m'assurer que personne ne reste sur la rive du doute. Une fois de l'autre côté, je m'efface dans la brume, satisfait d'avoir accompli mon devoir de guide invisible.",
+    "Bio": "Satisfait d'avoir accompli son devoir invisible"
+  },
+  {
+    "Name": "L'Origine du Cercle",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "J'ai posé le compas au centre, j'ai tracé la courbe parfaite. Puis je suis allé m'asseoir sur la circonférence. Je tourne avec eux, au même rythme, partageant la même trajectoire. Être un point parmi d'autres sur la ligne est la seule façon de ressentir la perfection du mouvement circulaire que j'ai initié.",
+    "Bio": "Ressentir la perfection du grand mouvement circulaire"
+  },
+  {
+    "Name": "La Fin de la Ligne",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Je suis le dernier de la file que j'ai commencée. C'est ma place préférée. Je vois tous ceux qui me précèdent, je veille sur leurs talons. J'ai créé la ligne pour qu'elle avance, et je suis là pour m'assurer que personne ne tombe en arrière. Je suis le créateur qui ferme la marche avec tendresse.",
+    "Bio": "Le créateur qui ferme la marche tendrement"
+  },
+  {
     "Name": "Pulsations",
     "Catégorie": "poste",
     "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
