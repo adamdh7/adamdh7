@@ -77,7 +77,7 @@
     body{
       min-height: 100dvh;
       min-height: var(--app-height, 100dvh);
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: 0;
     }
 
     #splashScreen {
@@ -246,11 +246,11 @@
     #ios-upload-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 30px; border-radius: 24px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2147483647; color: white; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.5); min-width: 160px; }
     #ios-upload-popup.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .ios-ring-container { position: relative; width: 60px; height: 60px; margin-bottom: 15px; }
-    .ios-ring { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.24); border-top-color: rgba(255,255,255,0.24); border-radius: 50%; animation: ios-spin 1s linear infinite; }
-    .ios-ring-percent { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-    .ios-success-icon { display: none; width: 60px; height: 60px; background: #32D74B; border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 15px; }
-    .ios-success-icon svg { width: 30px; height: 30px; fill: white; }
-    .ios-upload-text { display: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 5px; text-align: center; }
+    .ios-ring { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.22); border-top-color: #9a9a9a; border-radius: 50%; animation: ios-spin 1s linear infinite; }
+    .ios-ring-percent { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #b7b7b7; }
+    .ios-success-icon { display: none; width: 60px; height: 60px; background: #333333; border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .ios-success-icon svg { width: 30px; height: 30px; fill: #b7b7b7; }
+    .ios-upload-text { display: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 5px; text-align: center; color: #b7b7b7; }
     .ios-upload-btn { background: #0A84FF; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 15px; display: none; }
     @keyframes ios-spin { to { transform: rotate(360deg); } }
   </style>
@@ -1197,7 +1197,7 @@
             controls.classList.remove("hidden");
             clearTimeout(hideTimer);
             if (!video.paused && !isLoading) {
-              hideTimer = setTimeout(() => controls.classList.add("hidden"), 2600);
+              hideTimer = setTimeout(() => controls.classList.add("hidden"), 4000);
             }
           };
 
@@ -1398,6 +1398,7 @@ function displaySocialLinks(){
       s.innerHTML = `
         <a href="https://facebook.com/dh7adam" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
         <a href="https://t.me/dh7adam" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram-plane" aria-hidden="true"></i></a>
+        <a href="https://whatsapp.com/channel/0029Vb6WLps7oQhWrUlyPQ2m" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
         <a href="https://www.instagram.com/dh7adam/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
         <a href="https://www.youtube.com/@dh7adam" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
       `;
@@ -1429,6 +1430,7 @@ function displaySocialLinks(){
             const msg = translations[currentLanguage] ? translations[currentLanguage]["empty-search"] : "Aucun résultat";
             explorerEl.innerHTML = `<div style="text-align:center; padding:40px; color:#999; font-size:18px;">${msg}</div>`;
         }
+        searchInput.value = '';
         hideLoader();
       }, 220);
     }
@@ -1454,12 +1456,29 @@ function displaySocialLinks(){
         doSearch();
     });
 
+    function prepareDownloadPopup() {
+      const popup = document.getElementById('ios-upload-popup');
+      const ring = popup.querySelector('.ios-ring');
+      const percentTxt = popup.querySelector('.ios-ring-percent');
+      const successIcon = popup.querySelector('.ios-success-icon');
+      const openBtn = popup.querySelector('.ios-upload-btn');
+      const statusTxt = popup.querySelector('.ios-upload-text');
+      popup.classList.add('show');
+      ring.style.display = 'block';
+      percentTxt.style.display = 'flex';
+      successIcon.style.display = 'none';
+      openBtn.style.display = 'none';
+      statusTxt.textContent = '0%';
+      statusTxt.style.display = 'none';
+      return { popup, ring, percentTxt, successIcon, openBtn, statusTxt };
+    }
+
     function processDownload(card) {
       if (!card || typeof html2canvas === 'undefined') return;
 
       const nameEl = card.querySelector('.post-name');
       let postName = nameEl ? nameEl.textContent.trim() : 'Post';
-      postName = postName.replace(/[\\/:*?"<>|]/g, '_');
+      postName = postName.replace(/[\/:*?"<>|]/g, '_');
       const safeName = postName + '.png';
 
       const thumbCon = card.querySelector('.post-thumb-container');
@@ -1471,28 +1490,15 @@ function displaySocialLinks(){
         }
       }
 
-      const popup = document.getElementById('ios-upload-popup');
-      const ring = popup.querySelector('.ios-ring');
-      const percentTxt = popup.querySelector('.ios-ring-percent');
-      const successIcon = popup.querySelector('.ios-success-icon');
-      const openBtn = popup.querySelector('.ios-upload-btn');
-      const statusTxt = popup.querySelector('.ios-upload-text');
-      
-      popup.classList.add('show');
-      ring.style.display = 'block';
-      percentTxt.style.display = 'flex';
-      successIcon.style.display = 'none';
-      openBtn.style.display = 'none';
-      statusTxt.textContent = "0%";
-      statusTxt.style.display = 'none';
-      
+      const popupState = prepareDownloadPopup();
+      const { popup, ring, percentTxt, successIcon, openBtn, statusTxt } = popupState;
       let fakeProgress = 0;
       let fakeInterval = setInterval(() => {
-          if(fakeProgress < 90) { 
-              fakeProgress += Math.floor(Math.random()*4)+1; 
-              if(fakeProgress>90) fakeProgress=90; 
-              statusTxt.textContent = fakeProgress + "%"; 
-              percentTxt.textContent = fakeProgress + "%"; 
+          if(fakeProgress < 90) {
+              fakeProgress += Math.floor(Math.random()*4)+1;
+              if(fakeProgress>90) fakeProgress=90;
+              statusTxt.textContent = fakeProgress + "%";
+              percentTxt.textContent = fakeProgress + "%";
           }
       }, 100);
 
@@ -1510,34 +1516,37 @@ function displaySocialLinks(){
                 body: formData
             }).then(res => res.text()).then(txt => {
                 clearInterval(fakeInterval);
-                statusTxt.textContent = "100%"; 
+                statusTxt.textContent = "100%";
                 percentTxt.textContent = "100%";
                 let finalUrl = txt;
                 try {
                     const json = JSON.parse(txt);
                     if(json.url) finalUrl = json.url;
                 } catch(e){}
-                
+
                 setTimeout(() => {
                     ring.style.display = 'none';
                     percentTxt.style.display = 'none';
                     successIcon.style.display = 'flex';
+                    successIcon.style.background = '#333333';
+                    const successSvg = successIcon.querySelector('svg');
+                    if (successSvg) successSvg.style.fill = '#b7b7b7';
                     statusTxt.textContent = translations[currentLanguage] ? translations[currentLanguage]["toast-success"] : "Terminé";
                     statusTxt.style.display = 'none';
                     openBtn.style.display = 'block';
-                    
+
                     openBtn.onclick = () => {
                         popup.classList.remove('show');
-                        const a = document.createElement('a'); 
-                        a.href = finalUrl; 
-                        a.target = '_blank'; 
+                        const a = document.createElement('a');
+                        a.href = finalUrl;
+                        a.target = '_blank';
                         a.setAttribute('data-bypass', 'true');
-                        document.body.appendChild(a); 
-                        a.click(); 
+                        document.body.appendChild(a);
+                        a.click();
                         document.body.removeChild(a);
                     };
                     setTimeout(() => popup.classList.remove('show'), 6000);
-                }, 300);
+                }, 0);
             }).catch(err => {
                 clearInterval(fakeInterval);
                 popup.classList.remove('show');
@@ -1792,7 +1801,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     let hStack = 0, fStack = 0, currentActiveUrl = '', isInitialLoad = false, isNavigatingHistory = false;
 
     function syncNav() { btnBack.classList.toggle('show-ui', hStack > 1); btnFwd.classList.toggle('show-ui', fStack > 0); }
-    function isSocialOrEmail(url) { return ['youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com', 'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com', 'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com', 'business.whatsapp.com', 'mailto:', 'paypal.com'].some(p => url.toLowerCase().includes(p)); }
+    function isSocialOrEmail(url) { return ['youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com', 'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com', 'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com', 'business.whatsapp.com', 't.me', 'telegram.me', 'mailto:', 'paypal.com'].some(p => url.toLowerCase().includes(p)); }
     function openInNewTab() { let urlToOpen = currentActiveUrl; try { if (iframe.contentWindow.location.href && iframe.contentWindow.location.href !== 'about:blank') urlToOpen = iframe.contentWindow.location.href; } catch(e) {} if (!urlToOpen || urlToOpen === 'about:blank') urlToOpen = iframe.src; if (urlToOpen && urlToOpen !== 'about:blank') { const a = document.createElement('a'); a.href = urlToOpen; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); exitUI(); } }
     function launchUrl(url) { if (!url || url === 'undefined' || url === '#' || url === 'about:blank') return; if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) { const a = document.createElement('a'); a.href = url; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); return; } isInitialLoad = true; currentActiveUrl = url; iframe.src = url; container.classList.add('active'); hStack = 1; fStack = 0; syncNav(); }
     function exitUI() { container.classList.remove('active'); container.style.transform = 'translateY(0)'; hStack = 0; fStack = 0; currentActiveUrl = ''; syncNav(); setTimeout(() => { iframe.removeAttribute('src'); iframe.src = 'about:blank'; }, 400); }
