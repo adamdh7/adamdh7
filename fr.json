@@ -1,5 +1,405 @@
 [
   {
+    "Name": "Pulsations",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "L’extase en feu, le deuil en pluie, un cri de soie, un gouffre d’or. Ton rire qui sauve, l’absence qui fuit, vivre cent vies avant la mort. Un adieu tendre, un choc frontal, l’espoir qui mord, le vide en fête. Tout le chaos, pur et brutal, l’éternité dans une miette, le cœur qui bat très fort.",
+    "Bio": "Vivre cent vies avant la grande mort"
+  },
+  {
+    "Name": "Vertige",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un souffle court, le ciel qui bascule, des mains qui cherchent l'invisible. On s'accroche aux ombres qui dansent, tandis que le sol se dérobe sous nos pas trop lourds. C'est l'ivresse du vide, la beauté de l'abîme où chaque frisson est une preuve de notre existence éphémère et magnifique.",
+    "Bio": "L'ivresse du vide dans un ciel immense"
+  },
+  {
+    "Name": "Cicatrices de Lumière",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le fer brûlant de tes souvenirs marque ma peau d'un sceau sacré. Chaque plaie est une porte ouverte, chaque douleur un soleil qui refuse de s'éteindre. On porte nos blessures comme des bijoux précieux, brillants dans le noir de nos nuits blanches, transformant l'amertume en pur velours.",
+    "Bio": "Porter ses blessures comme des bijoux précieux"
+  },
+  {
+    "Name": "Naufrages",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le sel des pleurs, le bois qui craque, l'océan qui dévore nos derniers secrets. On dérive sans boussole, ivres d'écume et de désirs fous, cherchant une île qui n'existe que dans nos rêves les plus sombres. Le naufrage est un voyage, une lente immersion vers la clarté des fonds abyssaux.",
+    "Bio": "Deriver sans boussole sur un océan déchaîné"
+  },
+  {
+    "Name": "Brasier",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une étincelle de haine, un incendie d'amour, le sang qui chante dans les veines. On se consume pour ne pas geler, on s'embrase pour toucher le ciel d'un doigt tremblant. C'est une danse macabre et joyeuse où chaque flamme dévore un peu de notre peur, laissant place à une cendre pure.",
+    "Bio": "Se consumer pour toucher le ciel immense"
+  },
+  {
+    "Name": "Murmures d'Acier",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le silence des villes, le cri des machines, une âme perdue dans le béton froid. On cherche un battement de cœur sous l'asphalte, une fleur qui perce la grisaille de nos jours identiques. C'est une quête sauvage, un besoin vital de retrouver le sauvage sous le vernis de la raison.",
+    "Bio": "Chercher la vie sous le béton froid"
+  },
+  {
+    "Name": "Écorces",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Peau contre peau, le monde s'efface, ne reste que le grain de ton existence. On se déshabille de nos mensonges, on retire les couches de peur pour atteindre la sève brute. C'est une rencontre minérale, un choc des profondeurs où le temps n'a plus prise sur la vérité de nos corps mêlés.",
+    "Bio": "Atteindre la sève brute de nos corps"
+  },
+  {
+    "Name": "Comètes",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Traverser la nuit comme une flèche de glace, brûler l'atmosphère de nos cris. On ne dure qu'un instant, mais cet éclat suffit à aveugler les dieux endormis. On est des poussières de lumière, des voyageurs sans bagages, filant vers un destin que l'on dessine d'un geste rageur et fier.",
+    "Bio": "Brûler la nuit comme une flèche glacée"
+  },
+  {
+    "Name": "Abîmes",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le noir profond, le froid qui mord, une chute libre vers le centre de soi. On y trouve des trésors oubliés, des monstres qui nous ressemblent et des silences qui hurlent. Plonger sans filet, c'est accepter de se perdre pour enfin découvrir la racine de notre force la plus indomptable.",
+    "Bio": "Découvrir la racine de sa force indomptable"
+  },
+  {
+    "Name": "Orages de Soie",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La colère douce, la foudre qui caresse, un ciel de velours qui se déchire. On pleure des perles noires sur des joues de satin, attendant que le tonnerre apaise nos cœurs trop pleins. C'est un tumulte élégant, une tempête intérieure qui lave l'âme sans jamais briser la tige de nos espoirs.",
+    "Bio": "Une tempête intérieure qui lave notre âme"
+  },
+  {
+    "Name": "L'Encre des Nuits",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Écrire son nom sur l'ombre, graver ses doutes dans le noir absolu. On devient le poème que l'on n'ose pas lire, le chant que l'on étouffe par peur de réveiller les morts. Chaque mot est une blessure qui cicatrise mal, un sillage de lumière dans l'océan d'encre de nos pensées les plus secrètes.",
+    "Bio": "Écrire son nom sur l'ombre du soir"
+  },
+  {
+    "Name": "Chocs Frontaux",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Deux mondes qui se percutent, des éclats de rêve qui volent en éclats de verre. On se rencontre dans la violence du désir, dans la collision des destins que rien ne peut freiner. C'est un impact pur, une explosion de vie qui nous laisse essoufflés, brisés et enfin vivants au milieu des ruines.",
+    "Bio": "Une explosion de vie dans les ruines"
+  },
+  {
+    "Name": "Gouffres d'Or",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "L'éclat qui aveugle, la richesse qui tue, le luxe d'une âme qui se perd. On cherche la pépite dans la boue de nos jours, oubliant que l'or véritable est le sang qui coule dans nos veines. Un trou béant de lumière où l'on tombe avec délectation, espérant y trouver enfin le repos des guerriers.",
+    "Bio": "Tomber avec délectation dans la lumière pure"
+  },
+  {
+    "Name": "Cris de Satin",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une souffrance élégante, une plainte qui glisse sur la peau sans l'écorcher. On hurle en silence pour ne pas déranger le voisinage des ombres, cachant nos tempêtes sous des draps de luxe. C'est la beauté du tragique, la noblesse du deuil que l'on porte comme un vêtement de haute couture.",
+    "Bio": "Porter le deuil comme un vêtement noble"
+  },
+  {
+    "Name": "Éternité d'une Miette",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un baiser volé, une miette de pain, le goût d'un café dans le matin froid. On enferme l'infini dans un détail infime, sauvant nos vies par la grâce d'un instant banal. L'éternité ne se trouve pas dans les siècles, mais dans la seconde où l'on a enfin compris que tout était déjà là, sous nos yeux.",
+    "Bio": "Enfermer l'infini dans un petit détail infime"
+  },
+  {
+    "Name": "Sang et Poussière",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La boue du chemin, l'éclat du combat, la sueur qui perle sur le front des vaincus. On se bat pour un pouce de terre, pour un regard de femme, pour une dignité que l'on nous arrache à chaque pas. On finit tous en poussière, mais la trace de notre sang sur le sol raconte une histoire que le vent ne peut effacer.",
+    "Bio": "Laisser une trace indélébile sur le sol"
+  },
+  {
+    "Name": "Ruines Fertiles",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Des murs écroulés, des ronces qui grimpent, la vie qui reprend ses droits sur l'orgueil des hommes. On reconstruit sur les décombres de nos anciennes amours, utilisant les pierres brisées pour bâtir des châteaux plus solides. C'est la beauté de la fin, la promesse d'un renouveau qui puise sa force dans la mort.",
+    "Bio": "Bâtir des châteaux solides sur nos ruines"
+  },
+  {
+    "Name": "Fièvres",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La peau qui brûle, l'esprit qui divague, des visions de mondes qui n'existent pas encore. On tremble de désir ou de peur, perdus dans le labyrinthe d'une température trop haute pour la raison. La fièvre est un voyage chamanique, un passage obligé pour brûler les impuretés de nos cœurs fatigués.",
+    "Bio": "Brûler les impuretés de nos cœurs fatigués"
+  },
+  {
+    "Name": "Silences de Plomb",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un poids sur la poitrine, des mots qui restent coincés dans la gorge comme des pierres. On s'enfonce dans le mutisme pour ne pas exploser, portant le fardeau de tout ce que l'on n'a pas osé dire. C'est une mer morte, une étendue d'eau lourde où rien ne bouge, où tout attend une onde de choc.",
+    "Bio": "Porter le fardeau de nos mots tus"
+  },
+  {
+    "Name": "Éclats de Miroir",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Mille visages dans un seul morceau de verre, mille mensonges pour une seule vérité. On se regarde dans les débris de notre image, cherchant le fil qui relie nos identités multiples. Chaque éclat nous blesse un peu plus, mais c'est dans cette fragmentation que l'on finit par apercevoir notre âme nue.",
+    "Bio": "Apercevoir son âme nue dans les débris"
+  },
+  {
+    "Name": "Ciels de Cendre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un horizon gris, un air irrespirable, le souvenir d'un feu qui a tout dévasté. On marche sur les restes de nos rêves, respirant la poussière de ce que nous avons été. C'est un monde sans ombres, une clarté diffuse qui annonce la fin d'un cycle et l'attente silencieuse d'une pluie purificatrice.",
+    "Bio": "Marcher sur les restes de nos rêves"
+  },
+  {
+    "Name": "Morsures d'Espoir",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "L'espoir n'est pas une colombe, c'est un loup qui vous mord le cœur pour vous tenir éveillé. Il nous empêche de dormir, nous pousse dans le dos quand on veut s'arrêter, nous force à croire malgré l'évidence du désastre. C'est une blessure qui nous garde vivants, une douleur nécessaire pour ne pas mourir de froid.",
+    "Bio": "L'espoir nous garde vivants malgré le désastre"
+  },
+  {
+    "Name": "Vents de Sable",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Tout s'efface, les visages, les noms, les serments gravés dans la pierre. Le vent emporte nos certitudes, transformant nos cathédrales en dunes mouvantes. On lutte pour garder les yeux ouverts, pour protéger une flamme fragile au creux de nos mains, tandis que le désert gagne du terrain chaque jour.",
+    "Bio": "Protéger sa flamme fragile dans le désert"
+  },
+  {
+    "Name": "Chants de Guerre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le tambour de la colère, le cri de ralliement des cœurs offensés. On marche vers l'inconnu avec la rage pour seule boussole, refusant de se soumettre au silence imposé par les puissants. C'est une mélodie brutale, un hymne à la résistance qui réveille les consciences endormies dans le confort.",
+    "Bio": "Un hymne à la résistance des consciences"
+  },
+  {
+    "Name": "Rivières de Lait",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une douceur infinie, un retour au commencement, le pardon qui coule comme un fleuve blanc. On se lave de nos fautes dans cette eau maternelle, oubliant les combats inutiles et les haines rances. C'est un apaisement total, une réconciliation avec l'enfant que nous avons été avant que le monde ne nous brise.",
+    "Bio": "Se réconcilier avec son propre enfant intérieur"
+  },
+  {
+    "Name": "Noeuds de Vipères",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Les trahisons familiales, les secrets qui étouffent, les venins que l'on se transmet de génération en génération. On tente de trancher ces liens toxiques, mais chaque coup de couteau nous blesse aussi. C'est une lutte contre l'héritage du mal, une tentative désespérée de ne pas ressembler à ceux qui nous ont fait.",
+    "Bio": "Lutter contre l'héritage de nos liens toxiques"
+  },
+  {
+    "Name": "Éclats de Rire Noirs",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Rire de tout, surtout du pire, pour ne pas laisser le malheur avoir le dernier mot. C'est une politesse du désespoir, un bouclier d'humour acide contre la tragédie de l'existence. On rit face à l'abîme, on plaisante avec la mort, transformant notre peur en une farce grotesque et libératrice.",
+    "Bio": "Rire face à l'abîme pour rester libre"
+  },
+  {
+    "Name": "Sombres Aurores",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le soleil se lève sur un champ de bataille, une lumière crue qui ne pardonne rien. On voit les dégâts de la veille, les corps allongés et les espoirs en miettes. Mais dans cette clarté implacable, on trouve aussi la force de ramasser les débris et de recommencer une journée de plus, envers et contre tout.",
+    "Bio": "Trouver la force de recommencer chaque jour"
+  },
+  {
+    "Name": "Feuilles Mortes d'Or",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le faste de la fin, la beauté de ce qui s'éteint. On admire la splendeur du déclin, le pourpre et l'or des arbres qui se préparent au sommeil hivernal. C'est une leçon d'élégance : savoir partir en beauté, offrir son dernier éclat avant de rejoindre la terre et de se fondre dans l'oubli fertile.",
+    "Bio": "Offrir son dernier éclat avant le sommeil"
+  },
+  {
+    "Name": "Glace Vive",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une transparence mortelle, un froid qui brûle plus fort que le feu. On glisse sur des certitudes fragiles, craignant le craquement qui nous emportera vers les profondeurs gelées. C'est une épreuve de légèreté, un test de survie où seule l'immobilité de l'esprit permet de ne pas sombrer dans la panique.",
+    "Bio": "Une épreuve de légèreté sur glace fragile"
+  },
+  {
+    "Name": "Volcans Éteints",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le calme après la fureur, la lave froide qui a sculpté de nouveaux paysages. On porte en nous des colères anciennes qui ne brûlent plus, des passions qui sont devenues des monuments de pierre. C'est la paix des sommets, le repos d'une âme qui a tout vomi et qui regarde maintenant le ciel avec sérénité.",
+    "Bio": "La paix après la fureur des passions"
+  },
+  {
+    "Name": "Miel et Sang",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "La douceur du baiser mélangée au goût métallique de la lutte. On s'aime dans la douleur, on s'étreint sur le champ de foire des sentiments. C'est un mélange de plaisir et de souffrance, une saveur aigre-douce qui définit notre passage sur terre : on ne jouit jamais sans payer le prix fort en larmes.",
+    "Bio": "S'aimer dans la douleur des sentiments forts"
+  },
+  {
+    "Name": "Cages de Verre",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Voir tout, ne rien pouvoir toucher. On vit dans une prison de transparence, isolés par nos propres peurs et les regards des autres. On frappe contre les parois invisibles, on crie sans que le son ne sorte. C'est la tragédie de la modernité : être connectés à tout le monde tout en étant désespérément seuls.",
+    "Bio": "Seuls et connectés dans nos cages transparentes"
+  },
+  {
+    "Name": "Échos de Soie",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un murmure qui traverse les siècles, une caresse qui survit à la mort. On entend encore les mots d'amour de ceux qui sont partis, une vibration légère dans l'air du soir. C'est une présence impalpable, un fil de soie qui nous relie à l'éternité et nous rappelle que rien de ce qui fut aimé ne meurt vraiment.",
+    "Bio": "Rien de ce qui fut aimé meurt"
+  },
+  {
+    "Name": "Labyrinthes de Miroirs",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Chercher la sortie dans le reflet de ses propres doutes. On tourne en rond, rencontrant sans cesse des versions de soi que l'on n'aime pas. C'est un voyage intérieur sans fin, une quête de vérité où chaque tournant nous confronte à nos propres mensonges et à l'image déformée de nos désirs les plus fous.",
+    "Bio": "Confronter ses mensonges dans un grand miroir"
+  },
+  {
+    "Name": "Chutes de Pluie Noire",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un déluge de tristesse qui lave les péchés du monde sans les effacer. On reste sous l'averse, les vêtements lourds de regrets, attendant un signe qui ne vient pas. C'est une mélancolie liquide, un flot de pensées sombres qui s'écoule de nos cœurs pour inonder le paysage de nos vies dévastées par l'ennui.",
+    "Bio": "Une mélancolie liquide inonde nos vies dévastées"
+  },
+  {
+    "Name": "Battements d'Ailes",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une envolée soudaine, un espoir qui décolle dans un fracas de plumes. On quitte la terre pour un instant, portés par une intuition ou un rêve plus grand que nous. C'est une libération éphémère, une sensation de légèreté absolue avant que la gravité ne nous rappelle cruellement à notre condition de mortels.",
+    "Bio": "Une envolée soudaine vers un grand rêve"
+  },
+  {
+    "Name": "Racines de Fer",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "S'ancrer dans le sol pour ne pas s'envoler avec le vent du doute. On enfonce nos convictions comme des piliers d'acier dans la terre dure de la réalité. C'est une résistance minérale, un refus de bouger malgré les tempêtes et les séismes qui tentent de déraciner notre identité et nos valeurs les plus chères.",
+    "Bio": "Résister aux tempêtes avec nos valeurs chères"
+  },
+  {
+    "Name": "Voiles de Brume",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "L'incertitude comme seul paysage, le flou comme seule vérité. On avance à tâtons, effleurant des formes que l'on ne reconnaît pas. C'est une errance poétique, une perte de repères nécessaire pour enfin apprendre à voir avec les yeux de l'âme plutôt qu'avec ceux du corps trop attachés aux apparences.",
+    "Bio": "Apprendre à voir avec les yeux d'âme"
+  },
+  {
+    "Name": "Éclats de Voix",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une dispute qui déchire le silence, des mots qui volent comme des couteaux. On se blesse avec ce que l'on a de plus précieux : la parole. C'est une guerre de proximité, un champ de mines émotionnel où chaque phrase peut être fatale à l'amour que l'on a mis tant d'années à construire pierre après pierre.",
+    "Bio": "Chaque phrase peut être fatale à l'amour"
+  },
+  {
+    "Name": "Lumières de Phares",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Un balayage régulier dans la nuit, un repère fixe pour les âmes en dérive. On cherche cette lueur dans le regard des autres, un guide pour ne pas se fracasser contre les récifs du désespoir. C'est une présence rassurante, une vigie silencieuse qui nous dit que la terre est proche, même si on ne la voit pas.",
+    "Bio": "Chercher un repère fixe dans le noir"
+  },
+  {
+    "Name": "Poussières de Temps",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le sable qui coule entre les doigts, les années qui s'évaporent comme de la buée. On tente de retenir les moments forts, mais ils glissent et se perdent dans le tas des souvenirs flous. C'est une lente érosion de l'être, une dématérialisation de nos vies qui finissent par n'être qu'un nuage de particules légères.",
+    "Bio": "Retenir les moments forts de notre vie"
+  },
+  {
+    "Name": "Chocs de Cœurs",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Le bruit sourd d'une rencontre, le choc de deux solitudes qui s'entrechoquent. On se reconnaît au son de nos fêlures, à la résonance de nos manques. C'est une percussion humaine, un rythme nouveau qui s'installe et nous force à changer de cadence, à danser sur une musique que l'on n'a pas choisie.",
+    "Bio": "Changer de cadence pour une nouvelle musique"
+  },
+  {
+    "Name": "Vignes de Sang",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "L'héritage qui grimpe, les liens familiaux qui nous emprisonnent et nous nourrissent à la fois. On boit le vin de nos ancêtres, amer et puissant, portant le poids de leurs erreurs et l'éclat de leurs gloires. C'est une racine commune, un réseau de veines qui nous lie à une terre et à une histoire dont on ne s'échappe pas.",
+    "Bio": "Porter le poids des erreurs de famille"
+  },
+  {
+    "Name": "Plumes de Plomb",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Vouloir s'envoler mais être trop lourd de remords. On a des ailes, mais elles sont faites d'un métal qui nous cloue au sol. C'est le paradoxe de l'humain : aspirer aux sommets tout en restant prisonnier de ses propres erreurs passées. On regarde le ciel avec envie, battant désespérément d'ailes qui ne nous soulèvent jamais.",
+    "Bio": "Aspirer aux sommets malgré nos erreurs passées"
+  },
+  {
+    "Name": "Masques de Cire",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Sourire devant le feu, sentir son visage fondre lentement. On garde les apparences jusqu'au bout, craignant que la chaleur de la vérité ne révèle notre véritable laideur ou notre immense tristesse. C'est une comédie de façade, un jeu de dupes où l'on finit par perdre ses propres traits à force de trop vouloir plaire.",
+    "Bio": "Garder les apparences jusqu'au bout du feu"
+  },
+  {
+    "Name": "Cris dans le Vide",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Hurler sans que personne ne se retourne, lancer des bouteilles à la mer dans un océan de béton. On cherche un écho, une réponse, un signe que nous ne sommes pas seuls dans l'immensité de l'indifférence moderne. C'est une plainte sans fin, une onde perdue dans le bruit ambiant d'une société qui n'écoute plus que son propre écho.",
+    "Bio": "Lancer des bouteilles à la mer aujourd'hui"
+  },
+  {
+    "Name": "Sillons de Vie",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Les rides comme des chemins de terre, les mains comme des racines noueuses. On porte sur nous la géographie de notre existence, les montagnes de joie et les vallées de larmes. C'est une carte d'identité charnelle, un récit gravé dans la chair qui raconte sans mentir tout ce que nous avons traversé et survécu.",
+    "Bio": "Porter sur soi la géographie du vécu"
+  },
+  {
+    "Name": "Ombres de Géants",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Marcher dans les pas de ceux qui nous dépassent, se sentir petit sous leur lumière. On cherche notre propre voie à l'ombre des grands destins, craignant de ne jamais projeter notre propre silhouette sur le mur du temps. C'est une quête de stature, une lutte pour exister par soi-même sans être écrasé par le passé prestigieux.",
+    "Bio": "Exister par soi-même sans être écrasé"
+  },
+  {
+    "Name": "Cœurs de Silex",
+    "Catégorie": "poste",
+    "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
+    "Url Video": "",
+    "Description": "Une dureté nécessaire pour ne pas être broyé, une pierre qui cache une étincelle. On se ferme au monde pour se protéger, devenant froids et tranchants comme du verre. Mais il suffit d'un choc, d'une rencontre brutale, pour que le silex s'enflamme et révèle la chaleur intense qu'il gardait jalousement en son centre.",
+    "Bio": "Le silex s'enflamme après un choc brutal"
+  },
+  {
     "Name": "Cycle de Vie",
     "Catégorie": "poste",
     "Url Thumb": "https://www.adamdh7.org/asset/poste.png",
