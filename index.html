@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="ht">
 <head>
+  <script>
+    if (window !== window.top) { document.documentElement.innerHTML = '<body style="background:#fff;"></body>'; throw new Error(); }
+    if (window.location.hostname && window.location.hostname !== 'www.adamdh7.org' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+        window.location.replace('https://www.adamdh7.org' + window.location.pathname + window.location.search);
+    }
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#000000" />
@@ -9,7 +15,7 @@
   <title>Adam_D'H7</title>
   <meta name="copyright" content="Adam_D'H7">
   <meta name="reply-to" content="dhaitiadam@adamdh7.org">
-  <meta property="og:url" content="https://adamdh7.org/" />
+  <meta property="og:url" content="https://www.adamdh7.org/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Adam_D'H7" />
   <meta name="author" content="Adam_D'H7">
@@ -18,7 +24,7 @@
   <meta property="article:published_time" content="2026-01-08T00:00:00+00:00" />
   <link rel="icon" href="https://adamdh7.org/adamdh7.png">
   <link rel="manifest" href="manifest.json" />
-  <link rel="canonical" href="https://adamdh7.org/" />
+  <link rel="canonical" href="https://www.adamdh7.org/" />
   <meta property="og:image" content="https://adamdh7.org/adamdh7.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
@@ -27,7 +33,7 @@
   <meta name="twitter:image" content="https://adamdh7.org/asset/512.png">
 
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Organization","name":"Adam_D'H7","url":"https://adamdh7.org","logo":"https://adamdh7.org/adamdh7.png"}
+  {"@context":"https://schema.org","@type":"Organization","name":"Adam_D'H7","url":"https://www.adamdh7.org","logo":"https://adamdh7.org/adamdh7.png"}
   </script>
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +41,7 @@
   <meta name="apple-mobile-web-app-title" content="Adam_D'H7" />
   <link rel="apple-touch-icon" href="https://adamdh7.org/adamdh7.png" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
@@ -71,11 +77,42 @@
     
     body{padding-bottom:60px;}
 
-    .header{ padding:18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; backdrop-filter: blur(10px); background: rgba(0,0,0,0.7); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; -webkit-user-select:text; user-select:text; touch-action:manipulation; }
+    #splashScreen {
+        position: fixed; inset: 0; width: 100%; height: 100%; background-color: #ffffff;
+        display: flex; justify-content: center; align-items: center; overflow: hidden;
+        z-index: 99999999; user-select: none; touch-action: none; transition: opacity 0.4s ease;
+    }
+    #splashScreen img { width: 45vmin; max-width: 400px; min-width: 150px; height: auto; pointer-events: none; }
+
+    #scr-auth {
+        position: fixed; inset: 0; background-color: #000000; z-index: 10000;
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        padding: 2rem; overflow-y: auto; font-family: 'Inter', sans-serif; color: white;
+    }
+    .auth-wrapper { width: 100%; max-width: 24rem; text-align: center; }
+    .auth-title { font-size: 4.5rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 0.5rem; font-style: italic; cursor: pointer; }
+    .auth-subtitle { color: #52525b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6em; margin-bottom: 4rem; }
+    .auth-form { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+    .auth-input { background: #1c1c1e; border: none; border-radius: 12px; padding: 16px; color: white; width: 100%; outline: none; font-size: 16px; box-sizing: border-box; }
+    .auth-row { display: flex; gap: 0.5rem; width: 100%; }
+    .auth-btn { width: 100%; background: #fff; color: #000; font-weight: 900; padding: 1rem 0; border-radius: 16px; margin-top: 1rem; font-size: 1.125rem; border: none; cursor: pointer; }
+    .auth-link { width: 100%; color: #71717a; font-size: 0.875rem; margin-top: 1rem; background: transparent; border: none; cursor: pointer; }
+    .hidden-auth { display: none !important; }
+
+    .language-overlay { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; border-radius: 20px 20px 0 0; z-index: 100000; transform: translateY(100%); transition: transform 0.3s; font-family: 'Inter', sans-serif; color: white; }
+    .language-overlay.show { transform: translateY(0); }
+    .backdrop-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .backdrop-sheet.show { opacity: 1; pointer-events: auto; }
+    .lang-item { padding: 1rem; border-bottom: 1px solid #1f2937; text-align: center; cursor: pointer; font-size: 16px; }
+    .lang-item-close { padding: 1rem; text-align: center; cursor: pointer; color: #3b82f6; font-weight: bold; font-size: 16px; }
+
+    .header{ padding:calc(18px + env(safe-area-inset-top)) 16px 18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; backdrop-filter: blur(10px); background: rgba(0,0,0,0.7); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; -webkit-user-select:text; user-select:text; touch-action:manipulation; transition: transform 0.3s ease; }
     .header-top { display:flex; justify-content:center; align-items:center; position:relative; width:100%; box-sizing:border-box; padding:0 10px; }
     .logo{ font-size:26px; font-weight:700; background:linear-gradient(90deg,#fff,#000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .search-container{ display:flex; justify-content:center; padding:8px 20px; width:100%; box-sizing:border-box; }
-    .search-box{ width:100%; max-width:500px; background:#1c1c1e; border:none; padding:10px 14px; border-radius:12px; color:#fff; font-size:15px; outline:none; -webkit-user-select:text; user-select:text; }
+    .search-container{ display:flex; justify-content:center; padding:8px 20px; width:100%; box-sizing:border-box; position:relative; }
+    .search-box{ width:100%; max-width:500px; background:#1c1c1e; border:none; padding:10px 40px 10px 14px; border-radius:12px; color:#fff; font-size:15px; outline:none; -webkit-user-select:text; user-select:text; }
+    .search-svg-icon { position:absolute; right:35px; top:50%; transform:translateY(-50%); cursor:pointer; fill:#888; transition: fill 0.2s; }
+    .search-svg-icon:active { fill:#fff; }
 
     #centralLoader {
       position: fixed;
@@ -141,7 +178,7 @@
     }
     @keyframes checkDraw { to { stroke-dashoffset: 0; } }
 
-    #explorerView{ position:absolute; top:76px; left:0; right:0; bottom:0; padding:18px; overflow-y:auto; background:#000; -webkit-overflow-scrolling:touch; box-sizing:border-box; touch-action: pan-y; overscroll-behavior-y: contain; }
+    #explorerView{ position:absolute; top:calc(100px + env(safe-area-inset-top)); left:0; right:0; bottom:0; padding:18px; overflow-y:auto; background:#000; -webkit-overflow-scrolling:touch; box-sizing:border-box; touch-action: pan-y; overscroll-behavior-y: contain; }
 
     .post-card{ background:#111; border-radius:14px; padding:14px; margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.7); -webkit-user-select:none; user-select:none; }
     .post-name{ font-weight:700; font-size:16px; margin:8px 0; color:#fff; text-align:left; -webkit-user-select:none; user-select:none; cursor:pointer; display: inline-block; }
@@ -203,26 +240,33 @@
     #ad-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: #2c2c2c; pointer-events: none; }
     #ad-progress-bar { height: 100%; width: 0%; background: #bdc3c7; transition: width 0.1s linear; }
 
-    #langOverlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,15,15,0.85); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:2147483647; display:none; flex-direction:column; align-items:center; justify-content:center; }
-    .lang-opt { padding:16px 50px; margin:12px; background:linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)); border-radius:20px; font-size:18px; cursor:pointer; font-weight:600; border:1px solid rgba(255,255,255,0.1); color:#fff; box-shadow:0 8px 32px rgba(0,0,0,0.3); transition:transform 0.2s; letter-spacing:0.5px; }
-    .lang-opt:active { transform:scale(0.95); }
-    #removeLang { margin-top:40px; color:#ff5555; cursor:pointer; font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:1px; background:rgba(255,85,85,0.1); padding:12px 24px; border-radius:20px; border:1px solid rgba(255,85,85,0.2); transition:transform 0.2s; }
-    #removeLang:active { transform:scale(0.95); }
-    
-    #uploadToast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#222; border:1px solid #444; padding:15px 25px; border-radius:12px; display:none; align-items:center; gap:15px; z-index:2147483647; box-shadow:0 5px 20px rgba(0,0,0,0.6); color:#fff; font-size:15px; white-space:nowrap; }
-    #uploadOuvri { cursor:pointer; color:#4CAF50; font-size:16px; }
+    #ios-upload-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 30px; border-radius: 24px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2147483647; color: white; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.5); min-width: 160px; }
+    #ios-upload-popup.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .ios-ring-container { position: relative; width: 60px; height: 60px; margin-bottom: 15px; }
+    .ios-ring { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.2); border-top-color: #0A84FF; border-radius: 50%; animation: ios-spin 1s linear infinite; }
+    .ios-ring-percent { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    .ios-success-icon { display: none; width: 60px; height: 60px; background: #32D74B; border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .ios-success-icon svg { width: 30px; height: 30px; fill: white; }
+    .ios-upload-text { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 5px; text-align: center; }
+    .ios-upload-btn { background: #0A84FF; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 15px; display: none; }
+    @keyframes ios-spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
+
+  <div id="splashScreen">
+      <img src="https://adamdh7.org/adamdh7.png" alt="">
+  </div>
+
   <div class="header" id="siteHeader">
     <div class="header-top">
       <div class="logo">Adam_D'H7</div>
-      <div id="langToggleBtn" style="position:absolute; right:10px; cursor:pointer; display:flex; align-items:center;">
-        <svg fill="#fff" width="24" height="24" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.08 13.28 4 12.61 4 12s.08-1.28.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.18.72.26 1.39.26 2s-.08 1.28-.26 2h-3.38z"/></svg>
+      <div id="headerActionBtn" style="position:absolute; right:10px; cursor:pointer; display:flex; align-items:center;">
       </div>
     </div>
     <div class="search-container">
-      <input id="searchBox" class="search-box" placeholder="Rechèch..." autocomplete="off" />
+      <input id="searchBox" class="search-box" data-key="search" placeholder="Rechèch..." autocomplete="off" />
+      <svg id="searchActionBtn" class="search-svg-icon" width="20" height="20" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
     </div>
   </div>
 
@@ -235,6 +279,43 @@
   <div id="bottomProgress">0%</div>
 
   <div id="explorerView" role="main" aria-live="polite"></div>
+
+  <section id="scr-auth">
+      <div class="auth-wrapper">
+          <h1 class="auth-title" onclick="showLangSheet()">D'H7</h1>
+          <p class="auth-subtitle" data-key="subtitle">Digital HUB 7</p>
+          
+          <div id="login-form" class="auth-form">
+              <input type="text" id="login-id" data-key="placeholder-tfid" placeholder="TFID oswa DH7" class="auth-input">
+              <input type="password" id="login-pass" data-key="placeholder-password" placeholder="Modpas" class="auth-input">
+              
+              <button onclick="loginApp()" class="auth-btn" data-key="connect">LOG IN</button>
+              <button onclick="toggleAuth()" class="auth-link" data-key="register">KREYE YON KONT</button>
+          </div>
+
+          <div id="reg-form" class="auth-form hidden-auth">
+              <div class="auth-row">
+                  <input type="text" id="reg-nom" data-key="placeholder-lastname" placeholder="Nom" class="auth-input">
+                  <input type="text" id="reg-prenom" data-key="placeholder-firstname" placeholder="Prenom" class="auth-input">
+              </div>
+              <input type="text" id="reg-dh7" data-key="placeholder-dh7" placeholder="DH7 ID" class="auth-input">
+              <input type="number" id="reg-age" data-key="placeholder-age" placeholder="Laj" class="auth-input">
+              <input type="password" id="reg-pass" data-key="placeholder-password" placeholder="Modpas" class="auth-input">
+              
+              <button onclick="registerApp()" class="auth-btn" data-key="create-account">JOIN D'H7</button>
+              <button onclick="toggleAuth()" class="auth-link" data-key="back-to-login">RETOUNEN</button>
+          </div>
+      </div>
+  </section>
+
+  <div id="backdrop-sheet" class="backdrop-sheet" onclick="closeOverlays()"></div>
+  <div id="lang-sheet" class="language-overlay">
+      <div class="lang-item" onclick="changeAppLanguage('ht')">Kreyòl Ayisyen</div>
+      <div class="lang-item" onclick="changeAppLanguage('fr')">Français</div>
+      <div class="lang-item" onclick="changeAppLanguage('en')">English</div>
+      <div class="lang-item" onclick="changeAppLanguage('es')">Español</div>
+      <div class="lang-item-close" onclick="closeOverlays()">Fermer</div>
+  </div>
 
   <div id="actionOverlay">
     <div id="actDownload" class="action-btn">
@@ -257,19 +338,16 @@
     </div>
   </div>
 
-  <div id="langOverlay">
-    <svg id="closeLang" style="position:absolute;top:20px;right:20px;cursor:pointer;" width="32" height="32" fill="#fff" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-    <div class="lang-opt" data-l="ht">Kreyòl (HT)</div>
-    <div class="lang-opt" data-l="fr">Français (FR)</div>
-    <div class="lang-opt" data-l="es">Español (ES)</div>
-    <div class="lang-opt" data-l="en">English (EN)</div>
-    <div id="removeLang">Réinitialiser (Enlever la sauvegarde)</div>
-  </div>
-
-  <div id="uploadToast">
-    <span>Téléchargement réussite</span>
-    <b id="uploadOuvri">Ouvri</b>
-    <svg id="closeToast" style="cursor:pointer;" width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  <div id="ios-upload-popup">
+      <div class="ios-ring-container">
+          <div class="ios-ring"></div>
+          <div class="ios-ring-percent">0%</div>
+      </div>
+      <div class="ios-success-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+      </div>
+      <div class="ios-upload-text">0%</div>
+      <button class="ios-upload-btn" data-key="toast-open">Ouvri</button>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -279,7 +357,216 @@
     const searchInput = document.getElementById('searchBox');
     const explorerEl = document.getElementById('explorerView');
     const headerEl = document.getElementById('siteHeader');
+    const splashScreen = document.getElementById('splashScreen');
     
+    const API = "https://server.dh7.adamdh7.org";
+    let userSession = JSON.parse(localStorage.getItem('dh7_session')) || null;
+    let currentLanguage = localStorage.getItem('language') || localStorage.getItem('userLang') || (navigator.language || navigator.userLanguage || 'ht').split('-')[0];
+    if (!['ht', 'fr', 'en', 'es'].includes(currentLanguage)) currentLanguage = 'ht';
+
+    const translations = {
+        ht: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID oswa DH7", "placeholder-password": "Modpas", connect: "LOG IN", register: "KREYE YON KONT", "placeholder-lastname": "Nom", "placeholder-firstname": "Prenom", "placeholder-dh7": "DH7 ID", "placeholder-age": "Laj", "create-account": "JOIN D'H7", "back-to-login": "RETOUNEN", "search": "Rechèch...", "toast-success": "Telechajman reyisi", "toast-open": "Ouvri", "empty-search": "Pa gen rezilta pou rechèch sa a" },
+        fr: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID ou DH7", "placeholder-password": "Mot de passe", connect: "LOG IN", register: "CRÉER UN COMPTE", "placeholder-lastname": "Nom", "placeholder-firstname": "Prénom", "placeholder-dh7": "DH7 ID", "placeholder-age": "Âge", "create-account": "REJOINDRE D'H7", "back-to-login": "RETOUR", "search": "Recherche...", "toast-success": "Téléchargement réussi", "toast-open": "Ouvrir", "empty-search": "Aucun résultat trouvé" },
+        en: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID or DH7", "placeholder-password": "Password", connect: "LOG IN", register: "CREATE AN ACCOUNT", "placeholder-lastname": "Last Name", "placeholder-firstname": "First Name", "placeholder-dh7": "DH7 ID", "placeholder-age": "Age", "create-account": "JOIN D'H7", "back-to-login": "BACK", "search": "Search...", "toast-success": "Download successful", "toast-open": "Open", "empty-search": "No results found" },
+        es: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID o DH7", "placeholder-password": "Contraseña", connect: "LOG IN", register: "CREAR UNA CUENTA", "placeholder-lastname": "Apellido", "placeholder-firstname": "Nombre", "placeholder-dh7": "DH7 ID", "placeholder-age": "Edad", "create-account": "UNIRSE A D'H7", "back-to-login": "REGRESAR", "search": "Buscar...", "toast-success": "Descarga exitosa", "toast-open": "Abrir", "empty-search": "No hay resultados" }
+    };
+
+    function updateHeaderIcon() {
+        const btn = document.getElementById('headerActionBtn');
+        if (userSession) {
+            btn.innerHTML = `<svg fill="#fff" width="24" height="24" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.08 13.28 4 12.61 4 12s.08-1.28.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.18.72.26 1.39.26 2s-.08 1.28-.26 2h-3.38z"/></svg>`;
+        } else {
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="#fff" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        }
+    }
+
+    let lastScrollY = 0;
+    explorerEl.addEventListener('scroll', () => {
+        let st = explorerEl.scrollTop;
+        if (st > lastScrollY + 15) {
+            headerEl.style.transform = 'translateY(-100%)';
+        } else if (st < lastScrollY - 20) {
+            headerEl.style.transform = 'translateY(0)';
+        }
+        lastScrollY = st;
+    });
+
+    function handleRoute() {
+        const path = location.pathname;
+        if (path.includes('/login')) {
+            if (userSession) {
+                history.replaceState(null, '', '/');
+                handleRoute();
+            } else {
+                document.getElementById('scr-auth').style.display = 'flex';
+                document.getElementById('siteHeader').style.display = 'none';
+                document.getElementById('explorerView').style.display = 'none';
+            }
+        } else {
+            document.getElementById('scr-auth').style.display = 'none';
+            document.getElementById('siteHeader').style.display = 'flex';
+            document.getElementById('explorerView').style.display = 'block';
+        }
+    }
+
+    window.addEventListener('popstate', () => {
+        if (overlayEl.style.display === "flex") {
+            pendingVideoSrc = null;
+            pendingVideoContainer = null;
+            closeAdOverlay();
+        } else {
+            handleRoute();
+        }
+    });
+
+    document.getElementById('headerActionBtn').addEventListener('click', () => {
+        if (userSession) {
+            showLangSheet();
+        } else {
+            history.pushState(null, '', '/login');
+            handleRoute();
+        }
+    });
+
+    async function loginApp() {
+        let id = document.getElementById('login-id').value.trim();
+        const pass = document.getElementById('login-pass').value;
+
+        if(!id || !pass) return alert("Ranpli tout chan yo");
+        if (!id.includes('@dh7.tf') && !id.startsWith('TF-')) id += '@dh7.tf';
+
+        try {
+            const res = await fetch(`${API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: id, password: pass })
+            });
+            const data = await res.json();
+
+            if(data.success) {
+                userSession = data.user;
+                localStorage.setItem('dh7_session', JSON.stringify(userSession));
+                updateHeaderIcon();
+                history.pushState(null, '', '/');
+                handleRoute();
+            } else { alert(data.error || "Erreur de connexion"); }
+        } catch(e) { alert("Impossible de contacter le serveur adamdh7.org"); }
+    }
+
+    async function registerApp() {
+        const nom = document.getElementById('reg-nom').value;
+        const prenom = document.getElementById('reg-prenom').value;
+        let dh7 = document.getElementById('reg-dh7').value.trim();
+        const age = parseInt(document.getElementById('reg-age').value);
+        const pass = document.getElementById('reg-pass').value;
+
+        if(!nom || !prenom || !dh7 || !age || !pass) return alert("Ranpli tout chan yo");
+        if (!dh7.includes('@dh7.tf')) dh7 += '@dh7.tf';
+
+        try {
+            const res = await fetch(`${API}/register`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, prenom, dh7, age, password: pass }) 
+            });
+            const result = await res.json();
+
+            if(result.success) {
+                alert(`${result.tfid}`);
+                toggleAuth();
+            } else { alert(result.error || "Erreur lors de la création"); }
+        } catch (e) { alert("Erreur serveur"); }
+    }
+
+    function toggleAuth() {
+        document.getElementById('login-form').classList.toggle('hidden-auth');
+        document.getElementById('reg-form').classList.toggle('hidden-auth');
+    }
+
+    function showLangSheet() {
+        document.getElementById('backdrop-sheet').classList.add('show');
+        document.getElementById('lang-sheet').classList.add('show');
+    }
+
+    function closeOverlays() {
+        document.getElementById('backdrop-sheet').classList.remove('show');
+        document.getElementById('lang-sheet').classList.remove('show');
+    }
+
+    function applyTranslations(lang) {
+        const t = translations[lang];
+        if(!t) return;
+        document.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.dataset.key;
+            if (t[key]) {
+                if (el.tagName === 'INPUT') el.placeholder = t[key];
+                else el.innerText = t[key];
+            }
+        });
+    }
+
+    function changeAppLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('language', lang);
+        localStorage.setItem('userLang', lang);
+        closeOverlays();
+        loadLanguageData(lang);
+    }
+
+    function preloadImages(data) {
+        return new Promise(resolve => {
+            const imagesToLoad = data
+                .map(p => p["Url Thumb"] || p.Previously || p.image || p.thumb || "")
+                .filter(src => src && (src.startsWith('http') || src.startsWith('data:')))
+                .slice(0, 7);
+            
+            if(imagesToLoad.length === 0) return resolve();
+            
+            let loaded = 0;
+            imagesToLoad.forEach(src => {
+                const img = new Image();
+                img.onload = img.onerror = () => {
+                    loaded++;
+                    if(loaded === imagesToLoad.length) resolve();
+                };
+                img.src = src;
+            });
+            setTimeout(resolve, 3000);
+        });
+    }
+
+    function loadLanguageData(lang) {
+        splashScreen.style.display = 'flex';
+        splashScreen.style.opacity = '1';
+        
+        fetch("https://adamdh7.org/" + lang + ".json")
+        .then(res => {
+            if(!res.ok) throw new Error("Erreur");
+            return res.json();
+        })
+        .then(data => {
+            let combined = Array.isArray(data) ? data : [data];
+            shuffle(combined);
+            allData = combined.filter(p => {
+                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
+                return cat === "poste";
+            });
+
+            preloadImages(allData).then(() => {
+                displayExplorer(allData);
+                applyTranslations(lang);
+                
+                splashScreen.style.opacity = '0';
+                setTimeout(() => { splashScreen.style.display = 'none'; }, 400);
+            });
+        })
+        .catch(err => {
+            explorerEl.innerHTML = '<div style="color:#999;padding:20px;text-align:center">Erreur de chargement du contenu.</div>';
+            splashScreen.style.opacity = '0';
+            setTimeout(() => { splashScreen.style.display = 'none'; }, 400);
+        });
+    }
+
     let currentContainer = null;
     let pendingVideoSrc = null;
     let pendingVideoContainer = null;
@@ -309,7 +596,6 @@
 
     function revertToThumb(container) {
       if (!container) return;
-
       const video = container.querySelector('video');
       if (video && video.currentTime > 1) {
         container.dataset.savedSrc = video.src;
@@ -320,14 +606,10 @@
         }, 27000);
         video.pause();
       }
-
       const iframe = container.querySelector('iframe');
       if (iframe && iframe.src.includes('youtube.com')) {
-        try {
-          iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-        } catch(e) {}
+        try { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch(e) {}
       }
-
       const thumbSrc = container.dataset.thumbSrc || "https://via.placeholder.com/800x450?text=Preview";
       container.innerHTML = `<img class="post-thumb" src="${thumbSrc}" alt="" loading="lazy" draggable="false">`;
     }
@@ -406,18 +688,13 @@
 
     function stopAdMedia() {
       const v = adMediaWrapper.querySelector('video');
-      if (v) {
-        v.pause();
-        v.src = "";
-        v.load();
-      }
+      if (v) { v.pause(); v.src = ""; v.load(); }
       adMediaWrapper.innerHTML = '';
     }
 
     function closeAdOverlay() {
       stopAdMedia();
       overlayEl.style.display = "none";
-      
       if (pendingVideoSrc && pendingVideoContainer) {
         playMedia(pendingVideoSrc, pendingVideoContainer);
       }
@@ -432,9 +709,7 @@
     }
 
     function getAdLanguage() {
-      const userLang = navigator.language || navigator.userLanguage; 
-      const shortLang = userLang.split('-')[0]; 
-      return ['ht', 'fr', 'es', 'en'].includes(shortLang) ? shortLang : 'en';
+      return ['ht', 'fr', 'es', 'en'].includes(currentLanguage) ? currentLanguage : 'en';
     }
 
     async function startAdSequence() {
@@ -489,11 +764,8 @@
       const videoExtensions = ['.mp4','.mov','.mkv','.webm','.avi','.ogg','.flv','.wmv','.3gp','.m4v','.mpg','.mpeg'];
       const isVideo = item.type === 'video' || videoExtensions.some(ext => item.url.toLowerCase().endsWith(ext));
 
-      if (isVideo) {
-        setupAdVideo(item);
-      } else {
-        setupAdImage(item);
-      }
+      if (isVideo) setupAdVideo(item);
+      else setupAdImage(item);
     }
 
     function showAdOverlays(isVideo) {
@@ -514,19 +786,14 @@
       video.controls = false;
       video.preload = 'auto';
 
-      video.onerror = () => {
-          closeAdOverlay();
-      };
+      video.onerror = () => closeAdOverlay();
 
       adMediaWrapper.appendChild(video);
 
-      function updateSoundIcon() {
-        adSoundBtn.innerHTML = video.muted ? adMutedSVG : adUnmutedSVG;
-      }
+      function updateSoundIcon() { adSoundBtn.innerHTML = video.muted ? adMutedSVG : adUnmutedSVG; }
       updateSoundIcon();
 
       let overlaysShown = false;
-
       video.addEventListener('playing', () => {
         if (!overlaysShown) {
           showAdOverlays(true);
@@ -543,9 +810,7 @@
         const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
         adProgressBar.style.width = percent + "%";
         const timeLeft = video.duration ? Math.ceil(video.duration - video.currentTime) : 0;
-        if (timeLeft > 0) {
-          adCloseBtn.innerText = timeLeft + "s";
-        }
+        if (timeLeft > 0) adCloseBtn.innerText = timeLeft + "s";
       };
 
       video.onended = () => {
@@ -584,10 +849,7 @@
     function setupAdImage(item) {
       const img = document.createElement('img');
       img.src = item.url;
-      
-      img.onerror = () => {
-          closeAdOverlay();
-      };
+      img.onerror = () => closeAdOverlay();
 
       adMediaWrapper.appendChild(img);
       img.onload = () => {
@@ -609,18 +871,13 @@
     function activateAdCloseButton() {
       adCloseBtn.innerHTML = "&times;";
       adCloseBtn.classList.add("clickable");
-      adCloseBtn.onclick = (e) => {
-        e.stopPropagation();
-        closeAdOverlay();
-      };
+      adCloseBtn.onclick = (e) => { e.stopPropagation(); closeAdOverlay(); };
     }
 
     adCtaBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       const url = this.getAttribute('href');
-      if (url && url !== '#') {
-        window.open(url, '_blank');
-      }
+      if (url && url !== '#') window.open(url, '_blank');
     });
 
     function buildCardsFragment(data){
@@ -659,7 +916,7 @@
         img.className = "post-thumb";
         img.alt = post.Description || post.Name || "";
         img.loading = "lazy";
-img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.placeholder.com/800x450?text=Preview");
+        img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.placeholder.com/800x450?text=Preview");
         img.draggable = false;
 
         thumbCon.appendChild(img);
@@ -677,9 +934,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
           ev.stopPropagation();
           const src = post.Previously || post.video || post["Url Video"] || post["Url"] || post.image || post.media || "";
           
-          if (thumbCon.querySelector('video, iframe, .video-player')) {
-            return;
-          }
+          if (thumbCon.querySelector('video, iframe, .video-player')) return;
 
           pendingVideoSrc = src;
           pendingVideoContainer = thumbCon;
@@ -715,14 +970,6 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       if(targetCardForDownload) {
         actionOverlay.style.display = 'none';
         processDownload(targetCardForDownload);
-      }
-    });
-
-    window.addEventListener('popstate', () => {
-      if (overlayEl.style.display === "flex") {
-        pendingVideoSrc = null;
-        pendingVideoContainer = null;
-        closeAdOverlay();
       }
     });
 
@@ -778,10 +1025,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
     function playMedia(src, container){
       if (!src) return;
-
-      if (container.querySelector('video, iframe, .video-player')) {
-        return;
-      }
+      if (container.querySelector('video, iframe, .video-player')) return;
 
       if (currentContainer && currentContainer !== container) {
         revertToThumb(currentContainer);
@@ -792,9 +1036,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
         const img = container.querySelector('img');
         if (img) container.dataset.thumbSrc = img.src;
       }
-
       container.innerHTML = "";
-
       const isVideo = looksLikeVideo(src);
 
       if (isVideo) {
@@ -909,28 +1151,11 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
             toggleControls();
           });
 
-          video.addEventListener("play", () => {
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            showControls();
-          });
+          video.addEventListener("play", () => { playBtn.innerHTML = '<i class="fas fa-pause"></i>'; showControls(); });
+          video.addEventListener("pause", () => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; showControls(); });
 
-          video.addEventListener("pause", () => {
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            showControls();
-          });
-
-          const showSpinner = () => {
-            spinner.style.display = "block";
-            centerDiv.style.opacity = "0";
-            centerDiv.style.pointerEvents = "none";
-          };
-
-          const hideSpinner = () => {
-            spinner.style.display = "none";
-            centerDiv.style.opacity = "1";
-            centerDiv.style.pointerEvents = "auto";
-            showControls();
-          };
+          const showSpinner = () => { spinner.style.display = "block"; centerDiv.style.opacity = "0"; centerDiv.style.pointerEvents = "none"; };
+          const hideSpinner = () => { spinner.style.display = "none"; centerDiv.style.opacity = "1"; centerDiv.style.pointerEvents = "auto"; showControls(); };
 
           video.addEventListener("loadstart", showSpinner);
           video.addEventListener("waiting", showSpinner);
@@ -968,64 +1193,25 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
             progressThumb.style.left = `calc(${percent}% - 8px)`;
           };
 
-          progressCont.addEventListener("pointerdown", (e) => {
-            e.stopPropagation();
-            isScrubbing = true;
-            progressCont.classList.add("scrubbing");
-            scrub(e);
-            showControls();
-          });
+          progressCont.addEventListener("pointerdown", (e) => { e.stopPropagation(); isScrubbing = true; progressCont.classList.add("scrubbing"); scrub(e); showControls(); });
+          document.addEventListener("pointermove", (e) => { if (isScrubbing) scrub(e); });
+          document.addEventListener("pointerup", () => { if (isScrubbing) { isScrubbing = false; progressCont.classList.remove("scrubbing"); } });
+          progressCont.addEventListener("click", (e) => { e.stopPropagation(); scrub(e); });
 
-          document.addEventListener("pointermove", (e) => {
-            if (isScrubbing) scrub(e);
-          });
-
-          document.addEventListener("pointerup", () => {
-            if (isScrubbing) {
-              isScrubbing = false;
-              progressCont.classList.remove("scrubbing");
-            }
-          });
-
-          progressCont.addEventListener("click", (e) => {
-            e.stopPropagation();
-            scrub(e);
-          });
-
-          rewindBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            video.currentTime = Math.max(0, video.currentTime - 10);
-          });
-
-          forwardBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-          });
-
-          playBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            video.paused ? video.play() : video.pause();
-          });
+          rewindBtn.addEventListener("click", (e) => { e.stopPropagation(); video.currentTime = Math.max(0, video.currentTime - 10); });
+          forwardBtn.addEventListener("click", (e) => { e.stopPropagation(); video.currentTime = Math.min(video.duration || 0, video.currentTime + 10); });
+          playBtn.addEventListener("click", (e) => { e.stopPropagation(); video.paused ? video.play() : video.pause(); });
 
           fsBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-
             if (isFullscreen) {
-              if (document.exitFullscreen) {
-                document.exitFullscreen();
-              } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-              }
+              if (document.exitFullscreen) document.exitFullscreen();
+              else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             } else {
-              if (isIOS && video.webkitEnterFullscreen) {
-                video.webkitEnterFullscreen();
-              } else {
-                player.requestFullscreen().catch(() => {});
-              }
-              if (!isIOS && screen.orientation && typeof screen.orientation.lock === "function") {
-                screen.orientation.lock("landscape-primary").catch(() => {});
-              }
+              if (isIOS && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+              else player.requestFullscreen().catch(() => {});
+              if (!isIOS && screen.orientation && typeof screen.orientation.lock === "function") screen.orientation.lock("landscape-primary").catch(() => {});
             }
           });
 
@@ -1034,35 +1220,24 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
 
           function updateFsIcon() {
             const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-            fsBtn.innerHTML = isFullscreen
-              ? '<i class="fas fa-compress"></i>'
-              : '<i class="fas fa-expand"></i>';
-
-            if (!isFullscreen && !isIOS && screen.orientation && typeof screen.orientation.unlock === "function") {
-              screen.orientation.unlock();
-            }
+            fsBtn.innerHTML = isFullscreen ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+            if (!isFullscreen && !isIOS && screen.orientation && typeof screen.orientation.unlock === "function") screen.orientation.unlock();
           }
 
           let lastTap = 0;
           player.addEventListener("touchend", (e) => {
             const now = Date.now();
-            if (now - lastTap < 300) {
-              e.preventDefault();
-            }
+            if (now - lastTap < 300) e.preventDefault();
             lastTap = now;
           });
 
-          player.addEventListener("dblclick", (e) => {
-            e.preventDefault();
-          });
-
+          player.addEventListener("dblclick", (e) => e.preventDefault());
           [rewindBtn, playBtn, forwardBtn, fsBtn, progressCont].forEach(el => {
             el.addEventListener("click", (e) => e.stopPropagation());
             el.addEventListener("touchstart", (e) => e.stopPropagation(), {passive: true});
           });
 
-          showControls();
-          hideSpinner();
+          showControls(); hideSpinner();
           return;
         }
       } else {
@@ -1078,82 +1253,55 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
         imgEl.draggable = false;
         container.appendChild(imgEl);
         container.scrollIntoView({behavior: "smooth", block: "center"});
-        imgEl.addEventListener('error', () => {
-          container.innerHTML = '<div style="color:#999;padding:12px;text-align:center">Imaj pa disponib</div>';
-        });
+        imgEl.addEventListener('error', () => { container.innerHTML = '<div style="color:#999;padding:12px;text-align:center">Imaj pa disponib</div>'; });
       }
     }
 
     function displaySocialLinks(){
-      const c = document.getElementById("explorerView"),
-            s = document.createElement("div");
+      const c = document.getElementById("explorerView"), s = document.createElement("div");
       s.className = "social-section";
       s.innerHTML = `
-        <a href="https://facebook.com/dh7adam" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-          <i class="fab fa-facebook-f" aria-hidden="true"></i>
-        </a>
-        <a href="mailto:dhaitiadam@adamdh7.org" rel="noopener noreferrer" aria-label="Mail">
-          <i class="fas fa-envelope" aria-hidden="true"></i>
-        </a>
-        <a href="https://whatsapp.com/channel/0029Vb6WLps7oQhWrUlyPQ2m" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-          <i class="fab fa-whatsapp" aria-hidden="true"></i>
-        </a>
-        <a href="https://www.instagram.com/adamdhaiti/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <i class="fab fa-instagram" aria-hidden="true"></i>
-        </a>
-        <a href="https://youtube.com/@adamdhaïti" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-          <i class="fab fa-youtube" aria-hidden="true"></i>
-        </a>
+        <a href="https://facebook.com/dh7adam" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a href="mailto:dhaitiadam@adamdh7.org" rel="noopener noreferrer" aria-label="Mail"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+        <a href="https://whatsapp.com/channel/0029Vb6WLps7oQhWrUlyPQ2m" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
+        <a href="https://www.instagram.com/adamdhaiti/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+        <a href="https://youtube.com/@adamdhaïti" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
       `;
       const exists = Array.from(document.getElementsByClassName('social-section')).length;
       if (!exists) c.appendChild(s);
     }
 
-    const SEARCH_DEBOUNCE_MS = 170;
-    let searchTimer = null;
-    let loaderTimer = null;
-
-    function performFilter(val) {
-      const txt = (val || "").toLowerCase();
-      const filtered = allData.filter(p =>
-          (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(txt) ||
-          (p.Name||"").toString().toLowerCase().includes(txt) ||
-          (p.Description||p.Desc||"").toString().toLowerCase().includes(txt)
-      );
-      if (txt) {
-        filtered.sort((a, b) => (a.Name || "").localeCompare((b.Name || ""), undefined, { numeric: true, sensitivity: 'base' }));
-      }
-      displayExplorer(filtered);
-    }
-
-    function filterSearchDebounced(val){
-      if (searchTimer) clearTimeout(searchTimer);
-      if (loaderTimer) clearTimeout(loaderTimer);
-      
+    function doSearch() {
+      const val = searchInput.value.trim().toLowerCase();
       const tracker = showLoader();
-
-      searchTimer = setTimeout(() => {
-        try {
-          if (window.requestIdleCallback) {
-            requestIdleCallback(() => {
-              performFilter(val);
-              hideLoader(tracker);
-            }, {timeout:300});
-          } else {
-            setTimeout(() => {
-              performFilter(val);
-              hideLoader(tracker);
-            }, 0);
-          }
-        } catch(e){
-          hideLoader(tracker);
-          console.error(e);
+      setTimeout(() => {
+        const filtered = allData.filter(p =>
+            (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(val) ||
+            (p.Name||"").toString().toLowerCase().includes(val) ||
+            (p.Description||p.Desc||"").toString().toLowerCase().includes(val)
+        );
+        if (val) {
+          filtered.sort((a, b) => (a.Name || "").localeCompare((b.Name || ""), undefined, { numeric: true, sensitivity: 'base' }));
         }
-      }, SEARCH_DEBOUNCE_MS);
+        displayExplorer(filtered);
+        if (filtered.length === 0) {
+            const msg = translations[currentLanguage] ? translations[currentLanguage]["empty-search"] : "Aucun résultat";
+            explorerEl.innerHTML = `<div style="text-align:center; padding:40px; color:#999; font-size:18px;">${msg}</div>`;
+        }
+        hideLoader(tracker);
+      }, 300);
     }
 
-    searchInput.addEventListener('input', (e) => {
-      filterSearchDebounced(e.target.value);
+    searchInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') {
+            searchInput.blur();
+            doSearch();
+        }
+    });
+
+    document.getElementById('searchActionBtn').addEventListener('click', () => {
+        searchInput.blur();
+        doSearch();
     });
 
     function processDownload(card) {
@@ -1173,7 +1321,29 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
         }
       }
 
-      const tracker = showLoader();
+      const popup = document.getElementById('ios-upload-popup');
+      const ring = popup.querySelector('.ios-ring');
+      const percentTxt = popup.querySelector('.ios-ring-percent');
+      const successIcon = popup.querySelector('.ios-success-icon');
+      const openBtn = popup.querySelector('.ios-upload-btn');
+      const statusTxt = popup.querySelector('.ios-upload-text');
+      
+      popup.classList.add('show');
+      ring.style.display = 'block';
+      percentTxt.style.display = 'flex';
+      successIcon.style.display = 'none';
+      openBtn.style.display = 'none';
+      statusTxt.textContent = "0%";
+      
+      let fakeProgress = 0;
+      let fakeInterval = setInterval(() => {
+          if(fakeProgress < 90) { 
+              fakeProgress += Math.floor(Math.random()*4)+1; 
+              if(fakeProgress>90) fakeProgress=90; 
+              statusTxt.textContent = fakeProgress + "%"; 
+              percentTxt.textContent = fakeProgress + "%"; 
+          }
+      }, 100);
 
       html2canvas(card, {
         scale: 3,
@@ -1188,30 +1358,42 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
                 method: 'POST',
                 body: formData
             }).then(res => res.text()).then(txt => {
-                hideLoader(tracker);
+                clearInterval(fakeInterval);
+                statusTxt.textContent = "100%"; 
+                percentTxt.textContent = "100%";
                 let finalUrl = txt;
                 try {
                     const json = JSON.parse(txt);
                     if(json.url) finalUrl = json.url;
                 } catch(e){}
-                const toast = document.getElementById('uploadToast');
-                const ouvriBtn = document.getElementById('uploadOuvri');
-                toast.style.display = 'flex';
-                ouvriBtn.onclick = () => {
-                    const a = document.createElement('a');
-                    a.href = finalUrl;
-                    a.target = '_blank';
-                    a.setAttribute('data-bypass', 'true');
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                };
+                
+                setTimeout(() => {
+                    ring.style.display = 'none';
+                    percentTxt.style.display = 'none';
+                    successIcon.style.display = 'flex';
+                    statusTxt.textContent = translations[currentLanguage] ? translations[currentLanguage]["toast-success"] : "Terminé";
+                    openBtn.style.display = 'block';
+                    
+                    openBtn.onclick = () => {
+                        popup.classList.remove('show');
+                        const a = document.createElement('a'); 
+                        a.href = finalUrl; 
+                        a.target = '_blank'; 
+                        a.setAttribute('data-bypass', 'true');
+                        document.body.appendChild(a); 
+                        a.click(); 
+                        document.body.removeChild(a);
+                    };
+                    setTimeout(() => popup.classList.remove('show'), 6000);
+                }, 300);
             }).catch(err => {
-                hideLoader(tracker);
+                clearInterval(fakeInterval);
+                popup.classList.remove('show');
             });
         }, 'image/png');
       }).catch(err => {
-        hideLoader(tracker);
+        clearInterval(fakeInterval);
+        popup.classList.remove('show');
         if (thumbCon) {
           const thumbImg = thumbCon.querySelector('img');
           if (thumbImg) window.open(thumbImg.src, '_blank');
@@ -1223,12 +1405,8 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     let isPulling = false;
 
     document.addEventListener('touchstart', (e) => {
-      if (window.scrollY === 0 && headerEl.contains(e.target)) {
-        pullStartY = e.touches[0].clientY;
-        isPulling = true;
-      } else {
-        isPulling = false;
-      }
+      if (window.scrollY === 0 && headerEl.contains(e.target)) { pullStartY = e.touches[0].clientY; isPulling = true; } 
+      else isPulling = false;
     }, {passive: false});
 
     document.addEventListener('touchmove', (e) => {
@@ -1238,11 +1416,7 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       
       if (diff > 0 && window.scrollY === 0) {
         if(e.cancelable) e.preventDefault();
-        
-        if (diff > 50) {
-           centralLoader.style.display = 'block';
-           centralLoader.style.opacity = Math.min(1, diff / 200);
-        }
+        if (diff > 50) { centralLoader.style.display = 'block'; centralLoader.style.opacity = Math.min(1, diff / 200); }
       }
     }, {passive: false});
 
@@ -1253,8 +1427,8 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       
       if (diff > 150 && window.scrollY === 0) {
         document.getElementById('searchBox').value = '';
-        performFilter('');
-        loadLanguageData(determineLanguage());
+        doSearch();
+        loadLanguageData(currentLanguage);
       } else {
         if(centralLoader && centralLoader.style.display === 'block') {
              centralLoader.style.opacity = '0';
@@ -1264,67 +1438,13 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
       isPulling = false;
     });
 
-    function determineLanguage() {
-        let saved = localStorage.getItem('userLang');
-        if (saved && ['ht','fr','es','en'].includes(saved)) return saved;
-        let nav = (navigator.language || navigator.userLanguage || 'ht').split('-')[0];
-        if (['ht','fr','es','en'].includes(nav)) return nav;
-        return 'ht';
-    }
-
-    function loadLanguageData(lang) {
-        const tracker = showLoader();
-        fetch("https://adamdh7.org/" + lang + ".json")
-        .then(res => {
-            if(!res.ok) throw new Error("Erreur");
-            return res.json();
-        })
-        .then(data => {
-            let combined = Array.isArray(data) ? data : [data];
-            shuffle(combined);
-            allData = combined.filter(p => {
-                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
-                return cat === "poste";
-            });
-            displayExplorer(allData);
-            hideLoader(tracker);
-        })
-        .catch(err => {
-            explorerEl.innerHTML = '<div style="color:#999;padding:20px;text-align:center">Erreur de chargement du contenu.</div>';
-            hideLoader(tracker);
-        });
-    }
-
-    document.getElementById('langToggleBtn').addEventListener('click', () => {
-        document.getElementById('langOverlay').style.display = 'flex';
-    });
-
-    document.getElementById('closeLang').addEventListener('click', () => {
-        document.getElementById('langOverlay').style.display = 'none';
-    });
-
-    document.querySelectorAll('.lang-opt').forEach(el => {
-        el.addEventListener('click', (e) => {
-            const l = e.target.getAttribute('data-l');
-            localStorage.setItem('userLang', l);
-            document.getElementById('langOverlay').style.display = 'none';
-            loadLanguageData(l);
-        });
-    });
-
-    document.getElementById('removeLang').addEventListener('click', () => {
-        localStorage.removeItem('userLang');
-        document.getElementById('langOverlay').style.display = 'none';
-        loadLanguageData(determineLanguage());
-    });
-
-    document.getElementById('closeToast').addEventListener('click', () => {
-        document.getElementById('uploadToast').style.display = 'none';
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
+      updateHeaderIcon();
+      handleRoute();
       adjustExplorerTop();
-      loadLanguageData(determineLanguage());
+      if (!location.pathname.includes('/login') || userSession) {
+          loadLanguageData(currentLanguage);
+      }
     });
   </script>
 
@@ -1334,18 +1454,14 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
         navigator.serviceWorker.register('/service-worker.js?v=2')
           .then(reg => {
             if (reg.waiting) {
-              caches.keys().then(function(names) {
-                for (let name of names) caches.delete(name);
-              });
+              caches.keys().then(function(names) { for (let name of names) caches.delete(name); });
               reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
             reg.onupdatefound = () => {
               const newSW = reg.installing;
               newSW.addEventListener('statechange', () => {
                 if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                    caches.keys().then(function(names) {
-                        for (let name of names) caches.delete(name);
-                    });
+                    caches.keys().then(function(names) { for (let name of names) caches.delete(name); });
                     newSW.postMessage({ type: 'SKIP_WAITING' });
                 }
               });
@@ -1353,16 +1469,12 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
           })
           .catch(err => console.warn('SW register failed:', err));
         
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-           window.location.reload();
-        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => { window.location.reload(); });
       });
     }
   </script>
 
-  <script>
-    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
-  </script>
+  <script> document.addEventListener('gesturestart', function(e) { e.preventDefault(); }); </script>
 
   <script>
 (function(){
@@ -1395,17 +1507,9 @@ img.src = (thumbSrc ? thumbSrc + "?t=" + new Date().getTime() : "https://via.pla
     document.addEventListener('dragstart', e => e.preventDefault());
   </script>
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2373752876384997"
-     crossorigin="anonymous"></script>
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-format="fluid"
-       data-ad-layout-key="-gw-3+1f-3d+2z"
-       data-ad-client="ca-pub-2373752876384997"
-       data-ad-slot="6246419460"></ins>
-  <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2373752876384997" crossorigin="anonymous"></script>
+  <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-gw-3+1f-3d+2z" data-ad-client="ca-pub-2373752876384997" data-ad-slot="6246419460"></ins>
+  <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
   
   <script>
 (function(){
@@ -1487,88 +1591,17 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
 (function() {
     const style = document.createElement('style');
     style.textContent = `
-        :root {
-            --bg-ui: #000000;
-            --txt-ui: #ffffff;
-            --acc-ui: #333333;
-        }
-        #int-tab-container-ui {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            height: 85%;
-            background-color: var(--bg-ui);
-            border-top: 1px solid var(--acc-ui);
-            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
-            z-index: 2147483647;
-            display: flex;
-            flex-direction: column;
-            font-family: sans-serif;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-            overflow: hidden;
-        }
-        #int-tab-container-ui.active {
-            bottom: 0;
-        }
-        .nav-bar-ui {
-            height: 60px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            padding: 0 20px;
-            background: var(--bg-ui);
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            touch-action: none;
-        }
-        .nav-left-ui {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        .nav-right-ui {
-            display: flex;
-            justify-content: flex-end;
-        }
-        .nav-icon-ui {
-            width: 28px;
-            height: 28px;
-            fill: none;
-            stroke: var(--txt-ui);
-            stroke-width: 2.5;
-            cursor: pointer;
-            display: none;
-        }
-        .nav-icon-ui.show-ui {
-            display: block;
-        }
-        .drag-zone-ui {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            height: 100%;
-            width: 120px;
-        }
-        .drag-bar-ui {
-            width: 45px;
-            height: 5px;
-            background: var(--acc-ui);
-            border-radius: 10px;
-        }
-        #int-iframe-ui {
-            flex: 1;
-            border: none;
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            display: block;
-            margin: 0;
-            padding: 0;
-        }
+        :root { --bg-ui: #000000; --txt-ui: #ffffff; --acc-ui: #333333; }
+        #int-tab-container-ui { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background-color: var(--bg-ui); border-top: 1px solid var(--acc-ui); transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease; z-index: 2147483647; display: flex; flex-direction: column; font-family: sans-serif; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); overflow: hidden; }
+        #int-tab-container-ui.active { bottom: 0; }
+        .nav-bar-ui { height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 20px; background: var(--bg-ui); user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; touch-action: none; }
+        .nav-left-ui { display: flex; gap: 20px; align-items: center; }
+        .nav-right-ui { display: flex; justify-content: flex-end; }
+        .nav-icon-ui { width: 28px; height: 28px; fill: none; stroke: var(--txt-ui); stroke-width: 2.5; cursor: pointer; display: none; }
+        .nav-icon-ui.show-ui { display: block; }
+        .drag-zone-ui { display: flex; justify-content: center; align-items: center; cursor: pointer; height: 100%; width: 120px; }
+        .drag-bar-ui { width: 45px; height: 5px; background: var(--acc-ui); border-radius: 10px; }
+        #int-iframe-ui { flex: 1; border: none; width: 100%; height: 100%; background: #ffffff; display: block; margin: 0; padding: 0; }
     `;
     document.head.appendChild(style);
 
@@ -1580,9 +1613,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
                 <svg id="ui-b-back" class="nav-icon-ui" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
                 <svg id="ui-b-fwd" class="nav-icon-ui" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
             </div>
-            <div class="drag-zone-ui" id="ui-drag-handle">
-                <div class="drag-bar-ui"></div>
-            </div>
+            <div class="drag-zone-ui" id="ui-drag-handle"><div class="drag-bar-ui"></div></div>
             <div class="nav-right-ui">
                 <svg id="ui-b-close" class="nav-icon-ui show-ui" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
@@ -1597,193 +1628,34 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
     const btnClose = document.getElementById('ui-b-close');
     const dragHandle = document.getElementById('ui-drag-handle');
 
-    let hStack = 0;
-    let fStack = 0;
-    let currentActiveUrl = '';
-    let isInitialLoad = false;
-    let isNavigatingHistory = false;
+    let hStack = 0, fStack = 0, currentActiveUrl = '', isInitialLoad = false, isNavigatingHistory = false;
 
-    function syncNav() {
-        btnBack.classList.toggle('show-ui', hStack > 1);
-        btnFwd.classList.toggle('show-ui', fStack > 0);
-    }
+    function syncNav() { btnBack.classList.toggle('show-ui', hStack > 1); btnFwd.classList.toggle('show-ui', fStack > 0); }
+    function isSocialOrEmail(url) { return ['youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com', 'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com', 'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com', 'business.whatsapp.com', 'mailto:', 'paypal.com'].some(p => url.toLowerCase().includes(p)); }
+    function openInNewTab() { let urlToOpen = currentActiveUrl; try { if (iframe.contentWindow.location.href && iframe.contentWindow.location.href !== 'about:blank') urlToOpen = iframe.contentWindow.location.href; } catch(e) {} if (!urlToOpen || urlToOpen === 'about:blank') urlToOpen = iframe.src; if (urlToOpen && urlToOpen !== 'about:blank') { const a = document.createElement('a'); a.href = urlToOpen; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); exitUI(); } }
+    function launchUrl(url) { if (!url || url === 'undefined' || url === '#' || url === 'about:blank') return; if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) { const a = document.createElement('a'); a.href = url; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); return; } isInitialLoad = true; currentActiveUrl = url; iframe.src = url; container.classList.add('active'); hStack = 1; fStack = 0; syncNav(); }
+    function exitUI() { container.classList.remove('active'); container.style.transform = 'translateY(0)'; hStack = 0; fStack = 0; currentActiveUrl = ''; syncNav(); setTimeout(() => { iframe.removeAttribute('src'); iframe.src = 'about:blank'; }, 400); }
 
-    function isSocialOrEmail(url) {
-        const patterns = [
-            'youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 
-            'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com',
-            'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com',
-            'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com',
-            'business.whatsapp.com', 'mailto:', 'paypal.com'
-        ];
-        return patterns.some(p => url.toLowerCase().includes(p));
-    }
-
-    function openInNewTab() {
-        let urlToOpen = currentActiveUrl;
-        try {
-            if (iframe.contentWindow.location.href && iframe.contentWindow.location.href !== 'about:blank') {
-                urlToOpen = iframe.contentWindow.location.href;
-            }
-        } catch(e) {}
-        
-        if (!urlToOpen || urlToOpen === 'about:blank') {
-            urlToOpen = iframe.src;
-        }
-
-        if (urlToOpen && urlToOpen !== 'about:blank') {
-            const a = document.createElement('a');
-            a.href = urlToOpen;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            exitUI();
-        }
-    }
-
-    function launchUrl(url) {
-        if (!url || url === 'undefined' || url === '#' || url === 'about:blank') return;
-        
-        if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            return;
-        }
-
-        isInitialLoad = true;
-        currentActiveUrl = url;
-        iframe.src = url;
-        container.classList.add('active');
-        hStack = 1;
-        fStack = 0;
-        syncNav();
-    }
-
-    function exitUI() {
-        container.classList.remove('active');
-        container.style.transform = 'translateY(0)';
-        hStack = 0;
-        fStack = 0;
-        currentActiveUrl = '';
-        syncNav();
-        setTimeout(() => { 
-            iframe.removeAttribute('src'); 
-            iframe.src = 'about:blank'; 
-        }, 400);
-    }
-
-    btnBack.onclick = () => {
-        try {
-            isNavigatingHistory = true;
-            iframe.contentWindow.history.back();
-            hStack = Math.max(1, hStack - 1);
-            fStack++;
-            syncNav();
-            setTimeout(() => isNavigatingHistory = false, 500);
-        } catch(e) {}
-    };
-
-    btnFwd.onclick = () => {
-        try {
-            isNavigatingHistory = true;
-            iframe.contentWindow.history.forward();
-            fStack = Math.max(0, fStack - 1);
-            hStack++;
-            syncNav();
-            setTimeout(() => isNavigatingHistory = false, 500);
-        } catch(e) {}
-    };
-
+    btnBack.onclick = () => { try { isNavigatingHistory = true; iframe.contentWindow.history.back(); hStack = Math.max(1, hStack - 1); fStack++; syncNav(); setTimeout(() => isNavigatingHistory = false, 500); } catch(e) {} };
+    btnFwd.onclick = () => { try { isNavigatingHistory = true; iframe.contentWindow.history.forward(); fStack = Math.max(0, fStack - 1); hStack++; syncNav(); setTimeout(() => isNavigatingHistory = false, 500); } catch(e) {} };
     btnClose.onclick = exitUI;
 
-    iframe.onload = () => {
-        if (iframe.src && !iframe.src.includes('about:blank')) {
-            if (isInitialLoad) {
-                isInitialLoad = false;
-            } else if (!isNavigatingHistory) {
-                hStack++;
-                fStack = 0;
-                syncNav();
-            }
-            try {
-                currentActiveUrl = iframe.contentWindow.location.href;
-            } catch(e) {}
-        }
-    };
+    iframe.onload = () => { if (iframe.src && !iframe.src.includes('about:blank')) { if (isInitialLoad) isInitialLoad = false; else if (!isNavigatingHistory) { hStack++; fStack = 0; syncNav(); } try { currentActiveUrl = iframe.contentWindow.location.href; } catch(e) {} } };
 
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a');
-        if (link && link.href) {
-            const targetAttr = link.getAttribute('target');
-            if (targetAttr === '_blank' || targetAttr === '_new' || e.ctrlKey || e.metaKey) {
-                if (link.hasAttribute('data-bypass') || link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) {
-                    return;
-                }
-                e.preventDefault();
-                e.stopPropagation();
-                launchUrl(link.href);
-            }
-        }
-    }, true);
+    document.addEventListener('click', (e) => { const link = e.target.closest('a'); if (link && link.href) { const targetAttr = link.getAttribute('target'); if (targetAttr === '_blank' || targetAttr === '_new' || e.ctrlKey || e.metaKey) { if (link.hasAttribute('data-bypass') || link.href.toLowerCase().includes('.apk') || isSocialOrEmail(link.href)) return; e.preventDefault(); e.stopPropagation(); launchUrl(link.href); } } }, true);
 
     const originalWindowOpen = window.open;
-    window.open = function(url, target, features) {
-        if (url) {
-            if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) {
-                return originalWindowOpen.call(window, url, '_blank', features);
-            }
-            launchUrl(url);
-            return null;
-        }
-    };
+    window.open = function(url, target, features) { if (url) { if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) return originalWindowOpen.call(window, url, '_blank', features); launchUrl(url); return null; } };
 
-    let sY = 0;
-    let isMoving = false;
-
+    let sY = 0, isMoving = false;
     function dragInit(e) {
-        sY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-        isMoving = false;
-        
-        const dragMove = (ev) => {
-            let mY = ev.type === 'touchmove' ? ev.touches[0].clientY : ev.clientY;
-            let delta = mY - sY;
-            if (delta > 5) {
-                isMoving = true;
-                container.style.transition = 'none';
-                container.style.transform = `translateY(${delta}px)`;
-            }
-            if (delta > 250) dragEnd(true);
-        };
-
-        const dragEnd = (close) => {
-            document.removeEventListener('mousemove', dragMove);
-            document.removeEventListener('touchmove', dragMove);
-            container.style.transition = 'bottom 0.4s ease, transform 0.2s ease';
-            
-            if (close === true) {
-                exitUI();
-            } else {
-                if (!isMoving) {
-                    openInNewTab();
-                }
-                container.style.transform = 'translateY(0)';
-            }
-        };
-
-        document.addEventListener('mousemove', dragMove);
-        document.addEventListener('touchmove', dragMove);
-        document.addEventListener('mouseup', () => dragEnd(false), { once: true });
-        document.addEventListener('touchend', () => dragEnd(false), { once: true });
+        sY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY; isMoving = false;
+        const dragMove = (ev) => { let mY = ev.type === 'touchmove' ? ev.touches[0].clientY : ev.clientY; let delta = mY - sY; if (delta > 5) { isMoving = true; container.style.transition = 'none'; container.style.transform = `translateY(${delta}px)`; } if (delta > 250) dragEnd(true); };
+        const dragEnd = (close) => { document.removeEventListener('mousemove', dragMove); document.removeEventListener('touchmove', dragMove); container.style.transition = 'bottom 0.4s ease, transform 0.2s ease'; if (close === true) exitUI(); else { if (!isMoving) openInNewTab(); container.style.transform = 'translateY(0)'; } };
+        document.addEventListener('mousemove', dragMove); document.addEventListener('touchmove', dragMove); document.addEventListener('mouseup', () => dragEnd(false), { once: true }); document.addEventListener('touchend', () => dragEnd(false), { once: true });
     }
-
-    dragHandle.addEventListener('mousedown', dragInit);
-    dragHandle.addEventListener('touchstart', dragInit);
+    dragHandle.addEventListener('mousedown', dragInit); dragHandle.addEventListener('touchstart', dragInit);
 })();
 </script>
 </body>
-  </html>
+</html>
