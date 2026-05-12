@@ -10,8 +10,8 @@
   "display": "standalone",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "any",
-  "theme_color": "#000000",
-  "background_color": "#000000",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
   "categories": ["personal", "news"],
   "prefer_related_applications": false,
   "icons": [
