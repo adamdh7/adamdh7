@@ -1,28 +1,26 @@
 {
-  "id": "https://adamdh7.org/",
-  "lang": "ht",
+  "id": "D'H7 | Tergene",
   "dir": "ltr",
+  "lang": "ht",
   "name": "Adam_D'H7",
   "short_name": "Adam_D'H7",
-  "description": "It's me Adam_D'H7, . Bienvenue dans mon univers.",
-  "start_url": "v=2",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
-  "orientation": "any",
+  "orientation": "portrait",
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
-  "categories": ["personal", "news"],
-  "prefer_related_applications": false,
+  "description": "",
   "icons": [
     {
-      "src": "asset/192x192.png",
+      "src": "/havox.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "asset/512x512.png",
+      "src": "/havox.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -30,10 +28,9 @@
   ],
   "screenshots": [
     {
-      "src": "asset/poste.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "label": "It's me, . Bienvenue dans mon univers."
+      "src": "/asset/poste.png",
+      "sizes": "2024x2024",
+      "type": "image/png"
     }
   ]
 }
