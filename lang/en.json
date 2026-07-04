@@ -15,6 +15,7 @@
   "back-to-login": "BACK",
   "search": "Search...",
   "toast-success": "Download successful",
+  "toast-register-success": "Account created successfully",
   "toast-open": "Open",
   "empty-search": "No results found",
   "error-load": "Loading error",
@@ -28,5 +29,6 @@
   "ad-click": "Click here",
   "no_video": "This post has no video",
   "capture-error": "Capture error",
-  "no_thumb": "No thumbnail"
+  "no_thumb": "No thumbnail",
+  "default-post": "Post"
 }
