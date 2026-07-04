@@ -151,32 +151,49 @@
     .media-wrap{ text-align:center; margin: 0 0 10px 0; }
     .post-thumb-container { position:relative; display:inline-block; box-sizing:border-box; max-width:var(--card-max-width); width:100%; background:#000; border-radius:12px; overflow:hidden; padding:0; min-height:var(--card-min-height); max-height:var(--card-max-height); }
     .post-thumb, .post-thumb img, .post-thumb video, .post-thumb iframe { display:block; width:100%; height:auto; max-height:calc(var(--card-max-height)); object-fit:contain; background:#000; border-radius:0; }
-    .video-player { position: relative; width: 100%; max-width: 100%; background: #000; cursor: pointer; touch-action: none; display: block; overflow: hidden; border-radius: 12px; aspect-ratio: 16 / 9; transition: aspect-ratio 0.3s ease; }
-    .video-player.fullscreen-mode { border-radius: 0; width: 100%; height: 100%; max-height: 100%; display: block; }
-    .video-player.loaded-ratio { aspect-ratio: auto; }
-    .video-player video { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; background: #000; display: block; }
-    .video-controls { position: absolute; inset: 0; display: block; pointer-events: none; background: rgba(0,0,0,0.5); transition: background 0.35s ease; }
-    .video-controls.hidden { background: transparent; }
-    .center-controls { position: absolute; inset: 0; display: flex; gap: 30px; align-items: center; justify-content: center; pointer-events: auto; transition: opacity 0.25s ease; padding: 0; opacity: 1; }
-    .video-controls.hidden .center-controls:not(.loading) { opacity: 0; pointer-events: none; }
-    .center-controls.hidden { opacity: 0; pointer-events: none; }
-    .video-loader { display: none; align-items: center; justify-content: center; width: clamp(40px, 10vw, 60px); height: clamp(40px, 10vw, 60px); }
-    .video-loader svg { width: 100%; height: 100%; animation: rotate 1.05s linear infinite; }
-    .video-loader circle { stroke: #ffffff; stroke-width: 6; stroke-dasharray: 1, 120; stroke-dashoffset: 0; stroke-linecap: round; animation: dash 1.35s ease-in-out infinite; fill: none; }
-    .center-controls.loading .video-loader { display: flex; }
-    .center-controls.loading .play-btn { display: none; }
-    .text-btn { background: transparent; border: none; color: #fff; font-weight: 900; font-size: 18px; cursor: pointer; padding: 10px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
-    .play-btn { background: transparent; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
-    .play-btn svg { width: 28px; height: 28px; fill: #ffffff; }
-    .bottom-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px; width: 100%; pointer-events: auto; background: transparent; padding: clamp(8px, 2vw, 12px) clamp(8px, 2.5vw, 16px) clamp(8px, 2vw, 14px); box-sizing: border-box; transition: opacity 0.35s ease; opacity: 1; }
-    .video-controls.hidden .bottom-bar { opacity: 0; pointer-events: none; }
-    .time { font-size: clamp(13px, 3.5vw, 16px); min-width: 68px; text-align: center; color: #fff; }
-    .progress-container { flex: 1; height: 6px; background: rgba(255,255,255,0.3); border-radius: 4px; position: relative; cursor: pointer; touch-action: none; }
-    .progress-fill { height: 100%; width: 0%; background: #fff; border-radius: 4px; }
-    .progress-thumb { position: absolute; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; background: #fff; border-radius: 50%; left: -9px; opacity: 1; transition: transform 0.1s; }
-    .progress-container.scrubbing .progress-thumb { transform: translateY(-50%) scale(1.3); }
-    .fullscreen-btn { background: transparent; border: none; color: #fff; cursor: pointer; padding: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
-    .fullscreen-btn svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    
+    /* Custom Player Styles */
+    .video-player { position:relative; width:100%; max-width:100%; background:#000; cursor:pointer; touch-action:none; display:block; overflow:hidden; border-radius:12px; aspect-ratio:16/9; transition:aspect-ratio 0.3s ease; user-select:none; -webkit-user-select:none; }
+    .video-player.landscape-mode, .video-player.fullscreen-mode { border-radius:0; width:100%; height:100%; max-height:100%; display:block; position:fixed !important; inset:0 !important; z-index:99999 !important; aspect-ratio:auto; }
+    .video-player video { position:absolute; inset:0; width:100%; height:100%; max-width:100%; max-height:100%; object-fit:contain; background:#000; z-index:1; transition:filter .08s linear; display:block; }
+    .cp-controls-wrap { position:absolute; left:12px; right:12px; bottom:12px; pointer-events:none; z-index:12; transition:opacity .25s ease; filter:drop-shadow(0px 2px 8px rgba(0,0,0,0.8)); }
+    .cp-time-row { display:flex; align-items:center; gap:12px; padding:8px 12px; color:#9aa0a6; font-size:14px; justify-content:center; }
+    .cp-time { width:82px; text-align:center; font-variant-numeric:tabular-nums; text-shadow:0px 2px 4px rgba(0,0,0,0.9); }
+    .cp-progress { flex:1; max-width:820px; display:flex; align-items:center; }
+    .cp-seek { position:relative; height:8px; width:100%; border-radius:999px; cursor:pointer; background:rgba(255,255,255,0.22); touch-action:none; }
+    .cp-fill { position:absolute; left:0; top:0; height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.55)); pointer-events:none; }
+    .cp-thumb { position:absolute; top:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:#ffffff; box-shadow:0px 1px 4px rgba(0,0,0,0.8); pointer-events:auto; touch-action:none; }
+    .cp-controls-hidden { opacity:0; pointer-events:none; }
+    .cp-controls-visible { opacity:1; pointer-events:auto; }
+    .cp-inside-mini { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); z-index:13; display:flex; justify-content:space-between; align-items:center; padding:0 15%; pointer-events:none; transition:opacity .25s ease; }
+    .cp-inside-hidden { opacity:0; pointer-events:none; }
+    .cp-inside-visible { opacity:1; pointer-events:auto; }
+    .cp-inside-item { display:flex; align-items:center; background:none; border:none; flex:1; pointer-events:auto; }
+    .cp-back-container { justify-content:flex-start; }
+    .cp-play-container { justify-content:center; }
+    .cp-forward-container { justify-content:flex-end; }
+    .cp-mini-btn { width:55px; height:55px; border-radius:50%; border:none; background:transparent; color:#fff; font-weight:700; font-size:26px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; filter:drop-shadow(0px 3px 6px rgba(0,0,0,0.9)); -webkit-appearance:none; padding:0; touch-action:manipulation; }
+    .cp-mini-btn:active { transform:scale(0.85); }
+    .cp-landscape-btn { margin-left:8px; border:none; background:transparent; color:#9aa0a6; width:34px; height:34px; cursor:pointer; filter:drop-shadow(0px 2px 4px rgba(0,0,0,0.9)); display:flex; align-items:center; justify-content:center; padding:0; -webkit-appearance:none; touch-action:manipulation; }
+    .cp-landscape-btn:hover { color:#fff; }
+    .cp-landscape-btn svg { width:24px; height:24px; }
+    .cp-swipe-ind { position:absolute; top:50%; transform:translateY(-50%); color:#fff; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:20; pointer-events:none; opacity:0; transition:opacity .15s ease; font-weight:700; font-size:16px; text-shadow:0px 2px 8px rgba(0,0,0,0.9); }
+    .cp-swipe-left { left:40px; }
+    .cp-swipe-right { right:40px; }
+    .cp-swipe-ind.show { opacity:1; }
+    .cp-swipe-icon { width:26px; height:26px; }
+    .cp-spinner-overlay { position:absolute; inset:0; display:flex; justify-content:center; align-items:center; z-index:15; pointer-events:none; background:rgba(0,0,0,0.3); transition:opacity 0.3s ease; opacity:0; }
+    .cp-spinner-overlay.show { opacity:1; }
+    .cp-spinner { animation:cp-rotate 2s linear infinite; width:50px; height:50px; filter:drop-shadow(0px 2px 6px rgba(0,0,0,0.8)); }
+    .cp-spinner .path { stroke:#fff; stroke-linecap:round; animation:cp-dash 1.5s ease-in-out infinite; stroke-width:5; fill:none; }
+    @keyframes cp-rotate { 100% { transform:rotate(360deg); } }
+    @keyframes cp-dash { 0% { stroke-dasharray:1,150; stroke-dashoffset:0; } 50% { stroke-dasharray:90,150; stroke-dashoffset:-35; } 100% { stroke-dasharray:90,150; stroke-dashoffset:-124; } }
+    .cp-error-overlay { display:none; position:absolute; inset:0; background:#000; z-index:50; justify-content:center; align-items:center; flex-direction:column; }
+    .cp-error-container { position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+    .cp-error-image-wrapper { position:relative; width:100%; max-width:100%; aspect-ratio:16/9; display:flex; justify-content:center; align-items:center; }
+    .cp-error-image-wrapper img { width:100%; height:100%; object-fit:contain; }
+    .cp-err-txt { position:absolute; bottom:5%; width:100%; text-align:center; color:grey; font-size:clamp(12px, 2vw, 16px); z-index:10000; font-weight:bold; text-shadow:0 1px 2px #000; }
+
     .social-section{ margin-top:10px; padding-top:10px; display:flex; justify-content:center; gap:18px; flex-wrap:wrap; padding-bottom: 20px;}
     .social-section a{ color:#fff; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; background: transparent; }
     .social-section svg { width: 24px; height: 24px; fill: #ffffff; }
@@ -464,6 +481,10 @@
                 document.getElementById('siteHeader').style.display = 'none';
                 document.getElementById('explorerView').style.display = 'none';
                 setHeaderSpace(0);
+                setTimeout(() => {
+                    splashScreen.style.opacity = '0';
+                    setTimeout(() => { splashScreen.style.display = 'none'; }, 400);
+                }, 300);
             }
         } else {
             document.getElementById('scr-auth').style.display = 'none';
@@ -1292,52 +1313,590 @@
       return src;
     }
 
-    function formatTime(seconds) {
-      if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-      const total = Math.floor(seconds);
-      const hours = Math.floor(total / 3600);
-      const minutes = Math.floor((total % 3600) / 60);
-      const secs = total % 60;
-      const mm = String(minutes).padStart(2, "0");
-      const ss = String(secs).padStart(2, "0");
-      if (hours > 0) return `${hours}:${mm}:${ss}`;
-      return `${minutes}:${ss}`;
-    }
+    function setupCustomPlayer(container, src) {
+      const player = document.createElement("div");
+      player.className = "video-player";
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const posterSrc = container.dataset.thumbSrc || (container.querySelector('img') ? container.querySelector('img').src : "");
 
-    function createPlayerLoader(){
-      const loader = document.createElement("div");
-      loader.className = "video-loader";
-      loader.innerHTML = '<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="18"></circle></svg>';
-      return loader;
-    }
+      player.innerHTML = `
+        <video preload="metadata" playsinline crossorigin="anonymous" poster="${posterSrc}" src="${src}"></video>
+        <div class="cp-error-overlay">
+          <div class="cp-error-container">
+            <div class="cp-error-image-wrapper">
+              <img src="https://adamdh7.org/asset/nwa.png" alt="Erè" />
+              <div class="cp-err-txt"></div>
+            </div>
+          </div>
+        </div>
 
-    function lockLandscapePlayer(player){
-      if (!player) return;
-      player.classList.add('fullscreen-mode');
-      if (screen.orientation && typeof screen.orientation.lock === 'function') {
-        screen.orientation.lock('landscape').catch(() => {});
+        <div class="cp-spinner-overlay" style="display:flex;">
+          <svg class="cp-spinner" viewBox="0 0 50 50">
+            <circle class="path" cx="25" cy="25" r="20"></circle>
+          </svg>
+        </div>
+
+        <div class="cp-inside-mini cp-inside-visible">
+          <div class="cp-inside-item cp-back-container"><button class="cp-mini-btn">-10</button></div>
+          <div class="cp-inside-item cp-play-container"><button class="cp-mini-btn">❚❚</button></div>
+          <div class="cp-inside-item cp-forward-container"><button class="cp-mini-btn">+10</button></div>
+        </div>
+        
+        <div class="cp-controls-wrap cp-controls-visible">
+          <div class="cp-time-row">
+            <div class="cp-time current-time">0:00</div>
+            <div class="cp-progress">
+              <div class="cp-seek" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="cp-fill"></div>
+                <div class="cp-thumb" aria-hidden="true"></div>
+              </div>
+            </div>
+            <div class="cp-time duration-time">0:00</div>
+            <button class="cp-landscape-btn"></button>
+          </div>
+        </div>
+        <div class="cp-swipe-ind cp-swipe-left" aria-hidden="true">
+          <div class="cp-swipe-icon"></div>
+          <div class="cp-swipe-value">0%</div>
+        </div>
+        <div class="cp-swipe-ind cp-swipe-right" aria-hidden="true">
+          <div class="cp-swipe-icon"></div>
+          <div class="cp-swipe-value">0%</div>
+        </div>
+      `;
+      container.appendChild(player);
+
+      const video = player.querySelector('video');
+      const insidePlay = player.querySelector('.cp-play-container .cp-mini-btn');
+      const insideForward = player.querySelector('.cp-forward-container .cp-mini-btn');
+      const insideBack = player.querySelector('.cp-back-container .cp-mini-btn');
+      const backContainer = player.querySelector('.cp-back-container');
+      const playContainer = player.querySelector('.cp-play-container');
+      const forwardContainer = player.querySelector('.cp-forward-container');
+      const spinnerContainer = player.querySelector('.cp-spinner-overlay');
+      const seekBar = player.querySelector('.cp-seek');
+      const fill = player.querySelector('.cp-fill');
+      const thumb = player.querySelector('.cp-thumb');
+      const currentEl = player.querySelector('.current-time');
+      const durationEl = player.querySelector('.duration-time');
+      const landscapeBtn = player.querySelector('.cp-landscape-btn');
+      const controlsWrap = player.querySelector('.cp-controls-wrap');
+      const insideMini = player.querySelector('.cp-inside-mini');
+      const swipeIndicatorLeft = player.querySelector('.cp-swipe-left');
+      const swipeIconLeft = player.querySelector('.cp-swipe-left .cp-swipe-icon');
+      const swipeValueLeft = player.querySelector('.cp-swipe-left .cp-swipe-value');
+      const swipeIndicatorRight = player.querySelector('.cp-swipe-right');
+      const swipeIconRight = player.querySelector('.cp-swipe-right .cp-swipe-icon');
+      const swipeValueRight = player.querySelector('.cp-swipe-right .cp-swipe-value');
+      const errorOverlay = player.querySelector('.cp-error-overlay');
+      const errTxt = player.querySelector('.cp-err-txt');
+
+      const svgBrightness = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26"><path d="M12 4V2M12 22v-2M4.93 4.93L3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2M22 12h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      const svgVolume = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 9a5 5 0 010 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      const svgFullscreenEnter = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+      const svgFullscreenExit = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>';
+      const svgReplay = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:34px;height:34px;"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
+
+      landscapeBtn.innerHTML = svgFullscreenEnter;
+
+      const cornerRatio = 0.25;
+      let hideTimeout = null;
+      let isCssFullscreen = false;
+      let isEndedState = false;
+      let userPaused = false;
+
+      function isIOSDevice() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       }
-    }
 
-    function unlockLandscapePlayer(player){
-      if (!player) return;
-      player.classList.remove('fullscreen-mode');
-      if (screen.orientation && typeof screen.orientation.unlock === 'function') {
-        screen.orientation.unlock();
+      function formatTime(sec){
+        sec = Math.floor(sec) || 0;
+        const h = Math.floor(sec/3600);
+        const m = Math.floor((sec%3600)/60);
+        const s = sec%60;
+        if(h>0) return h + ":" + String(m).padStart(2,'0') + ":" + String(s).padStart(2,'0');
+        return m + ":" + String(s).padStart(2,'0');
       }
-    }
 
-    function refreshLandscapePlayer(player){
-      if (!player) return;
-      if (player.classList.contains('fullscreen-mode')) {
-        player.style.width = '100%';
-        player.style.height = '100%';
-      } else {
-        player.style.width = '';
-        player.style.height = '';
+      function isFullscreenCard(){ 
+        return document.fullscreenElement === player || 
+               document.webkitFullscreenElement === player || 
+               video.webkitDisplayingFullscreen || 
+               isCssFullscreen; 
       }
+
+      function isWideVideo() {
+        return video.videoWidth > 0 && video.videoHeight > 0 && (video.videoWidth / video.videoHeight) > 1.2;
+      }
+
+      function unmuteVideo() {
+        if (video.muted) {
+          video.muted = false;
+        }
+      }
+      
+      function updateUIForTime(time) {
+        currentEl.textContent = formatTime(time);
+        const dur = video.duration || 1;
+        const pct = (time / dur) * 100;
+        fill.style.width = pct + '%';
+        thumb.style.left = pct + '%';
+        seekBar.setAttribute('aria-valuenow', Math.floor(time || 0));
+      }
+
+      function clearEndedState() {
+        if (isEndedState) {
+            isEndedState = false;
+            forwardContainer.style.visibility = 'visible';
+            updatePlayIcon();
+            resetHideTimer();
+        }
+      }
+
+      async function tryAutoplay(){
+        try {
+          video.muted = false;
+          await video.play();
+        } catch(e){
+          try {
+            video.muted = true;
+            await video.play();
+          } catch(_){}
+        }
+        updatePlayIcon();
+      }
+
+      function updatePlayIcon(){ 
+          if (isEndedState) return;
+          insidePlay.textContent = video.paused ? '▶︎' : '❚❚'; 
+      }
+
+      async function togglePlay(){
+        unmuteVideo();
+        if (isEndedState) {
+            clearEndedState();
+            video.currentTime = 0;
+            userPaused = false;
+            try { await video.play(); } catch(e){}
+            return;
+        }
+        try{ 
+            if(video.paused){ 
+                try{ video.muted = false; } catch(e){} 
+                userPaused = false;
+                await video.play(); 
+            } else {
+                userPaused = true;
+                video.pause();
+            }
+        } catch(e){} 
+        updatePlayIcon(); 
+      }
+
+      insidePlay.addEventListener('click', (e)=>{ e.stopPropagation(); togglePlay(); resetHideTimer(); });
+
+      insideForward.addEventListener('click', (e)=>{ 
+        e.stopPropagation(); 
+        unmuteVideo(); 
+        const targetTime = Math.min(video.duration || 0, video.currentTime + 10);
+        video.currentTime = targetTime; 
+        updateUIForTime(targetTime); 
+        resetHideTimer(); 
+      });
+      
+      insideBack.addEventListener('click', (e)=>{ 
+        e.stopPropagation(); 
+        unmuteVideo(); 
+        clearEndedState();
+        const targetTime = Math.max(0, video.currentTime - 10);
+        video.currentTime = targetTime; 
+        updateUIForTime(targetTime); 
+        resetHideTimer(); 
+      });
+
+      let scrubbing = false;
+      let wasPlayingBeforeScrub = false;
+      
+      function timeFromClientX(clientX){
+        const r = seekBar.getBoundingClientRect();
+        let p = (clientX - r.left) / r.width;
+        p = Math.max(0, Math.min(1, p));
+        return (video.duration || 0) * p;
+      }
+      
+      function startScrub(clientX){
+        unmuteVideo();
+        clearEndedState();
+        wasPlayingBeforeScrub = !video.paused;
+        try { video.pause(); } catch(e){}
+        scrubbing = true;
+        const t = timeFromClientX(clientX);
+        video.currentTime = t;
+        updateUIForTime(t);
+        resetHideTimer();
+      }
+      
+      function moveScrub(clientX){
+        if(!scrubbing) return;
+        const t = timeFromClientX(clientX);
+        video.currentTime = t;
+        updateUIForTime(t);
+        resetHideTimer();
+      }
+      
+      function endScrub(){
+        if(!scrubbing) return;
+        scrubbing = false;
+        if(wasPlayingBeforeScrub){
+          try { video.play().catch(()=>{}); } catch(e){}
+        }
+        resetHideTimer();
+      }
+
+      seekBar.addEventListener('mousedown', (e)=>{ e.preventDefault(); e.stopPropagation(); startScrub(e.clientX); });
+      document.addEventListener('mousemove', (e)=>{ moveScrub(e.clientX); });
+      document.addEventListener('mouseup', (e)=>{ endScrub(); });
+      seekBar.addEventListener('touchstart', (e)=>{ e.preventDefault(); e.stopPropagation(); startScrub(e.touches[0].clientX); }, {passive:false});
+      document.addEventListener('touchmove', (e)=>{ if(e.touches && e.touches[0]) moveScrub(e.touches[0].clientX); }, {passive:false});
+      document.addEventListener('touchend', (e)=>{ endScrub(); });
+      thumb.addEventListener('pointerdown', (e)=>{ e.preventDefault(); e.stopPropagation(); startScrub(e.clientX); });
+      document.addEventListener('pointermove', (e)=>{ if(e.pointerType) moveScrub(e.clientX); });
+      document.addEventListener('pointerup', (e)=>{ endScrub(); });
+
+      video.addEventListener('timeupdate', ()=> {
+        if (!scrubbing) {
+          updateUIForTime(video.currentTime);
+        }
+      });
+      
+      video.addEventListener('loadedmetadata', ()=> {
+        durationEl.textContent = formatTime(video.duration || 0);
+        seekBar.setAttribute('aria-valuemax', Math.floor(video.duration || 0));
+        
+        const savedTime = parseFloat(container.dataset.savedTime || "0");
+        const savedSrc = container.dataset.savedSrc || "";
+        if (savedTime > 0 && video.src === savedSrc) {
+          video.currentTime = savedTime;
+          delete container.dataset.savedTime;
+          delete container.dataset.savedSrc;
+        }
+        updateUIForTime(video.currentTime || 0);
+      });
+      video.addEventListener('play', () => { clearEndedState(); updatePlayIcon(); });
+      video.addEventListener('pause', updatePlayIcon);
+      video.addEventListener('ended', () => {
+        isEndedState = true;
+        insidePlay.innerHTML = svgReplay;
+        forwardContainer.style.visibility = 'hidden';
+        showAll();
+        if (hideTimeout) clearTimeout(hideTimeout);
+      });
+
+      function showAll(){
+        controlsWrap.classList.remove('cp-controls-hidden');
+        controlsWrap.classList.add('cp-controls-visible');
+        insideMini.classList.remove('cp-inside-hidden');
+        insideMini.classList.add('cp-inside-visible');
+        resetHideTimer();
+      }
+      function hideAll(){
+        controlsWrap.classList.remove('cp-controls-visible');
+        controlsWrap.classList.add('cp-controls-hidden');
+        insideMini.classList.remove('cp-inside-visible');
+        insideMini.classList.add('cp-inside-hidden');
+        if(hideTimeout) clearTimeout(hideTimeout);
+      }
+      function toggleAll(){
+        const isVisible = controlsWrap.classList.contains('cp-controls-visible') && insideMini.classList.contains('cp-inside-visible');
+        if(isVisible) {
+          hideAll();
+        } else {
+          showAll();
+        }
+      }
+
+      function resetHideTimer() {
+        if(hideTimeout) clearTimeout(hideTimeout);
+        if(isEndedState) return;
+        hideTimeout = setTimeout(() => {
+          hideAll();
+        }, 4000);
+      }
+
+      function isOverControls(target){
+        return !!(target && (target.closest && (target.closest('.cp-controls-wrap') || target.closest('.cp-inside-mini') || target.closest('.cp-inside-item') || target.closest('.cp-seek'))));
+      }
+
+      player.addEventListener('click', (e)=>{
+        if(isOverControls(e.target)) return;
+        hideSwipeIndicatorsDirectly();
+        toggleAll();
+      });
+
+      document.addEventListener('mousemove', resetHideTimer);
+      document.addEventListener('touchstart', resetHideTimer, {passive:true});
+
+      [insidePlay, insideForward, insideBack, seekBar, landscapeBtn].forEach(el=>{
+        if(!el) return;
+        el.addEventListener('click', e => e.stopPropagation());
+      });
+
+      function enterLandscapeMode(){
+        unmuteVideo();
+        const wasPlaying = !video.paused;
+        
+        if (isIOSDevice() && video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+          if(wasPlaying) video.play().catch(()=>{});
+          return;
+        }
+        
+        const fsPromise = player.requestFullscreen ? player.requestFullscreen() : (player.webkitRequestFullscreen ? player.webkitRequestFullscreen() : Promise.reject(new Error("No FS API")));
+        
+        fsPromise.then(() => {
+          if (isWideVideo() && screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(()=>{});
+          }
+          player.classList.add('landscape-mode');
+          if(wasPlaying) video.play().catch(()=>{});
+          showAll();
+        }).catch((err) => {
+          if (video.webkitEnterFullscreen) {
+              video.webkitEnterFullscreen();
+          } else {
+              player.classList.add('fullscreen-mode');
+              isCssFullscreen = true;
+              landscapeBtn.innerHTML = svgFullscreenExit;
+          }
+          player.classList.add('landscape-mode');
+          if(wasPlaying) video.play().catch(()=>{});
+          showAll();
+        });
+      }
+
+      function exitLandscapeMode(){
+        const wasPlaying = !video.paused;
+        
+        if (isCssFullscreen) {
+           player.classList.remove('fullscreen-mode');
+           isCssFullscreen = false;
+           landscapeBtn.innerHTML = svgFullscreenEnter;
+        } else {
+           try{
+             if (screen.orientation && screen.orientation.unlock) {
+               try { screen.orientation.unlock(); } catch(_) {}
+             }
+             if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+           }catch(err){}
+        }
+        
+        player.classList.remove('landscape-mode');
+        if(wasPlaying) video.play().catch(()=>{});
+        showAll();
+      }
+      
+      landscapeBtn.addEventListener('click', (e)=>{ 
+        e.stopPropagation(); 
+        if(!isFullscreenCard()){ 
+          enterLandscapeMode(); 
+        } else { 
+          exitLandscapeMode(); 
+        } 
+      });
+
+      document.addEventListener('fullscreenchange', ()=> {
+        if(document.fullscreenElement === player) {
+          player.classList.add('landscape-mode');
+          landscapeBtn.innerHTML = svgFullscreenExit;
+          showAll();
+        } else {
+          player.classList.remove('landscape-mode');
+          landscapeBtn.innerHTML = svgFullscreenEnter;
+          isCssFullscreen = false;
+          player.classList.remove('fullscreen-mode');
+          showAll();
+        }
+      });
+      document.addEventListener('webkitfullscreenchange', ()=> {
+        if(document.webkitFullscreenElement === player) {
+          player.classList.add('landscape-mode');
+          landscapeBtn.innerHTML = svgFullscreenExit;
+          showAll();
+        } else {
+          player.classList.remove('landscape-mode');
+          landscapeBtn.innerHTML = svgFullscreenEnter;
+          isCssFullscreen = false;
+          player.classList.remove('fullscreen-mode');
+          showAll();
+        }
+      });
+
+      let gesture = null;
+      let indicatorTimeoutLeft = null;
+      let indicatorTimeoutRight = null;
+      let startTouchX = 0;
+      let startTouchY = 0;
+      let isVerticalSwipe = false;
+      let swipeDirectionDetermined = false;
+
+      function showSwipeIndicator(kind, percent){
+        if (kind === 'brightness') {
+          swipeIconLeft.innerHTML = svgBrightness;
+          swipeValueLeft.textContent = percent + '%';
+          swipeIndicatorLeft.classList.add('show');
+          if(indicatorTimeoutLeft) clearTimeout(indicatorTimeoutLeft);
+          indicatorTimeoutLeft = setTimeout(()=>{ swipeIndicatorLeft.classList.remove('show'); }, 800);
+        } else {
+          swipeIconRight.innerHTML = svgVolume;
+          swipeValueRight.textContent = percent + '%';
+          swipeIndicatorRight.classList.add('show');
+          if(indicatorTimeoutRight) clearTimeout(indicatorTimeoutRight);
+          indicatorTimeoutRight = setTimeout(()=>{ swipeIndicatorRight.classList.remove('show'); }, 800);
+        }
+      }
+
+      function hideSwipeIndicatorsDirectly() {
+        swipeIndicatorLeft.classList.remove('show');
+        swipeIndicatorRight.classList.remove('show');
+        if(indicatorTimeoutLeft) clearTimeout(indicatorTimeoutLeft);
+        if(indicatorTimeoutRight) clearTimeout(indicatorTimeoutRight);
+      }
+
+      function clamp(v,a=0,b=1){ return Math.max(a, Math.min(b, v)); }
+      
+      function startLandscapeGesture(clientX, clientY){
+        if(!isFullscreenCard()) return;
+        unmuteVideo();
+        const rect = player.getBoundingClientRect();
+        const relX = clientX - rect.left;
+        const limit = rect.width * cornerRatio;
+        if(relX <= limit){
+          const styleFilter = getComputedStyle(video).filter || '';
+          const match = styleFilter.match(/brightness\(([^)]+)\)/);
+          const initial = match ? parseFloat(match[1]) : 1;
+          gesture = { type:'brightness', startY:clientY, initialValue: isNaN(initial) ? 1 : initial };
+          showSwipeIndicator('brightness', Math.round(gesture.initialValue * 100));
+        } else if(relX >= (rect.width - limit)){
+          gesture = { type:'volume', startY:clientY, initialValue: video.volume };
+          showSwipeIndicator('volume', Math.round(gesture.initialValue * 100));
+        } else { gesture = null; }
+      }
+
+      function moveLandscapeGesture(clientY){
+        if(!gesture) return;
+        const rect = player.getBoundingClientRect();
+        const delta = (gesture.startY - clientY);
+        const pct = delta / (rect.height * 0.7);
+        let newVal = gesture.initialValue + pct;
+        newVal = clamp(newVal, 0, 1);
+        if(gesture.type === 'brightness'){
+          const applied = Math.max(0.05, newVal);
+          video.style.filter = 'brightness(' + applied + ')';
+          showSwipeIndicator('brightness', Math.round(applied * 100));
+        } else {
+          video.volume = newVal;
+          showSwipeIndicator('volume', Math.round(newVal * 100));
+        }
+      }
+
+      function endLandscapeGesture(){
+        if(!gesture) return;
+        gesture = null;
+      }
+
+      player.addEventListener('touchstart', (e)=>{
+        unmuteVideo();
+        const t = e.touches[0];
+        startTouchX = t.clientX;
+        startTouchY = t.clientY;
+        isVerticalSwipe = false;
+        swipeDirectionDetermined = false;
+      }, {passive:true});
+
+      player.addEventListener('touchmove', (e)=>{
+        if (!e.touches.length) return;
+        const t = e.touches[0];
+        const diffX = t.clientX - startTouchX;
+        const diffY = t.clientY - startTouchY;
+
+        if (!swipeDirectionDetermined) {
+          if (Math.abs(diffY) > 10 || Math.abs(diffX) > 10) {
+            swipeDirectionDetermined = true;
+            if (Math.abs(diffY) > Math.abs(diffX)) {
+              isVerticalSwipe = true;
+              startLandscapeGesture(startTouchX, startTouchY);
+            }
+          }
+        }
+
+        if (isVerticalSwipe) {
+          if (e.cancelable) e.preventDefault();
+          moveLandscapeGesture(t.clientY);
+        }
+      }, {passive:false});
+
+      player.addEventListener('touchend', ()=>{
+        endLandscapeGesture();
+      }, {passive:true});
+
+      function showBuffering() {
+        spinnerContainer.classList.add('show');
+        if(backContainer) backContainer.style.visibility = 'hidden';
+        if(playContainer) playContainer.style.visibility = 'hidden';
+        if(forwardContainer) forwardContainer.style.visibility = 'hidden';
+      }
+
+      function hideBuffering() {
+        spinnerContainer.classList.remove('show');
+        if(backContainer) backContainer.style.visibility = 'visible';
+        if(playContainer) playContainer.style.visibility = 'visible';
+        if(forwardContainer) forwardContainer.style.visibility = isEndedState ? 'hidden' : 'visible';
+      }
+
+      video.addEventListener('loadstart', showBuffering);
+      video.addEventListener('waiting', showBuffering);
+      video.addEventListener('seeking', showBuffering);
+      
+      video.addEventListener('canplay', () => {
+        hideBuffering();
+        if (!userPaused && !isEndedState) {
+            video.play().catch(()=>{});
+        }
+      });
+      video.addEventListener('playing', () => {
+        hideBuffering();
+        userPaused = false;
+      });
+      video.addEventListener('seeked', hideBuffering);
+      video.addEventListener('pause', hideBuffering);
+      
+      if (video.readyState >= 3) {
+          hideBuffering();
+      }
+
+      video.addEventListener('error', async (e)=>{
+        try {
+          const r = await fetch(src, { method: 'HEAD', mode: 'cors' });
+          if(!r.ok) showError('Sève an repon ' + r.status + '.');
+          else showError('Fòma videyo sa a pa sipòte.');
+        } catch(fetchErr){
+          showError('Erè koneksyon (oubyen rezo a pa la).');
+        }
+      });
+
+      function showError(msg){ 
+          if(errTxt) errTxt.textContent = msg; 
+          if(errorOverlay) errorOverlay.style.display='flex'; 
+          hideBuffering();
+      }
+
+      document.addEventListener('click', unmuteVideo, {once: false});
+      document.addEventListener('touchstart', unmuteVideo, {once: false});
+
+      tryAutoplay();
+      showAll();
+      container.scrollIntoView({behavior: "smooth", block: "nearest"});
     }
 
     function playMedia(src, container){
@@ -1383,281 +1942,7 @@
           container.scrollIntoView({behavior: "smooth", block: "nearest"});
           return;
         } else {
-          const player = document.createElement("div");
-          player.className = "video-player";
-
-          const video = document.createElement("video");
-          video.src = src;
-          video.autoplay = true;
-          video.playsInline = true;
-          video.preload = "auto";
-          video.controls = false;
-          video.draggable = false;
-          video.setAttribute('playsinline', '');
-          video.setAttribute('webkit-playsinline', '');
-
-          const controls = document.createElement("div");
-          controls.className = "video-controls";
-
-          const centerDiv = document.createElement("div");
-          centerDiv.className = "center-controls";
-
-          const loader = createPlayerLoader();
-          const rewindBtn = document.createElement("button");
-          rewindBtn.type = "button";
-          rewindBtn.className = "text-btn";
-          rewindBtn.textContent = "-10";
-
-          const playBtn = document.createElement("button");
-          playBtn.type = "button";
-          playBtn.className = "play-btn";
-          playBtn.innerHTML = svgPause;
-
-          const forwardBtn = document.createElement("button");
-          forwardBtn.type = "button";
-          forwardBtn.className = "text-btn";
-          forwardBtn.textContent = "+10";
-
-          centerDiv.append(rewindBtn, playBtn, loader, forwardBtn);
-
-          const bottomBar = document.createElement("div");
-          bottomBar.className = "bottom-bar";
-
-          const currentTime = document.createElement("div");
-          currentTime.className = "time";
-          currentTime.textContent = "0:00";
-
-          const progressCont = document.createElement("div");
-          progressCont.className = "progress-container";
-
-          const progressFill = document.createElement("div");
-          progressFill.className = "progress-fill";
-
-          const progressThumb = document.createElement("div");
-          progressThumb.className = "progress-thumb";
-
-          progressCont.append(progressFill, progressThumb);
-
-          const durationTime = document.createElement("div");
-          durationTime.className = "time";
-          durationTime.textContent = "0:00";
-
-          const fsBtn = document.createElement("button");
-          fsBtn.type = "button";
-          fsBtn.className = "fullscreen-btn";
-          fsBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
-
-          bottomBar.append(currentTime, progressCont, durationTime, fsBtn);
-          controls.append(centerDiv, bottomBar);
-          player.append(video, controls);
-          container.appendChild(player);
-          refreshLandscapePlayer(player);
-          container.scrollIntoView({behavior: "smooth", block: "nearest"});
-
-          let hideTimer = null;
-          let isScrubbing = false;
-          let isLoading = true;
-          let wasFullScreen = false;
-
-          const showControls = () => {
-            controls.classList.remove("hidden");
-            clearTimeout(hideTimer);
-            if (!video.paused && !isLoading) {
-              hideTimer = setTimeout(() => {
-                if (!isLoading) controls.classList.add("hidden");
-              }, 4000);
-            }
-          };
-
-          const setCenterLoading = (loading) => {
-            isLoading = loading;
-            centerDiv.classList.toggle("loading", loading);
-            if (loading) {
-              controls.classList.remove("hidden");
-              clearTimeout(hideTimer);
-            } else {
-              showControls();
-            }
-          };
-
-          const syncPlayState = () => {
-            playBtn.innerHTML = video.paused ? svgPlay : svgPause;
-          };
-
-          const updateProgressUI = (percent) => {
-            const safePercent = Math.max(0, Math.min(100, percent));
-            progressFill.style.width = safePercent + "%";
-            progressThumb.style.left = `calc(${safePercent}% - 9px)`;
-          };
-
-          const getScrubPercent = (e) => {
-            const rect = progressCont.getBoundingClientRect();
-            const clientX = e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX;
-            if (!Number.isFinite(clientX) || rect.width <= 0) return null;
-            const pos = (clientX - rect.left) / rect.width;
-            return Math.max(0, Math.min(1, pos));
-          };
-
-          const applyScrub = (e, commit) => {
-            const pos = getScrubPercent(e);
-            if (pos === null) return;
-            updateProgressUI(pos * 100);
-            if (Number.isFinite(video.duration) && video.duration > 0) {
-              const nextTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-              currentTime.textContent = formatTime(nextTime);
-              if (commit) {
-                video.currentTime = nextTime;
-              }
-            }
-          };
-
-          const startScrub = (e) => {
-            if (isLoading) return;
-            isScrubbing = true;
-            video.pause();
-            setCenterLoading(true);
-            progressCont.classList.add("scrubbing");
-            applyScrub(e, false);
-            showControls();
-          };
-
-          const endScrub = (e) => {
-            if (!isScrubbing) return;
-            isScrubbing = false;
-            progressCont.classList.remove("scrubbing");
-            applyScrub(e, true);
-            showControls();
-          };
-
-          progressCont.addEventListener("touchstart", (e) => { e.preventDefault(); e.stopPropagation(); startScrub(e); }, { passive: false });
-          progressCont.addEventListener("touchmove", (e) => { if (isScrubbing) { e.preventDefault(); applyScrub(e, false); } }, { passive: false });
-          progressCont.addEventListener("touchend", (e) => { if (isScrubbing) { e.preventDefault(); applyScrub(e, true); } }, { passive: false });
-          progressCont.addEventListener("mousedown", (e) => { e.preventDefault(); e.stopPropagation(); startScrub(e); });
-          document.addEventListener("mousemove", (e) => { if (isScrubbing) { applyScrub(e, false); } });
-          document.addEventListener("mouseup", (e) => { if (isScrubbing) { endScrub(e); } });
-
-          player.addEventListener("click", (e) => {
-            if (e.target.closest('button') || e.target.closest('.progress-container')) return;
-            if (controls.classList.contains("hidden")) showControls();
-            else controls.classList.add("hidden");
-          });
-
-          video.addEventListener("play", () => {
-            syncPlayState();
-            onLoadingEnd();
-          });
-
-          video.addEventListener("pause", () => {
-            syncPlayState();
-            showControls();
-          });
-
-          const onLoadingStart = () => {
-            setCenterLoading(true);
-          };
-
-          const onLoadingEnd = () => {
-            setCenterLoading(false);
-            syncPlayState();
-          };
-
-          video.addEventListener("loadstart", onLoadingStart);
-          video.addEventListener("waiting", onLoadingStart);
-          video.addEventListener("seeking", onLoadingStart);
-          video.addEventListener("canplay", onLoadingEnd);
-          video.addEventListener("playing", onLoadingEnd);
-          video.addEventListener("seeked", onLoadingEnd);
-
-          video.addEventListener("timeupdate", () => {
-            if (isScrubbing) return;
-            currentTime.textContent = formatTime(video.currentTime);
-            durationTime.textContent = formatTime(video.duration || 0);
-            const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
-            updateProgressUI(percent);
-          });
-
-          video.addEventListener("loadedmetadata", () => {
-            player.classList.add('loaded-ratio');
-            const savedTime = parseFloat(container.dataset.savedTime || "0");
-            const savedSrc = container.dataset.savedSrc || "";
-            if (savedTime > 0 && video.src === savedSrc) {
-              video.currentTime = savedTime;
-              delete container.dataset.savedTime;
-              delete container.dataset.savedSrc;
-            }
-            currentTime.textContent = formatTime(video.currentTime || 0);
-            durationTime.textContent = formatTime(video.duration || 0);
-            syncPlayState();
-            updateProgressUI(video.duration ? (video.currentTime / video.duration) * 100 : 0);
-          });
-
-          rewindBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            video.currentTime = Math.max(0, video.currentTime - 10);
-          });
-
-          forwardBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-          });
-
-          playBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (video.paused) {
-              video.play().catch(() => {});
-            } else {
-              video.pause();
-            }
-          });
-
-          const updateFsIcon = () => {
-            const isFullscreen = document.fullscreenElement === player || document.webkitFullscreenElement === player;
-            fsBtn.innerHTML = isFullscreen ? '<svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>' : '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
-            if (isFullscreen) {
-              refreshLandscapePlayer(player);
-            }
-            if (!isFullscreen && wasFullScreen) {
-              unlockLandscapePlayer(player);
-              refreshLandscapePlayer(player);
-            }
-            wasFullScreen = isFullscreen;
-          };
-
-          fsBtn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const isFullscreen = document.fullscreenElement === player || document.webkitFullscreenElement === player;
-            if (isFullscreen) {
-              if (document.exitFullscreen) {
-                await document.exitFullscreen().catch(() => {});
-              } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-              }
-              unlockLandscapePlayer(player);
-              return;
-            }
-            if (isIOS && video.webkitEnterFullscreen) {
-              video.webkitEnterFullscreen();
-            } else {
-              if (player.requestFullscreen) {
-                await player.requestFullscreen().catch(() => {});
-              } else if (player.webkitRequestFullscreen) {
-                player.webkitRequestFullscreen();
-              }
-              lockLandscapePlayer(player);
-            }
-          });
-
-          document.addEventListener("fullscreenchange", updateFsIcon);
-          document.addEventListener("webkitfullscreenchange", updateFsIcon);
-
-          onLoadingStart();
-          if (video.readyState >= 3) {
-            onLoadingEnd();
-          }
-          video.play().catch(() => {
-            onLoadingEnd();
-          });
-          container.scrollIntoView({behavior: "smooth", block: "nearest"});
+          setupCustomPlayer(container, src);
           return;
         }
       } else {
@@ -2029,6 +2314,11 @@
       }
       if (!location.pathname.includes('/login') || userSession) {
           loadLanguageData(currentLanguage);
+      } else {
+          setTimeout(() => {
+              splashScreen.style.opacity = '0';
+              setTimeout(() => { splashScreen.style.display = 'none'; }, 400);
+          }, 300);
       }
     });
 
@@ -2075,7 +2365,7 @@
     if(originalLogo) {
         originalLogo.addEventListener('click', () => {
             const a = document.createElement('a');
-            a.href = 'https://www.paypal.com/ncp/payment/MCJHCJ85AC5AJ';
+            a.href = 'https://www.paypal.com/ncp/payment/JMYBCJ6EZMSAJ';
             a.target = '_blank';
             a.setAttribute('data-bypass', 'true');
             document.body.appendChild(a);
