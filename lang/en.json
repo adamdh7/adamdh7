@@ -9,7 +9,7 @@
   "register": "CREATE ACCOUNT",
   "placeholder-lastname": "Last Name",
   "placeholder-firstname": "First Name",
-  "placeholder-dh7": "DH7 ID",
+  "placeholder-dh7": "dh7.tf ID",
   "placeholder-age": "Age",
   "create-account": "JOIN D'H7",
   "back-to-login": "BACK",
