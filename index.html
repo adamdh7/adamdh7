@@ -3,6 +3,11 @@
 <head>
   <script>
     if (window !== window.top) { document.documentElement.innerHTML = '<body style="background:#fff;"></body>'; throw new Error(); }
+    
+    if (/%3C|%3E|<|>/i.test(window.location.href)) {
+        window.history.replaceState(null, '', '/');
+    }
+
     const hostName = window.location.hostname;
     if (hostName && hostName !== 'www.adamdh7.org' && !hostName.includes('localhost') && !hostName.includes('127.0.0.1')) {
         const isLangSub = /^(fr|es|en|ht)\.adamdh7\.org$/.test(hostName);
@@ -60,6 +65,14 @@
     *, *::before, *::after {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    input, textarea, .selectable-text {
+      -webkit-user-select: auto !important;
+      user-select: auto !important;
+      pointer-events: auto !important;
+      touch-action: manipulation;
     }
     html, body {
       width: 100vw !important;
@@ -122,8 +135,11 @@
     .auth-btn:active { transform: scale(0.98); }
     .auth-link { color: #52525b; font-size: 0.875rem; font-weight: 700; margin-top: 1.5rem; background: transparent; border: none; cursor: pointer; width: 100%; }
     .hidden-auth { display: none !important; }
-    .bottom-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: #1c1c1e; color: #ffffff; padding: 14px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 999999; transition: bottom 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; pointer-events: none; max-width: 90%; text-align: center; }
-    .bottom-toast.show { bottom: 40px; opacity: 1; pointer-events: auto; }
+    
+    #toast-container { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 999999; align-items: center; width: 100%; pointer-events: none; transition: bottom 0.35s cubic-bezier(0.15, 0.85, 0.35, 1); }
+    .toast-msg { background: #1c1c1e; color: #ffffff; padding: 14px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.6); pointer-events: auto; animation: toastIn 0.3s ease forwards; opacity: 0; max-width: 90%; text-align: center; cursor: pointer; touch-action: manipulation; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
     .btn-spinner { width: 24px; height: 24px; color: #6b7280; animation: spin 1s infinite linear; }
     .language-overlay { position: fixed; bottom: 0; left: 0; right: 0; background: #121212; border-radius: 24px 24px 0 0; z-index: 100000; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.15, 0.85, 0.35, 1); font-family: 'Inter', sans-serif; color: white; padding-bottom: calc(30px + env(safe-area-inset-bottom)); margin-bottom: -1px; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); will-change: transform; }
     .language-overlay.show { transform: translateY(0); }
@@ -131,11 +147,11 @@
     .backdrop-sheet.show { opacity: 1; pointer-events: auto; }
     .lang-item { padding: 18px; text-align: center; cursor: pointer; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; }
     .lang-item:active { background: #1c1c1e; border-radius: 12px; margin: 0 12px; }
-    .header{ padding:calc(18px + env(safe-area-inset-top)) 16px 18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); background: rgba(0,0,0,0.65); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; -webkit-user-select:text; user-select:text; touch-action:manipulation; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
+    .header{ padding:calc(18px + env(safe-area-inset-top)) 16px 18px 16px; text-align:center; position:fixed; top:0; left:0; right:0; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); background: rgba(0,0,0,0.65); z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px; touch-action:manipulation; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
     .header-top { display:flex; justify-content:center; align-items:center; position:relative; width:100%; box-sizing:border-box; padding:0 10px; }
     .logo{ font-size:26px; font-weight:900; background:linear-gradient(90deg,#fff,#000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; cursor: pointer; }
     .search-container{ display:flex; justify-content:center; padding:8px 20px; width:100%; box-sizing:border-box; position:relative; }
-    .search-box{ width:100%; max-width:500px; background:#1c1c1e; border:none; padding:12px 14px; border-radius:12px; color:#fff; font-size:15px; outline:none; -webkit-user-select:text; user-select:text; }
+    .search-box{ width:100%; max-width:500px; background:#1c1c1e; border:none; padding:12px 14px; border-radius:12px; color:#fff; font-size:15px; outline:none; }
     .search-box::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
     #centralLoader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; pointer-events: none; display: none; opacity: 0; transition: opacity 0.3s ease; }
     #centralLoader svg { width: 56px; height: 56px; animation: rotate 1.2s linear infinite; }
@@ -144,15 +160,15 @@
     @keyframes dash { 0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; } 50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; } 100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; } }
     #bottomProgress { display: none !important; }
     #explorerView{ position:fixed; top:var(--header-space, calc(100px + env(safe-area-inset-top))); left:0; right:0; height:calc(var(--app-height) - var(--header-space, 0px)); padding:18px 18px calc(18px + env(safe-area-inset-bottom)) 18px; overflow-y:auto; background:#000; -webkit-overflow-scrolling:touch; box-sizing:border-box; touch-action: pan-y; overscroll-behavior-y: contain; scroll-padding-bottom: 0; }
-    .post-card{ background:#121212; border-radius:14px; padding:14px; margin-bottom:18px; -webkit-user-select:none; user-select:none; }
-    .post-name{ font-weight:700; font-size:16px; margin:8px 0; color:#fff; text-align:left; -webkit-user-select:none; user-select:none; cursor:pointer; display: inline-block; }
-    .post-text{ font-size:14px; color:#ddd; margin-bottom:10px; white-space:pre-wrap; text-align:left; -webkit-user-select:none; user-select:none; cursor:default; }
-    .post-desc{ font-size:13px; color:#ccc; margin-top:8px; text-align:left; -webkit-user-select:none; user-select:none; cursor:default; }
+    .post-card{ background:#121212; border-radius:14px; padding:14px; margin-bottom:18px; }
+    .post-name{ font-weight:700; font-size:16px; margin:8px 0; color:#fff; text-align:left; cursor:pointer; display: inline-block; }
+    .post-text{ font-size:14px; color:#ddd; margin-bottom:10px; white-space:pre-wrap; text-align:left; cursor:default; }
+    .post-desc{ font-size:13px; color:#ccc; margin-top:8px; text-align:left; cursor:default; }
     .media-wrap{ text-align:center; margin: 0 0 10px 0; }
     .post-thumb-container { position:relative; display:inline-block; box-sizing:border-box; max-width:var(--card-max-width); width:100%; background:#000; border-radius:12px; overflow:hidden; padding:0; min-height:var(--card-min-height); max-height:var(--card-max-height); }
     .post-thumb, .post-thumb img, .post-thumb video, .post-thumb iframe { display:block; width:100%; height:auto; max-height:calc(var(--card-max-height)); object-fit:contain; background:#000; border-radius:0; }
     
-    .video-player { position:relative; width:100%; max-width:100%; background:#000; cursor:pointer; touch-action:none; display:block; overflow:hidden; border-radius:12px; aspect-ratio:16/9; transition:aspect-ratio 0.3s ease; user-select:none; -webkit-user-select:none; }
+    .video-player { position:relative; width:100%; max-width:100%; background:#000; cursor:pointer; touch-action:none; display:block; overflow:hidden; border-radius:12px; aspect-ratio:16/9; transition:aspect-ratio 0.3s ease; }
     .video-player.landscape-mode, .video-player.fullscreen-mode { border-radius:0; width:100%; height:100%; max-height:100%; display:block; position:fixed !important; inset:0 !important; z-index:99999 !important; aspect-ratio:auto; }
     .video-player video { position:absolute; inset:0; width:100%; height:100%; max-width:100%; max-height:100%; object-fit:contain; background:#000; z-index:1; transition:filter .08s linear; display:block; }
     .cp-controls-wrap { position:absolute; left:12px; right:12px; bottom:12px; pointer-events:none; z-index:12; transition:opacity .25s ease; filter:drop-shadow(0px 2px 8px rgba(0,0,0,0.8)); }
@@ -204,7 +220,6 @@
     html, body, #explorerView { -ms-overflow-style: none; scrollbar-width: none; }
     :focus { outline: none; }
     button { outline: none; -webkit-appearance: none; }
-    input, textarea { -webkit-user-select: text !important; user-select: text !important; }
     #customAdOverlay { position: fixed; inset: 0; width: 100vw; height: var(--app-height); background: #000; z-index: 9999999; display: none; overflow: hidden; justify-content: center; align-items: center; overscroll-behavior: none; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); box-sizing: border-box; }
     #ad-container { position: relative; width: 100%; max-width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     #ad-media-wrapper { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
@@ -283,7 +298,7 @@
                   <input type="text" id="reg-nom" data-key="placeholder-lastname" placeholder="Nom" class="modern-input" autocomplete="off" spellcheck="false" onkeydown="handleEnter(event, 'reg-prenom')">
                   <input type="text" id="reg-prenom" data-key="placeholder-firstname" placeholder="Prenom" class="modern-input" autocomplete="off" spellcheck="false" onkeydown="handleEnter(event, 'reg-dh7')">
               </div>
-              <input type="text" id="reg-dh7" data-key="placeholder-dh7" placeholder="DH7 ID" class="modern-input" autocomplete="off" spellcheck="false" onkeydown="handleEnter(event, 'reg-age')">
+              <input type="text" id="reg-dh7" data-key="placeholder-dh7" placeholder="Fiti adrès D'H7 ou" class="modern-input" autocomplete="off" spellcheck="false" onkeydown="handleEnter(event, 'reg-age')">
               <input type="date" id="reg-age" data-key="placeholder-age" placeholder="Laj" class="modern-input" onkeydown="handleEnter(event, 'reg-pass')">
               <input type="password" id="reg-pass" data-key="placeholder-password" placeholder="Modpas" class="modern-input" onkeydown="handleEnter(event, null, registerApp)">
               
@@ -293,7 +308,7 @@
       </div>
   </section>
 
-  <div id="bottom-toast" class="bottom-toast"></div>
+  <div id="toast-container"></div>
 
   <div id="backdrop-sheet" class="backdrop-sheet" onclick="closeOverlays()"></div>
   
@@ -315,7 +330,7 @@
 
   <div id="download-modal" class="bottom-modal">
       <div class="swipe-handle-area"><div class="swipe-handle"></div></div>
-      <div class="modal-title" id="download-title">Post</div>
+      <div class="modal-title selectable-text" id="download-title">Post</div>
       <div class="modal-subtitle"></div>
       <div id="download-options">
           <div class="modal-opt" id="actDownload">
@@ -371,16 +386,21 @@
     let activeAbortController = new AbortController();
     let initialLoadSearchKey = null;
 
+    let renderIndex = 0;
+    const RENDER_CHUNK = 20;
+    let currentRenderData = [];
+    let scrollObserver = null;
+
     const API = "https://server.dh7.adamdh7.org";
     let userSession = JSON.parse(localStorage.getItem('dh7_session')) || null;
     let currentLanguage = localStorage.getItem('language') || localStorage.getItem('userLang') || (navigator.language || navigator.userLanguage || 'ht').split('-')[0];
     if (!['ht', 'fr', 'en', 'es'].includes(currentLanguage)) currentLanguage = 'ht';
 
     const translations = {
-        ht: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID oswa DH7", "placeholder-password": "Modpas", connect: "KONEKTE", register: "KREYE YON KONT", "placeholder-lastname": "Siyati", "placeholder-firstname": "Non", "placeholder-dh7": "DH7 ID", "placeholder-age": "Laj", "create-account": "ANTRE NAN D'H7", "back-to-login": "RETOUNEN", "search": "Rechèch...", "toast-success": "Telechajman reyisi", "toast-open": "Ouvri", "empty-search": "Pa gen rezilta pou rechèch sa a", "error-load": "Erè chajman", "error-upload": "Erè upload", "lang-title": "Lang", "lang-subtitle": "Chwazi lang ou vle itilize a", "download": "Telechaje", "open": "Ouvri", "close": "Fèmen", "logout": "Dekonekte", "ad-click": "Klike la a", "no_video": "Post sa pa gen videyo", "capture-error": "Erè kaptire", "no_thumb": "Pa gen thumb" },
-        fr: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID ou DH7", "placeholder-password": "Mot de passe", connect: "CONNEXION", register: "CRÉER UN COMPTE", "placeholder-lastname": "Nom", "placeholder-firstname": "Prénom", "placeholder-dh7": "ID DH7", "placeholder-age": "Âge", "create-account": "REJOINDRE D'H7", "back-to-login": "RETOUR", "search": "Recherche...", "toast-success": "Téléchargement réussi", "toast-open": "Ouvrir", "empty-search": "Aucun résultat trouvé", "error-load": "Erreur de chargement", "error-upload": "Erreur d'upload", "lang-title": "Langue", "lang-subtitle": "Choisissez la langue que vous voulez utiliser", "download": "Télécharger", "open": "Ouvrir", "close": "Fermer", "logout": "Déconnexion", "ad-click": "Cliquez ici", "no_video": "Ce post n'a pas de vidéo", "capture-error": "Erreur de capture", "no_thumb": "Pas de miniature" },
-        en: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID or DH7", "placeholder-password": "Password", connect: "LOG IN", register: "CREATE AN ACCOUNT", "placeholder-lastname": "Last Name", "placeholder-firstname": "First Name", "placeholder-dh7": "DH7 ID", "placeholder-age": "Age", "create-account": "JOIN D'H7", "back-to-login": "BACK", "search": "Search...", "toast-success": "Download successful", "toast-open": "Open", "empty-search": "No results found", "error-load": "Loading error", "error-upload": "Upload error", "lang-title": "Language", "lang-subtitle": "Choose the language you want to use", "download": "Download", "open": "Open", "close": "Close", "logout": "Disconnect", "ad-click": "Click here", "no_video": "This post has no video", "capture-error": "Capture error", "no_thumb": "No thumb" },
-        es: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID o DH7", "placeholder-password": "Contraseña", connect: "INICIAR SESIÓN", register: "CREAR UNA CUENTA", "placeholder-lastname": "Apellido", "placeholder-firstname": "Nombre", "placeholder-dh7": "ID de DH7", "placeholder-age": "Edad", "create-account": "UNIRSE A D'H7", "back-to-login": "REGRESAR", "search": "Buscar...", "toast-success": "Descarga exitosa", "toast-open": "Abrir", "empty-search": "No hay resultados", "error-load": "Error de carga", "error-upload": "Error de subida", "lang-title": "Idioma", "lang-subtitle": "Elige el idioma que quieres usar", "download": "Descargar", "open": "Abrir", "close": "Cerrar", "logout": "Desconectar", "ad-click": "Haz clic aquí", "no_video": "Esta publicación no tiene video", "capture-error": "Error de captura", "no_thumb": "Sin miniatura" }
+        ht: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID oswa DH7", "placeholder-password": "Modpas", connect: "KONEKTE", register: "KREYE YON KONT", "placeholder-lastname": "Siyati", "placeholder-firstname": "Non", "placeholder-dh7": "Fiti adrès D'H7 ou", "placeholder-age": "Laj", "create-account": "ANTRE NAN D'H7", "back-to-login": "RETOUNEN", "search": "Rechèch...", "toast-success": "Telechajman reyisi", "toast-open": "Ouvri", "empty-search": "Pa gen rezilta pou rechèch sa a", "error-load": "Erè chajman", "error-upload": "Erè upload", "lang-title": "Lang", "lang-subtitle": "Chwazi lang ou vle itilize a", "download": "Telechaje", "open": "Ouvri", "close": "Fèmen", "logout": "Dekonekte", "ad-click": "Klike la a", "no_video": "Post sa pa gen videyo", "capture-error": "Erè kaptire", "no_thumb": "Pa gen thumb", "error-fields": "Tanpri ranpli tout chan yo" },
+        fr: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID ou DH7", "placeholder-password": "Mot de passe", connect: "CONNEXION", register: "CRÉER UN COMPTE", "placeholder-lastname": "Nom", "placeholder-firstname": "Prénom", "placeholder-dh7": "Ta future adresse D'H7", "placeholder-age": "Âge", "create-account": "REJOINDRE D'H7", "back-to-login": "RETOUR", "search": "Recherche...", "toast-success": "Téléchargement réussi", "toast-open": "Ouvrir", "empty-search": "Aucun résultat trouvé", "error-load": "Erreur de chargement", "error-upload": "Erreur d'upload", "lang-title": "Langue", "lang-subtitle": "Choisissez la langue que vous voulez utiliser", "download": "Télécharger", "open": "Ouvrir", "close": "Fermer", "logout": "Déconnexion", "ad-click": "Cliquez ici", "no_video": "Ce post n'a pas de vidéo", "capture-error": "Erreur de capture", "no_thumb": "Pas de miniature", "error-fields": "Veuillez remplir tous les champs" },
+        en: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID or DH7", "placeholder-password": "Password", connect: "LOG IN", register: "CREATE AN ACCOUNT", "placeholder-lastname": "Last Name", "placeholder-firstname": "First Name", "placeholder-dh7": "Your future D'H7 address", "placeholder-age": "Age", "create-account": "JOIN D'H7", "back-to-login": "BACK", "search": "Search...", "toast-success": "Download successful", "toast-open": "Open", "empty-search": "No results found", "error-load": "Loading error", "error-upload": "Upload error", "lang-title": "Language", "lang-subtitle": "Choose the language you want to use", "download": "Download", "open": "Open", "close": "Close", "logout": "Disconnect", "ad-click": "Click here", "no_video": "This post has no video", "capture-error": "Capture error", "no_thumb": "No thumb", "error-fields": "Please fill all fields" },
+        es: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID o DH7", "placeholder-password": "Contraseña", connect: "INICIAR SESIÓN", register: "CREAR UNA CUENTA", "placeholder-lastname": "Apellido", "placeholder-firstname": "Nombre", "placeholder-dh7": "Tu futura dirección D'H7", "placeholder-age": "Edad", "create-account": "UNIRSE A D'H7", "back-to-login": "REGRESAR", "search": "Buscar...", "toast-success": "Descarga exitosa", "toast-open": "Abrir", "empty-search": "No hay resultados", "error-load": "Error de carga", "error-upload": "Error de subida", "lang-title": "Idioma", "lang-subtitle": "Elige el idioma que quieres usar", "download": "Descargar", "open": "Abrir", "close": "Cerrar", "logout": "Desconectar", "ad-click": "Haz clic aquí", "no_video": "Esta publicación no tiene video", "capture-error": "Error de captura", "no_thumb": "Sin miniatura", "error-fields": "Por favor completa todos los campos" }
     };
 
     const svgPlay = '<svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>';
@@ -407,8 +427,16 @@
         layoutFrame = requestAnimationFrame(() => {
             if (!headerEl || !explorerEl) return;
             const visible = headerEl.style.display !== 'none' && headerEl.style.transform !== 'translateY(-100%)';
-            setHeaderSpace(visible ? headerEl.getBoundingClientRect().height : 0);
+            setHeaderSpace(visible ? headerEl.offsetHeight : 0);
         });
+    }
+    
+    function showHeader() {
+        if(headerEl) {
+            headerEl.style.transform = 'translateY(0)';
+            setHeaderSpace(headerEl.offsetHeight);
+            lastScrollY = explorerEl.scrollTop;
+        }
     }
 
     function clearSearchState(restoreList) {
@@ -448,22 +476,33 @@
 
     let lastScrollY = 0;
     explorerEl.addEventListener('scroll', () => {
-        const st = explorerEl.scrollTop;
+        // Prevent hiding header if content is too short to scroll meaningfully
+        if (explorerEl.scrollHeight <= explorerEl.clientHeight + 50) {
+            showHeader();
+            return;
+        }
+
+        const st = Math.max(0, explorerEl.scrollTop);
         if (st > lastScrollY + 10 && st > 50) {
             headerEl.style.transform = 'translateY(-100%)';
             setHeaderSpace(0);
         } else if (st < lastScrollY - 10 || st <= 0) {
-            headerEl.style.transform = 'translateY(0)';
-            setHeaderSpace(headerEl.getBoundingClientRect().height);
+            showHeader();
         }
         lastScrollY = st;
     });
 
     function handleRoute() {
-        const path = location.pathname;
-        const searchPath = location.search;
-        let key = null;
+        let path = location.pathname;
+        let searchPath = location.search;
 
+        if (/%3C|%3E|<|>/i.test(location.href)) {
+            history.replaceState(null, '', '/');
+            path = '/';
+            searchPath = '';
+        }
+
+        let key = null;
         if (pendingSearchKey) {
             key = pendingSearchKey;
             pendingSearchKey = null;
@@ -503,7 +542,7 @@
             document.getElementById('scr-auth').style.display = 'none';
             document.getElementById('siteHeader').style.display = 'flex';
             document.getElementById('explorerView').style.display = 'block';
-            requestAnimationFrame(() => setHeaderSpace(headerEl.getBoundingClientRect().height));
+            requestAnimationFrame(() => setHeaderSpace(headerEl.offsetHeight));
 
             if (key) {
                 if (allData.length === 0) {
@@ -560,47 +599,60 @@
             }
         }
     }
-
-    let bottomToastTimerId = 0;
-    function showBottomToast(text) {
-        const toast = document.getElementById('bottom-toast');
-        if (!toast) return;
-        bottomToastTimerId += 1;
-        const toastId = bottomToastTimerId;
-        if (toast._hideTimer) {
-            clearTimeout(toast._hideTimer);
-            toast._hideTimer = null;
+    
+    function adjustToastPosition(modalId) {
+        const container = document.getElementById('toast-container');
+        if(!container) return;
+        if(!modalId) {
+            container.style.bottom = '40px';
+            return;
         }
-        toast.innerText = text;
-        toast.dataset.toastId = String(toastId);
-        toast.classList.add('show');
-        toast.onclick = () => {
-            if (toast._hideTimer) {
-                clearTimeout(toast._hideTimer);
-                toast._hideTimer = null;
-            }
-            toast.classList.remove('show');
-        };
-        toast._hideTimer = setTimeout(() => {
-            if (toast.dataset.toastId === String(toastId)) {
-                toast.classList.remove('show');
-            }
-        }, 3500);
+        const modal = document.getElementById(modalId);
+        if(modal) {
+            const h = modal.offsetHeight;
+            container.style.bottom = (h + 15) + 'px';
+        }
     }
 
-    document.addEventListener('click', (e) => {
-        const toast = document.getElementById('bottom-toast');
-        if (toast && toast.classList.contains('show') && e.target === toast) {
-            if (toast._hideTimer) clearTimeout(toast._hideTimer);
-            toast.classList.remove('show');
+    function showBottomToast(text) {
+        const container = document.getElementById('toast-container');
+        if(!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerText = text;
+        
+        const removeToast = () => {
+            if(toast.timeoutId) clearTimeout(toast.timeoutId);
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+            toast.style.transition = 'all 0.2s ease';
+            setTimeout(() => {
+                if(toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 200);
+        };
+
+        toast.onclick = removeToast;
+
+        container.appendChild(toast);
+        while (container.children.length > 2) {
+            const first = container.firstChild;
+            if(first.timeoutId) clearTimeout(first.timeoutId);
+            container.removeChild(first);
         }
-    });
+        
+        toast.timeoutId = setTimeout(() => {
+            removeToast();
+        }, 3500);
+    }
 
     async function loginApp() {
         let id = document.getElementById('login-id').value.trim();
         const pass = document.getElementById('login-pass').value;
 
-        if(!id || !pass) return;
+        if(!id || !pass) {
+            showBottomToast(translations[currentLanguage]["error-fields"]);
+            return;
+        }
         if (!id.includes('@dh7.tf') && !id.startsWith('TF-')) id += '@dh7.tf';
 
         const btn = document.getElementById('login-btn');
@@ -639,7 +691,7 @@
         const pass = document.getElementById('reg-pass').value;
 
         if(!nom || !prenom || !dh7 || !age || !pass) {
-            showBottomToast("Erè");
+            showBottomToast(translations[currentLanguage]["error-fields"]);
             return;
         }
         if (!dh7.includes('@dh7.tf')) dh7 += '@dh7.tf';
@@ -678,12 +730,14 @@
         document.getElementById('backdrop-sheet').classList.add('show');
         document.getElementById('lang-sheet').classList.add('show');
         document.getElementById('lang-sheet').style.transform = '';
+        adjustToastPosition('lang-sheet');
     }
 
     function closeOverlays() {
         document.getElementById('backdrop-sheet').classList.remove('show');
         document.getElementById('lang-sheet').classList.remove('show');
         document.getElementById('download-modal').classList.remove('show');
+        adjustToastPosition(null);
     }
 
     function logoutUser() {
@@ -819,10 +873,7 @@
         .then(data => {
             let combined = Array.isArray(data) ? data : [data];
             combined.sort(() => Math.random() - 0.5);
-            allData = combined.filter(p => {
-                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
-                return cat === "poste";
-            });
+            allData = combined;
 
             preloadImages(allData).then(() => {
                 if (initialLoadSearchKey) {
@@ -843,6 +894,7 @@
             const msg = translations[lang] ? translations[lang]["error-load"] : "Erreur";
             explorerEl.innerHTML = `<div class="status-container">${svgLoadError}<p>${msg}</p></div>`;
             displaySocialLinks();
+            showHeader();
             syncExplorerLayout();
             applyTranslations(lang);
             splashScreen.style.opacity = '0';
@@ -859,10 +911,7 @@
         .then(data => {
             let combined = Array.isArray(data) ? data : [data];
             combined.sort(() => Math.random() - 0.5);
-            allData = combined.filter(p => {
-                const cat = (p.Catégorie || p.Categorie || p.category || "").toString().toLowerCase();
-                return cat === "poste";
-            });
+            allData = combined;
             displayExplorer(allData);
             hideLoader();
         }).catch(err => {
@@ -1154,7 +1203,6 @@
       const frag = document.createDocumentFragment();
       for (let i = 0; i < data.length; i++){
         const post = data[i];
-        if (((post.Catégorie||post.Categorie||post.category||"")).toString().toLowerCase() !== "poste") continue;
 
         const card = document.createElement("div");
         card.className = "post-card";
@@ -1177,6 +1225,7 @@
           document.getElementById('backdrop-sheet').classList.add('show');
           downloadModal.classList.add('show');
           downloadModal.style.transform = '';
+          adjustToastPosition('download-modal');
         });
         card.appendChild(title);
 
@@ -1271,16 +1320,67 @@
       return frag;
     }
 
-    function displayExplorer(data){
+    function initScrollObserver() {
+        if(!scrollObserver) {
+            scrollObserver = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting) renderNextChunk();
+            }, { root: document.getElementById('explorerView'), rootMargin: '300px' });
+        }
+    }
+
+    function displayExplorer(data) {
       currentExplorerData = Array.isArray(data) ? data.slice() : [];
+      currentRenderData = currentExplorerData.slice();
       explorerEl.innerHTML = "";
-      const frag = buildCardsFragment(currentExplorerData);
+      renderIndex = 0;
+      initScrollObserver();
+      renderNextChunk();
+      showHeader();
+      syncExplorerLayout();
       
-      requestAnimationFrame(() => {
+      setTimeout(() => {
+          if (explorerEl.scrollHeight <= explorerEl.clientHeight + 50) {
+              showHeader();
+          }
+      }, 100);
+    }
+
+    function renderNextChunk() {
+        if (renderIndex >= currentRenderData.length) {
+            const sentinel = document.getElementById('scrollSentinel');
+            if (sentinel && scrollObserver) scrollObserver.unobserve(sentinel);
+            return;
+        }
+        const chunk = currentRenderData.slice(renderIndex, renderIndex + RENDER_CHUNK);
+        const frag = buildCardsFragment(chunk);
+        
+        let sentinel = document.getElementById('scrollSentinel');
+        if (sentinel) {
+            if(scrollObserver) scrollObserver.unobserve(sentinel);
+            sentinel.remove();
+        }
+        
+        const existingLinks = document.querySelector('.social-section');
+        if(existingLinks) existingLinks.remove();
+
         explorerEl.appendChild(frag);
+        renderIndex += RENDER_CHUNK;
+
+        if (renderIndex < currentRenderData.length) {
+            sentinel = document.createElement('div');
+            sentinel.id = 'scrollSentinel';
+            sentinel.style.height = '1px';
+            explorerEl.appendChild(sentinel);
+            if(scrollObserver) scrollObserver.observe(sentinel);
+        }
+        
         displaySocialLinks();
-        syncExplorerLayout();
-      });
+
+        setTimeout(() => {
+            if (explorerEl.scrollHeight <= explorerEl.clientHeight + 50) {
+                showHeader();
+            }
+        }, 100);
     }
 
     function looksLikeVideo(src){
@@ -1986,29 +2086,44 @@
         hideLoader();
         return;
       }
-      if (searchActive) {
-          pendingSearchKey = raw;
+
+      if (searchActive && currentSearchKey && currentSearchKey !== raw) {
           history.back();
-          searchInput.value = '';
-          searchInput.blur();
+          setTimeout(() => {
+              history.pushState(null, '', `/?key=${encodeURIComponent(raw)}`);
+              currentSearchKey = raw;
+              searchActive = true;
+              doSearchFromKey(raw);
+              searchInput.value = '';
+              searchInput.blur();
+          }, 80);
           return;
       }
+
       markSearchStart();
       showLoader();
       setTimeout(() => {
         const val = raw.toLowerCase();
-        const filtered = allData.filter(p =>
-            (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(val) ||
-            (p.Name||"").toString().toLowerCase().includes(val) ||
-            (p.Description||p.Desc||"").toString().toLowerCase().includes(val)
-        );
+        const hasExactCat = allData.some(p => (p.Catégorie||p.Categorie||p.category||"").toString().toLowerCase() === val);
+        let filtered;
+        if(hasExactCat) {
+            filtered = allData.filter(p => (p.Catégorie||p.Categorie||p.category||"").toString().toLowerCase() === val).sort(() => Math.random() - 0.5);
+        } else {
+            filtered = allData.filter(p =>
+                (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(val) ||
+                (p.Name||"").toString().toLowerCase().includes(val) ||
+                (p.Description||p.Desc||"").toString().toLowerCase().includes(val)
+            );
+        }
         displayExplorer(filtered);
         if (filtered.length === 0) {
             const msg = translations[currentLanguage] ? translations[currentLanguage]["empty-search"] : "Aucun résultat";
             explorerEl.innerHTML = `<div class="status-container"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg><p>${msg}</p></div>`;
             displaySocialLinks();
+            showHeader();
         }
         updateURLWithKey(raw);
+        currentSearchKey = raw;
         searchInput.value = '';
         searchInput.blur();
         hideLoader();
@@ -2019,16 +2134,23 @@
       showLoader();
       setTimeout(() => {
         const val = key.toLowerCase();
-        const filtered = allData.filter(p =>
-            (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(val) ||
-            (p.Name||"").toString().toLowerCase().includes(val) ||
-            (p.Description||p.Desc||"").toString().toLowerCase().includes(val)
-        );
+        const hasExactCat = allData.some(p => (p.Catégorie||p.Categorie||p.category||"").toString().toLowerCase() === val);
+        let filtered;
+        if(hasExactCat) {
+            filtered = allData.filter(p => (p.Catégorie||p.Categorie||p.category||"").toString().toLowerCase() === val).sort(() => Math.random() - 0.5);
+        } else {
+            filtered = allData.filter(p =>
+                (p.Texte||p.Bio||p.Info||"").toString().toLowerCase().includes(val) ||
+                (p.Name||"").toString().toLowerCase().includes(val) ||
+                (p.Description||p.Desc||"").toString().toLowerCase().includes(val)
+            );
+        }
         displayExplorer(filtered);
         if (filtered.length === 0) {
             const msg = translations[currentLanguage] ? translations[currentLanguage]["empty-search"] : "Aucun résultat";
             explorerEl.innerHTML = `<div class="status-container"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg><p>${msg}</p></div>`;
             displaySocialLinks();
+            showHeader();
         }
         hideLoader();
       }, 220);
@@ -2318,11 +2440,17 @@
       window.addEventListener('resize', () => {
         setAppHeight();
         syncExplorerLayout();
+        if (explorerEl.scrollHeight <= explorerEl.clientHeight + 50) {
+            showHeader();
+        }
       }, { passive: true });
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
           setAppHeight();
           syncExplorerLayout();
+          if (explorerEl.scrollHeight <= explorerEl.clientHeight + 50) {
+              showHeader();
+          }
         }, { passive: true });
       }
       if (!location.pathname.includes('/login') || userSession) {
@@ -2391,19 +2519,19 @@
 
   <script>
     document.addEventListener('contextmenu', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('selectable-text')) return;
         e.preventDefault();
     });
     document.addEventListener('selectstart', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('selectable-text')) return;
         e.preventDefault();
     });
     document.addEventListener('copy', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('selectable-text')) return;
         e.preventDefault();
     });
     document.addEventListener('dragstart', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('selectable-text')) return;
         e.preventDefault();
     });
   </script>
