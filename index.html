@@ -179,7 +179,7 @@
     .post-thumb, .post-thumb img, .post-thumb video, .post-thumb iframe { display:block; width:100%; height:auto; max-height:calc(var(--card-max-height)); object-fit:contain; background:#000; border-radius:0; }
     .video-player { position:relative; width:100%; max-width:100%; background:#000; cursor:pointer; touch-action:none; display:block; overflow:hidden; border-radius:12px; aspect-ratio:16/9; transition:aspect-ratio 0.3s ease; }
     .video-player.landscape-mode, .video-player.fullscreen-mode { border-radius:0; width:100%; height:100%; max-height:100%; display:block; position:fixed !important; inset:0 !important; z-index:99999 !important; aspect-ratio:auto; }
-    .video-player video { position:absolute; inset:0; width:100%; height:100%; max-width:100%; max-height:100%; object-fit:contain; background:#000; z-index:1; transition:filter .08s linear; display:block; }
+    .video-player video { position:absolute; inset:0; width:100%; height:100%; max-width:100%; max-height:100%; object-fit:contain; background:#000; z-index:1; display:block; }
     .cp-controls-wrap { position:absolute; left:12px; right:12px; bottom:12px; pointer-events:none; z-index:12; transition:opacity .25s ease; filter:drop-shadow(0px 2px 8px rgba(0,0,0,0.8)); }
     .cp-time-row { display:flex; align-items:center; gap:8px; padding:8px 16px; color:#9aa0a6; font-size:13px; justify-content:space-between; width:100%; box-sizing:border-box; }
     .cp-time { min-width:40px; text-align:center; font-variant-numeric:tabular-nums; text-shadow:0px 2px 4px rgba(0,0,0,0.9); }
@@ -271,7 +271,7 @@
       <div id="headerActionBtn" style="position:absolute; right:10px; cursor:pointer; display:flex; align-items:center;"></div>
     </div>
     <div class="search-container">
-      <input id="searchBox" name="search" type="search" enterkeyhint="search" class="search-box selectable-text" data-key="search" placeholder="Rechèch..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      <input id="searchBox" name="search" type="search" enterkeyhint="search" class="search-box selectable-text" data-key="search" placeholder="Rechèch..." autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" />
     </div>
   </div>
 
@@ -372,15 +372,19 @@
   </div>
 
   <script>
+    function isIOSUser() {
+        var u = navigator.userAgent ? navigator.userAgent.toLowerCase() : '';
+        var p = navigator.platform ? navigator.platform.toLowerCase() : '';
+        return /iphone|ipad|ipod/.test(u) || /iphone|ipad|ipod/.test(p) || ((p === 'macintel' || /mac/.test(u)) && navigator.maxTouchPoints > 1) || (/safari/.test(u) && /mobile/.test(u) && !/android/.test(u) && !/windows/.test(u));
+    }
+
     let allData = [];
     const searchInput = document.getElementById('searchBox');
     const explorerEl = document.getElementById('explorerView');
     const headerEl = document.getElementById('siteHeader');
     const splashScreen = document.getElementById('splashScreen');
     const appRoot = document.documentElement;
-    let currentExplorerData = [];
     let searchActive = false;
-    let searchDebounceTimer = null;
     let lastSearchScrollTop = 0;
     let layoutFrame = null;
     let currentSearchKey = "";
@@ -392,6 +396,7 @@
     let currentRenderData = [];
     let scrollObserver = null;
     let tempLang = null;
+    let lastLoadedLang = null;
     const activeDownloads = {};
     const API = "https://server.dh7.adamdh7.org";
     let userSession = JSON.parse(localStorage.getItem('dh7_session')) || null;
@@ -402,7 +407,7 @@
         ht: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID oswa DH7", "placeholder-password": "Modpas", connect: "KONEKTE", register: "KREYE YON KONT", "placeholder-lastname": "Siyati", "placeholder-firstname": "Non", "placeholder-dh7": "Fiti adrès D'H7 ou", "placeholder-age": "Laj", "create-account": "ANTRE NAN D'H7", "back-to-login": "RETOUNEN", "search": "Rechèch...", "toast-success": "Telechajman reyisi", "toast-open": "Ouvri", "empty-search": "Pa gen rezilta pou rechèch sa a", "no-data": "Pa jwenn anyen", "error-load": "Erè chajman", "error-upload": "Erè upload", "lang-title": "Lang", "lang-subtitle": "Chwazi lang ou vle itilize a", "download": "Telechaje", "open": "Ouvri", "close": "Fèmen", "logout": "Dekonekte", "ad-click": "Klike la a", "no_video": "Poste sa pa gen videyo", "capture-error": "Erè kaptire", "no_thumb": "Pa gen thumb", "error-fields": "Tanpri ranpli tout chan yo" },
         fr: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID ou DH7", "placeholder-password": "Mot de passe", connect: "CONNEXION", register: "CRÉER UN COMPTE", "placeholder-lastname": "Nom", "placeholder-firstname": "Prénom", "placeholder-dh7": "Ta future adresse D'H7", "placeholder-age": "Âge", "create-account": "REJOINDRE D'H7", "back-to-login": "RETOUR", "search": "Recherche...", "toast-success": "Téléchargement réussi", "toast-open": "Ouvrir", "empty-search": "Aucun résultat trouvé", "no-data": "Aucun contenu trouvé", "error-load": "Erreur de chargement", "error-upload": "Erreur d'upload", "lang-title": "Langue", "lang-subtitle": "Choisissez la langue que vous voulez utiliser", "download": "Télécharger", "open": "Ouvrir", "close": "Fermer", "logout": "Déconnexion", "ad-click": "Cliquez ici", "no_video": "Ce poste ne contient aucune vidéo.", "capture-error": "Erreur de capture", "no_thumb": "Pas de miniature", "error-fields": "Veuillez remplir tous les champs" },
         en: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID or DH7", "placeholder-password": "Password", connect: "LOG IN", register: "CREATE AN ACCOUNT", "placeholder-lastname": "Last Name", "placeholder-firstname": "First Name", "placeholder-dh7": "Your future D'H7 address", "placeholder-age": "Age", "create-account": "JOIN D'H7", "back-to-login": "BACK", "search": "Search...", "toast-success": "Download successful", "toast-open": "Open", "empty-search": "No results found", "no-data": "No content found", "error-load": "Loading error", "error-upload": "Upload error", "lang-title": "Language", "lang-subtitle": "Choose the language you want to use", "download": "Download", "open": "Open", "close": "Close", "logout": "Disconnect", "ad-click": "Click here", "no_video": "This post has no video.", "capture-error": "Capture error", "no_thumb": "No thumb", "error-fields": "Please fill all fields" },
-        es: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID o DH7", "placeholder-password": "Contraseña", connect: "INICIAR SESIÓN", register: "CREAR UNA CUENTA", "placeholder-lastname": "Apellido", "placeholder-firstname": "Nombre", "placeholder-dh7": "Tu futura dirección D'H7", "placeholder-age": "Edad", "create-account": "UNIRSE A D'H7", "back-to-login": "REGRESAR", "search": "Buscar...", "toast-success": "Descarga exitosa", "toast-open": "Abrir", "empty-search": "No hay resultados", "no-data": "No se encontró contenido", "error-load": "Error de carga", "error-upload": "Error de subida", "lang-title": "Idioma", "lang-subtitle": "Elige el idioma que quieres usar", "download": "Descargar", "open": "Abrir", "close": "Cerrar", "logout": "Desconectar", "ad-click": "Haz clic aquí", "no_video": "Esta publicación no tiene video.", "capture-error": "Error de captura", "no_thumb": "Sin miniatura", "error-fields": "Por favor completa todos los campos" }
+        es: { subtitle: "Digital HUB 7", "placeholder-tfid": "TFID o DH7", "placeholder-password": "Contraseña", connect: "INICIAR SESIÓN", register: "CREAR UNA CUENTA", "placeholder-lastname": "Apellido", "placeholder-firstname": "Nombre", "placeholder-dh7": "Tu futura dirección D'H7", "placeholder-age": "Edad", "create-account": "UNIRSE A D'H7", "back-to-login": "REGRESAR", "search": "Buscar...", "toast-success": "Descarga exitosa", "toast-open": "Abrir", "empty-search": "No hay resultados", "no-data": "No se encontró contenido", "error-load": "Error de carga", "error-upload": "Error de subida", "lang-title": "Idioma", "lang-subtitle": "Elige el idioma que quieres usar", "download": "Descargar", "open": "Abrir", "close": "Cerrar", "logout": "Desconectar", "ad-click": "Haz clic aquí", "no_video": "Esta publicación no tiene video.", "capture-error": "Error de captura", "no_thumb": "Sin miniatura", "error-fields": "Por favor completa todos los champs" }
     };
 
     const commonPlaceholders = ["Brefs It's Poste", "It's Brefs", "It's me Adam D'H7", "Brefs It's 𝐏𝐗𝐑𝐍𝐗"];
@@ -480,16 +485,16 @@
     }
 
     function clearSearchState(restoreList) {
-        if (searchDebounceTimer) {
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = null;
-        }
         const hadSearch = searchActive || searchInput.value.trim() !== '';
         searchInput.value = '';
         searchActive = false;
         currentSearchKey = "";
         if (restoreList && hadSearch) {
             displayExplorer(allData);
+            let neededRenders = Math.ceil(lastSearchScrollTop / 150);
+            for(let i=0; i<neededRenders; i++) {
+                if (renderIndex < allData.length) renderNextChunk();
+            }
             requestAnimationFrame(() => {
                 explorerEl.scrollTop = lastSearchScrollTop || 0;
             });
@@ -578,6 +583,14 @@
             history.pushState(null, '', `${pref}/?key=${encodeURIComponent(key)}`);
             currentSearchKey = key;
             searchActive = true;
+            
+            const expectedLang = getActiveLang();
+            if (lastLoadedLang && lastLoadedLang !== expectedLang) {
+                initialLoadSearchKey = key;
+                loadLanguageData(expectedLang);
+                return;
+            }
+            
             performSearchLogic(key);
             return;
         }
@@ -603,6 +616,13 @@
             document.getElementById('explorerView').style.display = 'block';
             requestAnimationFrame(() => setHeaderSpace(headerEl.offsetHeight));
 
+            const expectedLang = getActiveLang();
+            if (lastLoadedLang && lastLoadedLang !== expectedLang) {
+                if (key) initialLoadSearchKey = key;
+                loadLanguageData(expectedLang);
+                return;
+            }
+
             if (key) {
                 if (allData.length === 0) {
                     initialLoadSearchKey = key;
@@ -611,7 +631,11 @@
                     performSearchLogic(key);
                 }
             } else {
-                if(allData.length > 0) displayExplorer(allData);
+                if (allData.length > 0) {
+                    if (searchActive) {
+                        clearSearchState(true);
+                    }
+                }
             }
         }
         
@@ -934,10 +958,10 @@
     }
 
     async function fetchServerData(lang, signal) {
-        const res = await fetch(`https://tf-adamdh7.onrender.com/get-${lang}`, { 
-            signal: signal 
-        });
-        if(!res.ok) throw new Error("Server response wasn't OK");
+        const url = new URL(`https://tf-adamdh7.onrender.com/get-${lang}`);
+        url.searchParams.append('t', Date.now());
+        const res = await fetch(url.toString(), { signal: signal });
+        if(!res.ok) throw new Error();
         return await res.json();
     }
 
@@ -953,6 +977,7 @@
     }
 
     function loadLanguageData(lang) {
+        lastLoadedLang = lang;
         clearSearchState(false);
         activeAbortController.abort();
         activeAbortController = new AbortController();
@@ -979,6 +1004,11 @@
                 allData = [];
                 explorerEl.innerHTML = '';
                 renderEmptyState(translations[lang] ? translations[lang]["no-data"] : "Aucun contenu trouvé", 'data');
+                isDataReady = true;
+                clearTimeout(backupLoaderTimeout);
+                hideLoader();
+                splashScreen.style.opacity = '0';
+                setTimeout(() => { splashScreen.style.display = 'none'; }, 400);
             } else {
                 let combined = data.slice();
                 combined.sort(() => Math.random() - 0.5);
@@ -1112,7 +1142,7 @@
         adImageTimer = null;
       }
       const v = adMediaWrapper.querySelector('video');
-      if (v) { v.pause(); v.src = ""; v.load(); }
+      if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
       adMediaWrapper.innerHTML = '';
       adCloseBtn.innerText = '';
       adProgressBar.style.width = '0%';
@@ -1131,12 +1161,12 @@
     async function fetchAdData(retries = 3) {
         const baseUrl = "https://pub.adamdh7.org/";
         try {
-            const response = await fetch(`${baseUrl}${getActiveLang()}.json`);
+            const response = await fetch(`${baseUrl}${getActiveLang()}.json?t=${Date.now()}`);
             if (!response.ok) throw new Error();
             return await response.json();
         } catch (e) {
             try {
-                const fallbackResponse = await fetch(`${baseUrl}en.json`);
+                const fallbackResponse = await fetch(`${baseUrl}en.json?t=${Date.now()}`);
                 if (!fallbackResponse.ok) throw new Error();
                 return await fallbackResponse.json();
             } catch (err) {
@@ -1455,17 +1485,12 @@
           pendingVideoContainer = thumbCon;
 
           if (lockedLang) {
-              const a = document.createElement('a');
-              a.href = 'https://www.effectivecpmnetwork.com/ak0xgm6xu?key=96856a216ee758b70d6c8303e964e86b';
-              a.target = '_blank';
-              a.setAttribute('data-bypass', 'true');
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              playMedia(pendingVideoSrc, pendingVideoContainer);
-          } else {
-              startAdSequence();
+              const targetName = encodeURIComponent(post.Name || "");
+              window.location.href = 'https://www.adamdh7.org/' + lockedLang + '/?key=' + targetName;
+              return;
           }
+
+          startAdSequence();
         });
         frag.appendChild(card);
       }
@@ -1481,8 +1506,7 @@
     }
 
     function displayExplorer(data) {
-      currentExplorerData = Array.isArray(data) ? data.slice() : [];
-      currentRenderData = currentExplorerData.slice();
+      currentRenderData = Array.isArray(data) ? data.slice() : [];
       explorerEl.innerHTML = "";
       renderIndex = 0;
       initScrollObserver();
@@ -1539,10 +1563,9 @@
       if (!src) return false;
       try {
         const url = src.toString().split('?')[0].toLowerCase();
-        if (/\.(mp4|webm|ogg|mov|mkv)$/.test(url)) return true;
-        if (src.includes("youtube.com") || src.includes("youtu.be") || src.includes("vimeo.com")) return true;
+        if (/\.(jpg|jpeg|png|gif|webp|svg|heic|bmp|ico|tiff)$/.test(url)) return false;
       } catch(e){}
-      return false;
+      return true;
     }
 
     function normalizeYouTubeEmbed(src){
@@ -1574,8 +1597,9 @@
       const posterSrc = container.dataset.thumbSrc || (container.querySelector('img') ? container.querySelector('img').src : "");
 
       player.innerHTML = `
-        <video preload="metadata" playsinline poster="${posterSrc}" src="${src}"></video>
-        <div class="cp-error-overlay">
+        <video preload="metadata" playsinline webkit-playsinline poster="${posterSrc}" src="${src}"></video>
+        <div class="cp-brightness-overlay" style="position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; z-index:2; transition: opacity 0.1s linear;"></div>
+        <div class="cp-error-overlay" style="z-index:50;">
           <div class="cp-error-container">
             <div class="cp-error-image-wrapper">
               <img src="https://adamdh7.org/asset/nwa.png" alt="Erè" />
@@ -1584,19 +1608,19 @@
           </div>
         </div>
 
-        <div class="cp-spinner-overlay show">
+        <div class="cp-spinner-overlay show" style="z-index:15;">
           <svg class="universal-spinner cp-spinner" viewBox="0 0 50 50">
             <circle class="path" cx="25" cy="25" r="20"></circle>
           </svg>
         </div>
 
-        <div class="cp-inside-mini cp-inside-visible">
+        <div class="cp-inside-mini cp-inside-visible" style="z-index:13;">
           <div class="cp-inside-item cp-back-container"><button class="cp-mini-btn">-10</button></div>
           <div class="cp-inside-item cp-play-container"><button class="cp-mini-btn">❚❚</button></div>
           <div class="cp-inside-item cp-forward-container"><button class="cp-mini-btn">+10</button></div>
         </div>
         
-        <div class="cp-controls-wrap cp-controls-visible">
+        <div class="cp-controls-wrap cp-controls-visible" style="z-index:12;">
           <div class="cp-time-row">
             <div class="cp-time current-time">0:00</div>
             <div class="cp-progress">
@@ -1609,11 +1633,11 @@
             <button class="cp-landscape-btn"></button>
           </div>
         </div>
-        <div class="cp-swipe-ind cp-swipe-left" aria-hidden="true">
+        <div class="cp-swipe-ind cp-swipe-left" aria-hidden="true" style="z-index:20;">
           <div class="cp-swipe-icon"></div>
           <div class="cp-swipe-value">0%</div>
         </div>
-        <div class="cp-swipe-ind cp-swipe-right" aria-hidden="true">
+        <div class="cp-swipe-ind cp-swipe-right" aria-hidden="true" style="z-index:20;">
           <div class="cp-swipe-icon"></div>
           <div class="cp-swipe-value">0%</div>
         </div>
@@ -1621,6 +1645,8 @@
       container.appendChild(player);
 
       const video = player.querySelector('video');
+      video.load();
+      const brightnessOverlay = player.querySelector('.cp-brightness-overlay');
       const insidePlay = player.querySelector('.cp-play-container .cp-mini-btn');
       const insideForward = player.querySelector('.cp-forward-container .cp-mini-btn');
       const insideBack = player.querySelector('.cp-back-container .cp-mini-btn');
@@ -1658,10 +1684,6 @@
       let isCssFullscreen = false;
       let isEndedState = false;
       let userPaused = false;
-
-      function isIOSDevice() {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      }
 
       function formatTime(sec){
         sec = Math.floor(sec) || 0;
@@ -1722,7 +1744,7 @@
 
       function updatePlayIcon(){ 
           if (isEndedState) return;
-          insidePlay.textContent = video.paused ? '▶︎' : '❚❚'; 
+          insidePlay.textContent = video.paused ? '▶' : '❚❚'; 
       }
 
       async function togglePlay(){
@@ -1782,7 +1804,6 @@
         unmuteVideo();
         clearEndedState();
         wasPlayingBeforeScrub = !video.paused;
-        try { video.pause(); } catch(e){}
         scrubbing = true;
         const t = timeFromClientX(clientX);
         video.currentTime = t;
@@ -1818,6 +1839,7 @@
       document.addEventListener('pointerup', (e)=>{ endScrub(); });
 
       video.addEventListener('timeupdate', ()=> {
+        if (video.readyState >= 3) hideBuffering();
         if (!scrubbing) {
           updateUIForTime(video.currentTime);
         }
@@ -1826,6 +1848,10 @@
       video.addEventListener('loadedmetadata', ()=> {
         durationEl.textContent = formatTime(video.duration || 0);
         seekBar.setAttribute('aria-valuemax', Math.floor(video.duration || 0));
+        
+        let currentB = parseFloat(video.dataset.currentBrightness);
+        if (isNaN(currentB)) currentB = 1;
+        brightnessOverlay.style.opacity = (1 - currentB).toString();
         
         const savedTime = parseFloat(container.dataset.savedTime || "0");
         const savedSrc = container.dataset.savedSrc || "";
@@ -1842,6 +1868,7 @@
         isEndedState = true;
         insidePlay.innerHTML = svgReplay;
         forwardContainer.style.visibility = 'hidden';
+        hideBuffering();
         showAll();
         if (hideTimeout) clearTimeout(hideTimeout);
       });
@@ -1899,7 +1926,7 @@
         unmuteVideo();
         const wasPlaying = !video.paused;
         
-        if (isIOSDevice() && video.webkitEnterFullscreen) {
+        if (isIOSUser() && video.webkitEnterFullscreen) {
           video.webkitEnterFullscreen();
           if(wasPlaying) video.play().catch(()=>{});
           return;
@@ -1934,7 +1961,7 @@
         if (isCssFullscreen) {
            player.classList.remove('fullscreen-mode');
            isCssFullscreen = false;
-           landscapeBtn.innerHTML = svgFullscreenEnter;
+           landscapeBtn.innerHTML = svgFullscreenExit;
         } else {
            try{
              if (screen.orientation && screen.orientation.unlock) {
@@ -2022,16 +2049,15 @@
       function startLandscapeGesture(clientX, clientY){
         if(!isFullscreenCard()) return;
         unmuteVideo();
-        const rect = player.getBoundingClientRect();
-        const relX = clientX - rect.left;
-        const limit = rect.width * cornerRatio;
+        const r = player.getBoundingClientRect();
+        const relX = clientX - r.left;
+        const limit = r.width * cornerRatio;
         if(relX <= limit){
-          const styleFilter = getComputedStyle(video).filter || '';
-          const match = styleFilter.match(/brightness\(([^)]+)\)/);
-          const initial = match ? parseFloat(match[1]) : 1;
-          gesture = { type:'brightness', startY:clientY, initialValue: isNaN(initial) ? 1 : initial };
+          let currentB = parseFloat(video.dataset.currentBrightness);
+          if (isNaN(currentB)) currentB = 1;
+          gesture = { type:'brightness', startY:clientY, initialValue: currentB };
           showSwipeIndicator('brightness', Math.round(gesture.initialValue * 100));
-        } else if(relX >= (rect.width - limit)){
+        } else if(relX >= (r.width - limit)){
           gesture = { type:'volume', startY:clientY, initialValue: video.volume };
           showSwipeIndicator('volume', Math.round(gesture.initialValue * 100));
         } else { gesture = null; }
@@ -2039,14 +2065,15 @@
 
       function moveLandscapeGesture(clientY){
         if(!gesture) return;
-        const rect = player.getBoundingClientRect();
+        const r = player.getBoundingClientRect();
         const delta = (gesture.startY - clientY);
-        const pct = delta / (rect.height * 0.7);
+        const pct = delta / (r.height * 0.7);
         let newVal = gesture.initialValue + pct;
         newVal = clamp(newVal, 0, 1);
         if(gesture.type === 'brightness'){
           const applied = Math.max(0.05, newVal);
-          video.style.filter = 'brightness(' + applied + ')';
+          video.dataset.currentBrightness = applied;
+          brightnessOverlay.style.opacity = (1 - applied).toString();
           showSwipeIndicator('brightness', Math.round(applied * 100));
         } else {
           video.volume = newVal;
@@ -2110,7 +2137,6 @@
 
       video.addEventListener('loadstart', showBuffering);
       video.addEventListener('waiting', showBuffering);
-      video.addEventListener('seeking', showBuffering);
       
       video.addEventListener('canplay', () => {
         hideBuffering();
@@ -2133,8 +2159,22 @@
           hideBuffering();
       }
 
+      let errorRetries = 0;
       video.addEventListener('error', ()=>{
-        showError('Erè: ' + (video.error ? video.error.message || video.error.code : 'Fòma videyo sa a pa sipòte oswa gen yon erè rezo.'));
+        if (video.error && video.error.code === 1) {
+            hideBuffering();
+            return;
+        }
+        if (errorRetries < 2 && src.startsWith('http')) {
+            errorRetries++;
+            setTimeout(() => {
+                video.src = src;
+                video.load();
+                video.play().catch(()=>{});
+            }, 600);
+            return;
+        }
+        showError('Erè: Fòma videyo sa a pa sipòte oswa gen yon erè rezo.');
       });
 
       function showError(msg){ 
@@ -2227,6 +2267,8 @@
     }
 
     function performSearchLogic(raw) {
+        if (!searchActive) lastSearchScrollTop = explorerEl.scrollTop;
+        searchActive = true;
         showLoader();
         setTimeout(() => {
             const val = raw.toLowerCase();
@@ -2264,7 +2306,6 @@
               let pref = tempLang ? `/${tempLang}` : '';
               history.pushState(null, '', `${pref}/?key=${encodeURIComponent(raw)}`);
               currentSearchKey = raw;
-              searchActive = true;
               performSearchLogic(raw);
               searchInput.value = '';
               searchInput.blur();
@@ -2619,8 +2660,6 @@
             };
           })
           .catch(err => {});
-        
-        navigator.serviceWorker.addEventListener('controllerchange', () => { window.location.reload(); });
       });
     }
 
@@ -2657,7 +2696,7 @@
     });
   </script>
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2373752876384997" crossorigin="anonymous"></script>
+  <script async defer src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2373752876384997" crossorigin="anonymous"></script>
   <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-gw-3+1f-3d+2z" data-ad-client="ca-pub-2373752876384997" data-ad-slot="6246419460"></ins>
   <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
   
@@ -2692,7 +2731,7 @@
                  <svg id="ui-b-close" class="nav-icon-ui show-ui" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
         </div>
-        <iframe id="int-iframe-ui" name="int-iframe-ui" src="about:blank" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="int-iframe-ui" name="int-iframe-ui" src="" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
     `;
     document.body.appendChild(container);
 
@@ -2708,7 +2747,7 @@
     function isSocialOrEmail(url) { return ['youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'instagram.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'mail.google.com', 'twitter.com', 'x.com', 'linkedin.com', 'tiktok.com', 'snapchat.com', 'whatsapp.com', 'wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'v.whatsapp.com', 'business.whatsapp.com', 't.me', 'telegram.me', 'mailto:', 'paypal.com'].some(p => url.toLowerCase().includes(p)); }
     function openInNewTab() { let urlToOpen = currentActiveUrl; try { if (iframe.contentWindow.location.href && iframe.contentWindow.location.href !== 'about:blank') urlToOpen = iframe.contentWindow.location.href; } catch(e) {} if (!urlToOpen || urlToOpen === 'about:blank') urlToOpen = iframe.src; if (urlToOpen && urlToOpen !== 'about:blank') { const a = document.createElement('a'); a.href = urlToOpen; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); exitUI(); } }
     window.launchUrl = function(url) { if (!url || url === 'undefined' || url === '#') return; if (url.toLowerCase().includes('.apk') || isSocialOrEmail(url)) { const a = document.createElement('a'); a.href = url; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); return; } isInitialLoad = true; currentActiveUrl = url; iframe.src = url; container.classList.add('active'); hStack = 1; fStack = 0; syncNav(); }
-    function exitUI() { container.classList.remove('active'); container.style.transform = 'translateY(0)'; hStack = 0; fStack = 0; currentActiveUrl = ''; syncNav(); setTimeout(() => { iframe.removeAttribute('src'); iframe.src = 'about:blank'; }, 400); }
+    function exitUI() { container.classList.remove('active'); container.style.transform = 'translateY(0)'; hStack = 0; fStack = 0; currentActiveUrl = ''; syncNav(); setTimeout(() => { iframe.removeAttribute('src'); }, 400); }
 
     btnBack.onclick = () => { try { isNavigatingHistory = true; iframe.contentWindow.history.back(); hStack = Math.max(1, hStack - 1); fStack++; syncNav(); setTimeout(() => isNavigatingHistory = false, 500); } catch(e) {} };
     btnFwd.onclick = () => { try { isNavigatingHistory = true; iframe.contentWindow.history.forward(); fStack = Math.max(0, fStack - 1); hStack++; syncNav(); setTimeout(() => isNavigatingHistory = false, 500); } catch(e) {} };
