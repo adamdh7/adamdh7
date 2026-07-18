@@ -1,6 +1,6 @@
-const CACHE_NAME = '2';
+const CACHE_NAME = '7';
 const urlsToCache = [
-  'https://www.adamdh7.org/v=2',
+  'https://www.adamdh7.org/v=7',
 ];
 
 self.addEventListener('install', event => {
