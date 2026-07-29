@@ -1,6 +1,7 @@
-const CACHE_NAME = '5';
+const CACHE_NAME = '3.4';
 const urlsToCache = [
-  '/v=4'
+  '/v=3.4',
+  'Mizik.png'
 ];
 
 self.addEventListener('install', event => {
