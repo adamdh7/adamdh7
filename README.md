@@ -1,11 +1,8 @@
 <div align="center">
 
-<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="60" cy="60" r="58" fill="#000000" stroke="#ffffff" stroke-width="3"/>
-  <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Courier New, monospace" font-size="16" font-weight="bold">it's Me Adam D'Haïti</text>
-</svg>
+<img src="https://adamdh7.org/adamdh7.png" alt="Adam D'H7" width="120" height="120" style="border-radius: 50%;">
 
-# Adam D'H7
+### Adam D'H7
 
 *My name Adam D'H7*  
 *My Team □Tergene●《TF's》○Focus■*
@@ -19,7 +16,7 @@
 
 </div>
 
-# Lyen ki nesesè pouz konen
+#### Lyen ki nesesè pouw konen
 
 Sa se youn nan depo ofisyèl Adam D'H7 yo. Men lyen ki mennen sou platfòm ak sous-domèn prensipal e ki nesesè pouw konen:
 
